@@ -110,7 +110,9 @@ L.drawLocal = {
 				circle: "Draw a circle",
 				marker: "Draw a marker",
 				circlemarker: "Draw a circlemarker",
-				role: "Draw a role",
+				role: "Role",
+				thanhCai: "Thanh cái",
+				mayBienAp: "Máy biến áp",
 			},
 		},
 		handlers: {
@@ -157,7 +159,17 @@ L.drawLocal = {
 			},
 			role: {
 				tooltip: {
-					start: "Click and drag to draw role.",
+					start: "Click để vẽ rơ-le.",
+				},
+			},
+			thanhCai: {
+				tooltip: {
+					start: "Click để vẽ thanh cái",
+				},
+			},
+			mayBienAp: {
+				tooltip: {
+					start: "Click để vẽ máy biến áp",
 				},
 			},
 		},
@@ -1827,8 +1839,8 @@ L.Draw.Role = L.Draw.Feature.extend({
 				[lD, lA],
 			],
 			{
-				color: "#52967a",
-				weight: 6,
+				// color: "#52967a",
+				weight: 5,
 				lineCap: "square",
 			}
 		);
@@ -1852,6 +1864,323 @@ L.Draw.Role = L.Draw.Feature.extend({
 	_fireCreatedEvent: function () {
 		var marker = this._createRole(this._mouseMarker.getLatLng());
 		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker);
+	},
+});
+
+
+
+/**
+ * @class L.Draw.ThanhCai
+ * @aka Draw.ThanhCai
+ * @inherits L.Draw.Feature
+ */
+L.Draw.ThanhCai = L.Draw.Feature.extend({
+	statics: {
+		TYPE: "thanhCai",
+	},
+
+	options: {
+		icon: new L.Icon.Default(),
+		repeatMode: false,
+		zIndexOffset: 2000, // This should be > than the highest z-index any markers
+	},
+
+	// @method initialize(): void
+	initialize: function (map, options) {
+		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
+		this.type = L.Draw.ThanhCai.TYPE;
+
+		this._initialLabelText = L.drawLocal.draw.handlers.thanhCai.tooltip.start;
+
+		L.Draw.Feature.prototype.initialize.call(this, map, options);
+	},
+
+	// @method addHooks(): void
+	// Add listener hooks to this handler.
+	addHooks: function () {
+		L.Draw.Feature.prototype.addHooks.call(this);
+
+		if (this._map) {
+			this._tooltip.updateContent({ text: this._initialLabelText });
+
+			// Same mouseMarker as in Draw.Polyline
+			if (!this._mouseMarker) {
+				this._mouseMarker = L.marker(this._map.getCenter(), {
+					icon: L.divIcon({
+						className: "leaflet-mouse-marker",
+						iconAnchor: [20, 20],
+						iconSize: [40, 40],
+					}),
+					opacity: 0,
+					zIndexOffset: this.options.zIndexOffset,
+				});
+			}
+
+			this._mouseMarker.on("click", this._onClick, this).addTo(this._map);
+
+			this._map.on("mousemove", this._onMouseMove, this);
+			this._map.on("click", this._onTouch, this);
+		}
+	},
+
+	// @method removeHooks(): void
+	// Remove listener hooks from this handler.
+	removeHooks: function () {
+		L.Draw.Feature.prototype.removeHooks.call(this);
+
+		if (this._map) {
+			this._map
+				.off("click", this._onClick, this)
+				.off("click", this._onTouch, this);
+			if (this._marker) {
+				this._marker.off("click", this._onClick, this);
+				this._map.removeLayer(this._marker);
+				delete this._marker;
+			}
+
+			this._mouseMarker.off("click", this._onClick, this);
+			this._map.removeLayer(this._mouseMarker);
+			delete this._mouseMarker;
+
+			this._map.off("mousemove", this._onMouseMove, this);
+		}
+	},
+
+	_onMouseMove: function (e) {
+		var latlng = e.latlng;
+
+		this._tooltip.updatePosition(latlng);
+		this._mouseMarker.setLatLng(latlng);
+
+		if (!this._marker) {
+			this._marker = this._createThanhCai(latlng);
+			// Bind to both marker and map to make sure we get the click event.
+			this._marker.on("click", this._onClick, this);
+			this._map.on("click", this._onClick, this).addLayer(this._marker);
+		} else {
+			latlng = this._mouseMarker.getLatLng();
+			this._map.removeLayer(this._marker);
+			this._marker = this._createThanhCai(latlng);
+			this._map.addLayer(this._marker);
+		}
+	},
+
+	_disToPixeldistance: function (distance, zoom) {
+		zoom = zoom || this._map.getZoom();
+		var l2 = L.GeometryUtil.destination(this._map.getCenter(), 90, distance);
+		var p1 = this._map.project(this._map.getCenter(), zoom);
+		var p2 = this._map.project(l2, zoom);
+		return p1.distanceTo(p2);
+	},
+
+	_createThanhCai: function (latlng) {
+		var layerPoint = this._map.project(latlng, this._map.getZoom());
+		// distance default thanhCai = 26990.711264544043
+		const dX = this._disToPixeldistance(26990.711264544043);
+		layerPoint.x -= dX / 2;
+		const pA = layerPoint;
+		const pB = L.point(layerPoint.x + dX / 2, layerPoint.y);
+		const pC = L.point(layerPoint.x + dX, layerPoint.y);
+
+		// const angle = (45 * Math.PI) / 180;
+		// const dR = pA.distanceTo(pB);
+
+		// pA.x = pB.x + dR * Math.cos(angle);
+		// pA.y = pB.y + dR * Math.sin(angle);
+
+		// pC.x = pB.x - dR * Math.cos(angle);
+		// pC.y = pB.y - dR * Math.sin(angle);
+
+		// pC.x = pC.x + dR * Math.cos(angle);
+		// pC.y = pC.y + dR * Math.sin(angle);
+
+		const lA = this._map.unproject(pA, this._map.getZoom());
+		const lB = this._map.unproject(pB, this._map.getZoom());
+		const lC = this._map.unproject(pC, this._map.getZoom());
+		// return L.polyline(L.GeoJSON.coordsToLatLngs([lA, lB, lC]), {
+		// 	// color: "#52967a",
+		// 	weight: 5,
+		// 	lineCap: "square",
+		// });
+		return L.polyline([lA, lB, lC], {
+			// color: "#52967a",
+			weight: 6,
+			lineCap: "square",
+		});
+	},
+
+	_onClick: function () {
+		this._fireCreatedEvent();
+
+		this.disable();
+		if (this.options.repeatMode) {
+			this.enable();
+		}
+	},
+
+	_onTouch: function (e) {
+		// called on click & tap, only really does any thing on tap
+		this._onMouseMove(e); // creates & places marker
+		this._onClick(); // permanently places marker & ends interaction
+	},
+
+	_fireCreatedEvent: function () {
+		var marker = this._createThanhCai(this._mouseMarker.getLatLng());
+		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker);
+	},
+});
+
+
+
+/**
+ * @class L.Draw.MayBienAp
+ * @aka Draw.MayBienAp
+ * @inherits L.Draw.Feature
+ */
+L.Draw.MayBienAp = L.Draw.Feature.extend({
+	statics: {
+		TYPE: "mayBienAp",
+	},
+
+	options: {
+		icon: new L.Icon.Default(),
+		repeatMode: false,
+		zIndexOffset: 2000, // This should be > than the highest z-index any markers
+	},
+
+	// @method initialize(): void
+	initialize: function (map, options) {
+		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
+		this.type = L.Draw.MayBienAp.TYPE;
+
+		this._initialLabelText = L.drawLocal.draw.handlers.mayBienAp.tooltip.start;
+
+		L.Draw.Feature.prototype.initialize.call(this, map, options);
+	},
+
+	// @method addHooks(): void
+	// Add listener hooks to this handler.
+	addHooks: function () {
+		L.Draw.Feature.prototype.addHooks.call(this);
+
+		if (this._map) {
+			this._tooltip.updateContent({ text: this._initialLabelText });
+
+			// Same mouseMarker as in Draw.Polyline
+			if (!this._mouseMarker) {
+				this._mouseMarker = L.marker(this._map.getCenter(), {
+					icon: L.divIcon({
+						className: "leaflet-mouse-marker",
+						iconAnchor: [20, 20],
+						iconSize: [40, 40],
+					}),
+					opacity: 0,
+					zIndexOffset: this.options.zIndexOffset,
+				});
+			}
+
+			this._mouseMarker.on("click", this._onClick, this).addTo(this._map);
+
+			this._map.on("mousemove", this._onMouseMove, this);
+			this._map.on("click", this._onTouch, this);
+		}
+	},
+
+	// @method removeHooks(): void
+	// Remove listener hooks from this handler.
+	removeHooks: function () {
+		L.Draw.Feature.prototype.removeHooks.call(this);
+
+		if (this._map) {
+			this._map
+				.off("click", this._onClick, this)
+				.off("click", this._onTouch, this);
+			if (this._marker) {
+				this._marker.off("click", this._onClick, this);
+				this._map.removeLayer(this._marker);
+				delete this._marker;
+			}
+
+			this._mouseMarker.off("click", this._onClick, this);
+			this._map.removeLayer(this._mouseMarker);
+			delete this._mouseMarker;
+
+			this._map.off("mousemove", this._onMouseMove, this);
+		}
+	},
+
+	_onMouseMove: function (e) {
+		var latlng = e.latlng;
+
+		this._tooltip.updatePosition(latlng);
+		this._mouseMarker.setLatLng(latlng);
+
+		if (!this._marker) {
+			this._marker = this._createMayBienAp(latlng);
+			// Bind to both marker and map to make sure we get the click event.
+			this._marker.on("click", this._onClick, this);
+			this._map.on("click", this._onClick, this).addLayer(this._marker);
+		} else {
+			latlng = this._mouseMarker.getLatLng();
+			this._map.removeLayer(this._marker);
+			this._marker = this._createMayBienAp(latlng);
+			this._map.addLayer(this._marker);
+		}
+	},
+
+	_disToPixeldistance: function (distance, zoom) {
+		zoom = zoom || this._map.getZoom();
+		var l2 = L.GeometryUtil.destination(this._map.getCenter(), 90, distance);
+		var p1 = this._map.project(this._map.getCenter(), zoom);
+		var p2 = this._map.project(l2, zoom);
+		return p1.distanceTo(p2);
+	},
+
+	_genPointOfCircle: function (pI, r) {
+		var points = [];
+		for (var a = 0; a <= 2 * Math.PI; a += 0.1) {
+			var x = pI.x + r * Math.cos(a);
+			var y = pI.y + r * Math.sin(a);
+			points.push(this._map.unproject(L.point(x, y), this._map.getZoom()));
+		}
+		points.push(points[0]);
+		return points;
+	},
+
+	_createMayBienAp: function (latlng) {
+		const dI = this._disToPixeldistance(3000);
+		const iCursor = this._map.project(latlng, this._map.getZoom());
+		const iA = iCursor;
+		const rA = this._disToPixeldistance(2400);
+		const iB = L.point(iCursor.x + dI, iCursor.y);
+		const rB = this._disToPixeldistance(1600);
+		return L.polyline(
+			[this._genPointOfCircle(iA, rA), this._genPointOfCircle(iB, rB)],
+			{
+				weight: 5,
+				lineCap: "square",
+			}
+		);
+	},
+
+	_onClick: function () {
+		this._fireCreatedEvent();
+
+		this.disable();
+		if (this.options.repeatMode) {
+			this.enable();
+		}
+	},
+
+	_onTouch: function (e) {
+		// called on click & tap, only really does any thing on tap
+		this._onMouseMove(e); // creates & places marker
+		this._onClick(); // permanently places marker & ends interaction
+	},
+
+	_fireCreatedEvent: function () {
+		var mayBienAp = this._createMayBienAp(this._mouseMarker.getLatLng());
+		L.Draw.Feature.prototype._fireCreatedEvent.call(this, mayBienAp);
 	},
 });
 
@@ -4183,6 +4512,8 @@ L.DrawToolbar = L.Toolbar.extend({
 		marker: {},
 		circlemarker: {},
 		role: {},
+		thanhCai: {},
+		mayBienAp: {},
 	},
 
 	// @method initialize(): void
@@ -4238,6 +4569,16 @@ L.DrawToolbar = L.Toolbar.extend({
 				enabled: this.options.role,
 				handler: new L.Draw.Role(map, this.options.role),
 				title: L.drawLocal.draw.toolbar.buttons.role,
+			},
+			{
+				enabled: this.options.thanhCai,
+				handler: new L.Draw.ThanhCai(map, this.options.thanhCai),
+				title: L.drawLocal.draw.toolbar.buttons.thanhCai,
+			},
+			{
+				enabled: this.options.mayBienAp,
+				handler: new L.Draw.MayBienAp(map, this.options.mayBienAp),
+				title: L.drawLocal.draw.toolbar.buttons.mayBienAp,
 			},
 		];
 	},

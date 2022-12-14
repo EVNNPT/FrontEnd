@@ -22,7 +22,7 @@
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/leaflet/dist/leaflet.css",
-              "src/libs/leaflet-draw/dist/leaflet.draw.css",
+              "src/libs/leaflet-draw/leaflet.draw.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -81,7 +81,7 @@
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/leaflet/dist/leaflet.css",
-              "src/libs/leaflet-draw/dist/leaflet.draw.css",
+              "src/libs/leaflet-draw/leaflet.draw.css",
               "src/styles.css"
             ],
             "scripts": []

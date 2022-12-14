@@ -6,7 +6,7 @@ require('leaflet');
 require('leaflet-path-transform');
 require('leaflet-geometryutil');
 require('proj4leaflet');
-require('../../../../libs/leaflet-draw/dist/leaflet.draw.js');
+require('../../../../libs/leaflet-draw/leaflet.draw.js');
 declare let L: any;
 //#endregion
 
@@ -19,6 +19,8 @@ export class ViewComponent implements AfterViewInit {
   private map: any;
   private imgBackgroundMap = '/assets/images/white_bkg.png';
   private roleLayer: any;
+  private thanhCaiLayer: any;
+  private mayBienApLayer: any;
   @ViewChild('drawer', { static: true }) private drawer!: MatDrawer;
 
   private initMap(): void {
@@ -26,6 +28,8 @@ export class ViewComponent implements AfterViewInit {
     this.map = L.map('map', {
       center: [12.576009912063801, -4.768066406250001],
       zoom: 13,
+      maxZoom: 18,
+      minZoom: 0,
     });
     // Title
     const tiles = L.tileLayer(this.imgBackgroundMap, {
@@ -42,6 +46,14 @@ export class ViewComponent implements AfterViewInit {
     this.diagramService.getRoleData('234').subscribe((res) => {
       this.roleLayer.addData(res);
     });
+    //#endregion
+
+    //#region "Thanh cái"
+    this.thanhCaiLayer = this.diagramService.initThanhCaiLayer(L, this.map);
+    //#endregion
+
+    //#region "Máy biến áp"
+    this.mayBienApLayer = this.diagramService.initMayBienApLayer(L, this.map);
     //#endregion
 
     // Draw events
