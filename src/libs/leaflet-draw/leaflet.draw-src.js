@@ -401,7 +401,6 @@ L.Draw = L.Draw || {};
  * @aka Draw.Feature
  */
 L.Draw.Feature = L.Handler.extend({
-
 	// @method initialize(): void
 	initialize: function (map, options) {
 		this._map = map;
@@ -411,11 +410,15 @@ L.Draw.Feature = L.Handler.extend({
 
 		// Merge default shapeOptions options with custom shapeOptions
 		if (options && options.shapeOptions) {
-			options.shapeOptions = L.Util.extend({}, this.options.shapeOptions, options.shapeOptions);
+			options.shapeOptions = L.Util.extend(
+				{},
+				this.options.shapeOptions,
+				options.shapeOptions
+			);
 		}
 		L.setOptions(this, options);
 
-		var version = L.version.split('.');
+		var version = L.version.split(".");
 		//If Version is >= 1.2.0
 		if (parseInt(version[0], 10) === 1 && parseInt(version[1], 10) >= 2) {
 			L.Draw.Feature.include(L.Evented.prototype);
@@ -433,9 +436,9 @@ L.Draw.Feature = L.Handler.extend({
 
 		L.Handler.prototype.enable.call(this);
 
-		this.fire('enabled', {handler: this.type});
+		this.fire("enabled", { handler: this.type });
 
-		this._map.fire(L.Draw.Event.DRAWSTART, {layerType: this.type});
+		this._map.fire(L.Draw.Event.DRAWSTART, { layerType: this.type });
 	},
 
 	// @method disable(): void
@@ -446,9 +449,9 @@ L.Draw.Feature = L.Handler.extend({
 
 		L.Handler.prototype.disable.call(this);
 
-		this._map.fire(L.Draw.Event.DRAWSTOP, {layerType: this.type});
+		this._map.fire(L.Draw.Event.DRAWSTOP, { layerType: this.type });
 
-		this.fire('disabled', {handler: this.type});
+		this.fire("disabled", { handler: this.type });
 	},
 
 	// @method addHooks(): void
@@ -463,7 +466,7 @@ L.Draw.Feature = L.Handler.extend({
 
 			this._tooltip = new L.Draw.Tooltip(this._map);
 
-			L.DomEvent.on(this._container, 'keyup', this._cancelDrawing, this);
+			L.DomEvent.on(this._container, "keyup", this._cancelDrawing, this);
 		}
 	},
 
@@ -476,7 +479,7 @@ L.Draw.Feature = L.Handler.extend({
 			this._tooltip.dispose();
 			this._tooltip = null;
 
-			L.DomEvent.off(this._container, 'keyup', this._cancelDrawing, this);
+			L.DomEvent.off(this._container, "keyup", this._cancelDrawing, this);
 		}
 	},
 
@@ -486,17 +489,21 @@ L.Draw.Feature = L.Handler.extend({
 		L.setOptions(this, options);
 	},
 
-	_fireCreatedEvent: function (layer) {
-		this._map.fire(L.Draw.Event.CREATED, {layer: layer, layerType: this.type});
+	_fireCreatedEvent: function (layer, midLatLng) {
+		this._map.fire(L.Draw.Event.CREATED, {
+			layer: layer,
+			layerType: this.type,
+			midLatLng: midLatLng,
+		});
 	},
 
 	// Cancel drawing when the escape key is pressed
 	_cancelDrawing: function (e) {
 		if (e.keyCode === 27) {
-			this._map.fire('draw:canceled', {layerType: this.type});
+			this._map.fire("draw:canceled", { layerType: this.type });
 			this.disable();
 		}
-	}
+	},
 });
 
 
@@ -1735,6 +1742,8 @@ L.Draw.Role = L.Draw.Feature.extend({
 
 		this._initialLabelText = L.drawLocal.draw.handlers.role.tooltip.start;
 
+		this._drawDevice = new L.DrawDevice(map);
+
 		L.Draw.Feature.prototype.initialize.call(this, map, options);
 	},
 
@@ -1796,54 +1805,20 @@ L.Draw.Role = L.Draw.Feature.extend({
 		this._mouseMarker.setLatLng(latlng);
 
 		if (!this._marker) {
-			this._marker = this._createRole(latlng);
+			this._marker = this._createRole(latlng).geometry;
 			// Bind to both marker and map to make sure we get the click event.
 			this._marker.on("click", this._onClick, this);
 			this._map.on("click", this._onClick, this).addLayer(this._marker);
 		} else {
 			latlng = this._mouseMarker.getLatLng();
 			this._map.removeLayer(this._marker);
-			this._marker = this._createRole(latlng);
+			this._marker = this._createRole(latlng).geometry;
 			this._map.addLayer(this._marker);
 		}
 	},
 
-	_disToPixeldistance: function (distance, zoom) {
-		zoom = zoom || this._map.getZoom();
-		var l2 = L.GeometryUtil.destination(this._map.getCenter(), 90, distance);
-		var p1 = this._map.project(this._map.getCenter(), zoom);
-		var p2 = this._map.project(l2, zoom);
-		return p1.distanceTo(p2);
-	},
-
 	_createRole: function (latlng) {
-		var layerPoint = this._map.project(latlng, this._map.getZoom());
-		// Zomm = 11: dY = 16.558468982104927, dX = 24.837166014216628
-		var dY = this._disToPixeldistance(1235.3139820525603);
-		var dX = this._disToPixeldistance(1852.9308778476977);
-		layerPoint.x -= dX / 2;
-		layerPoint.y -= dY / 2;
-		var pA = layerPoint;
-		var pB = L.point(layerPoint.x + dX, layerPoint.y);
-		var pC = L.point(layerPoint.x + dX, layerPoint.y + dY);
-		var pD = L.point(layerPoint.x, layerPoint.y + dY);
-		var lA = this._map.unproject(pA, this._map.getZoom());
-		var lB = this._map.unproject(pB, this._map.getZoom());
-		var lC = this._map.unproject(pC, this._map.getZoom());
-		var lD = this._map.unproject(pD, this._map.getZoom());
-		return L.polyline(
-			[
-				[lA, lB],
-				[lB, lC],
-				[lC, lD],
-				[lD, lA],
-			],
-			{
-				// color: "#52967a",
-				weight: 5,
-				lineCap: "square",
-			}
-		);
+		return this._drawDevice.drawRole(latlng);
 	},
 
 	_onClick: function () {
@@ -1862,8 +1837,10 @@ L.Draw.Role = L.Draw.Feature.extend({
 	},
 
 	_fireCreatedEvent: function () {
-		var marker = this._createRole(this._mouseMarker.getLatLng());
-		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker);
+		const result = this._createRole(this._mouseMarker.getLatLng());
+		const marker = result.geometry;
+		const midLatLng = result.midLatLng;
+		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker, midLatLng);
 	},
 });
 
@@ -1892,6 +1869,8 @@ L.Draw.ThanhCai = L.Draw.Feature.extend({
 
 		this._initialLabelText = L.drawLocal.draw.handlers.thanhCai.tooltip.start;
 
+		this._drawDevice = new L.DrawDevice(map);
+
 		L.Draw.Feature.prototype.initialize.call(this, map, options);
 	},
 
@@ -1965,48 +1944,8 @@ L.Draw.ThanhCai = L.Draw.Feature.extend({
 		}
 	},
 
-	_disToPixeldistance: function (distance, zoom) {
-		zoom = zoom || this._map.getZoom();
-		var l2 = L.GeometryUtil.destination(this._map.getCenter(), 90, distance);
-		var p1 = this._map.project(this._map.getCenter(), zoom);
-		var p2 = this._map.project(l2, zoom);
-		return p1.distanceTo(p2);
-	},
-
 	_createThanhCai: function (latlng) {
-		var layerPoint = this._map.project(latlng, this._map.getZoom());
-		// distance default thanhCai = 26990.711264544043
-		const dX = this._disToPixeldistance(26990.711264544043);
-		layerPoint.x -= dX / 2;
-		const pA = layerPoint;
-		const pB = L.point(layerPoint.x + dX / 2, layerPoint.y);
-		const pC = L.point(layerPoint.x + dX, layerPoint.y);
-
-		// const angle = (45 * Math.PI) / 180;
-		// const dR = pA.distanceTo(pB);
-
-		// pA.x = pB.x + dR * Math.cos(angle);
-		// pA.y = pB.y + dR * Math.sin(angle);
-
-		// pC.x = pB.x - dR * Math.cos(angle);
-		// pC.y = pB.y - dR * Math.sin(angle);
-
-		// pC.x = pC.x + dR * Math.cos(angle);
-		// pC.y = pC.y + dR * Math.sin(angle);
-
-		const lA = this._map.unproject(pA, this._map.getZoom());
-		const lB = this._map.unproject(pB, this._map.getZoom());
-		const lC = this._map.unproject(pC, this._map.getZoom());
-		// return L.polyline(L.GeoJSON.coordsToLatLngs([lA, lB, lC]), {
-		// 	// color: "#52967a",
-		// 	weight: 5,
-		// 	lineCap: "square",
-		// });
-		return L.polyline([lA, lB, lC], {
-			// color: "#52967a",
-			weight: 6,
-			lineCap: "square",
-		});
+		return this._drawDevice.drawThanhCai(latlng);
 	},
 
 	_onClick: function () {
@@ -2055,6 +1994,8 @@ L.Draw.MayBienAp = L.Draw.Feature.extend({
 
 		this._initialLabelText = L.drawLocal.draw.handlers.mayBienAp.tooltip.start;
 
+		this._drawDevice = new L.DrawDevice(map);
+
 		L.Draw.Feature.prototype.initialize.call(this, map, options);
 	},
 
@@ -2128,39 +2069,8 @@ L.Draw.MayBienAp = L.Draw.Feature.extend({
 		}
 	},
 
-	_disToPixeldistance: function (distance, zoom) {
-		zoom = zoom || this._map.getZoom();
-		var l2 = L.GeometryUtil.destination(this._map.getCenter(), 90, distance);
-		var p1 = this._map.project(this._map.getCenter(), zoom);
-		var p2 = this._map.project(l2, zoom);
-		return p1.distanceTo(p2);
-	},
-
-	_genPointOfCircle: function (pI, r) {
-		var points = [];
-		for (var a = 0; a <= 2 * Math.PI; a += 0.1) {
-			var x = pI.x + r * Math.cos(a);
-			var y = pI.y + r * Math.sin(a);
-			points.push(this._map.unproject(L.point(x, y), this._map.getZoom()));
-		}
-		points.push(points[0]);
-		return points;
-	},
-
 	_createMayBienAp: function (latlng) {
-		const dI = this._disToPixeldistance(3000);
-		const iCursor = this._map.project(latlng, this._map.getZoom());
-		const iA = iCursor;
-		const rA = this._disToPixeldistance(2400);
-		const iB = L.point(iCursor.x + dI, iCursor.y);
-		const rB = this._disToPixeldistance(1600);
-		return L.polyline(
-			[this._genPointOfCircle(iA, rA), this._genPointOfCircle(iB, rB)],
-			{
-				weight: 5,
-				lineCap: "square",
-			}
-		);
+		return this._drawDevice.drawMayBienAp(latlng);
 	},
 
 	_onClick: function () {

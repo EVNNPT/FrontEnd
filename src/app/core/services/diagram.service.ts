@@ -26,7 +26,7 @@ export class DiagramService {
   //#endregion
 
   //#region "Observable"
-  public layerEvents: Subject<any | void> = new Subject<any | void>();
+  public featureSelected: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   //#endregion
 
   constructor(private http: HttpClient) {}
@@ -75,7 +75,12 @@ export class DiagramService {
       }
       this.mayBienApSelected = e.layer;
       this.mayBienApSelected.dragging.enable();
-      this.layerEvents.next(this.mayBienApSelected.feature);
+      this.featureSelected.next({
+        L: L,
+        map: map,
+        selected: this.mayBienApSelected,
+        layer: this.mayBienApLayer,
+      });
     });
     return this.mayBienApSelected;
   }
@@ -86,8 +91,9 @@ export class DiagramService {
       transform: true,
       onEachFeature: (feature: any, layer: any) => {
         layer.dragging.disable();
+        layer.on('click', (e: any) => {});
       },
-      weight: 6,
+      weight: 8,
       lineCap: 'square',
     }).addTo(map);
     this.thanhCaiLayer.on('click', (e: any) => {
@@ -96,23 +102,12 @@ export class DiagramService {
       }
       this.thanhCaiSelected = e.layer;
       this.thanhCaiSelected.dragging.enable();
-      this.layerEvents.next(this.thanhCaiSelected.feature);
-      console.log(this.thanhCaiSelected.feature);
-      const coordinates = this.thanhCaiSelected.feature.geometry.coordinates;
-      const matrix = new L.Matrix(1, 0, 0, 1, 0, 0);
-      const matrixA = matrix.rotate(Math.PI / 2);
-      console.log(matrixA);
-      L.polyline([
-        matrixA.transform(coordinates[0]),
-        coordinates[1],
-        matrixA.transform(coordinates[1]),
-      ]).addTo(map);
-      // const matrix = new L.Matrix(1, 0, 0, 1, 0, 0);
-      // const pA = L.point(1, 1);
-      // console.log(pA);
-      // const matrixA = matrix.rotate(Math.PI, pA);
-      // console.log(matrixA);
-      // console.log(matrixA.transform(pA));
+      this.featureSelected.next({
+        L: L,
+        map: map,
+        selected: this.thanhCaiSelected,
+        layer: this.thanhCaiLayer,
+      });
     });
     return this.thanhCaiSelected;
   }
@@ -122,40 +117,97 @@ export class DiagramService {
       draggable: true,
       transform: true,
       onEachFeature: (feature: any, layer: any) => {
-        layer.dragging.disable();
+        const properties = layer.feature.properties;
+        if (properties.isEdit === undefined || !properties.isEdit) {
+          layer.dragging.disable();
+        } else {
+          layer.dragging.enable();
+        }
+        layer.on('click', (e: any) => {
+          const properties = e.target.feature.properties;
+          e.target.dragging.enable();
+          if (properties.isEdit === undefined || !properties.isEdit) {
+            if (this.roleSelected != null) {
+              this.roleSelected.dragging.disable();
+            }
+            this.roleSelected = e.target;
+            this.roleSelected.dragging.enable();
+            this.featureSelected.next({
+              L: L,
+              map: map,
+              selected: this.roleSelected,
+              layer: this.roleLayer,
+            });
+          }
+        });
+      },
+      style: (feature: any) => {
+        const color = feature.properties?.color || '#0000ff';
+        return { color: color };
       },
       lineCap: 'square',
       weight: 5,
     }).addTo(map);
-    this.roleLayer.on('click', (e: any) => {
-      if (this.roleSelected != null) {
-        this.roleSelected.dragging.disable();
-      }
-      this.roleSelected = e.layer;
-      this.roleSelected.dragging.enable();
-      this.layerEvents.next(this.roleSelected.feature);
-    });
+    // this.roleLayer.on('click', (e: any) => {
+    //   if (this.roleSelected != null) {
+    //     this.roleSelected.dragging.disable();
+    //   }
+    //   this.roleSelected = e.layer;
+    //   this.roleSelected.dragging.enable();
+    //   this.featureSelected.next({
+    //     L: L,
+    //     map: map,
+    //     selected: this.roleSelected,
+    //     layer: this.roleLayer,
+    //   });
+    // });
     return this.roleLayer;
   }
 
   drawEvents(L: any, map: any) {
     map.on(L.Draw.Event.CREATED, (e: any) => {
       const layer = e.layer;
+      const midLatLng = e.midLatLng;
       if (e.layerType === 'role') {
         const role = new L.polyline(layer._latlngs);
         let fRole = role.toGeoJSON();
         fRole.properties.id = uuidv4();
+        fRole.properties.deviceTypeName = 'role';
+        fRole.properties.name = '';
+        fRole.properties.color = '#0000ff';
+        fRole.properties.rotate = '0';
+        fRole.properties.midLat = midLatLng.lat;
+        fRole.properties.midLng = midLatLng.lng;
         this.roleLayer.addData(fRole);
+
+        console.log(fRole.geometry.coordinates);
+        const pTmp = new L.point(fRole.geometry.coordinates[0][0]);
+        console.log(pTmp);
+        console.log(map.unproject(pTmp, map.getZoom()));
+        console.log(L.GeoJSON.coordsToLatLng(pTmp));
+        console.log(layer._latlngs);
+        const deviceTranform = new L.TransfromDevice(map);
+        const fRoleEdit = deviceTranform
+          .rotateRole(layer._latlngs, midLatLng, 90)
+          .toGeoJSON();
+        this.roleLayer.addData(fRoleEdit);
       } else if (e.layerType === 'thanhCai') {
         const thanhCai = new L.polyline(layer._latlngs);
         let fThanhCai = thanhCai.toGeoJSON();
         fThanhCai.properties.id = uuidv4();
+        fThanhCai.properties.deviceTypeName = 'thanhCai';
+        fThanhCai.properties.name = '';
+        fThanhCai.properties.color = '#0000ff';
+        fThanhCai.properties.rotate = '0';
         this.thanhCaiLayer.addData(fThanhCai);
       } else if (e.layerType === 'mayBienAp') {
         const mayBienAp = new L.polyline(layer._latlngs);
-        console.log(mayBienAp);
         let fMayBienAp = mayBienAp.toGeoJSON();
         fMayBienAp.properties.id = uuidv4();
+        fMayBienAp.properties.deviceTypeName = 'mayBienAp';
+        fMayBienAp.properties.name = '';
+        fMayBienAp.properties.color = '#0000ff';
+        fMayBienAp.properties.rotate = '0';
         this.mayBienApLayer.addData(fMayBienAp);
       }
     });

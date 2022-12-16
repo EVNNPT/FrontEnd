@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [DiagramComponent, ViewComponent, RoleDetailComponent],
@@ -27,6 +28,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatSidenavModule,
     MatCardModule,
     MatButtonModule,
+    MatSelectModule,
   ],
 })
 export class DiagramModule {}
