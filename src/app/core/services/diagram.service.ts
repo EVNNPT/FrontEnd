@@ -135,7 +135,9 @@ export class DiagramService {
             this.featureSelected.next({
               L: L,
               map: map,
+              // Layer Select
               selected: this.roleSelected,
+              // Layer Groups
               layer: this.roleLayer,
             });
           }
@@ -148,19 +150,6 @@ export class DiagramService {
       lineCap: 'square',
       weight: 5,
     }).addTo(map);
-    // this.roleLayer.on('click', (e: any) => {
-    //   if (this.roleSelected != null) {
-    //     this.roleSelected.dragging.disable();
-    //   }
-    //   this.roleSelected = e.layer;
-    //   this.roleSelected.dragging.enable();
-    //   this.featureSelected.next({
-    //     L: L,
-    //     map: map,
-    //     selected: this.roleSelected,
-    //     layer: this.roleLayer,
-    //   });
-    // });
     return this.roleLayer;
   }
 
@@ -179,18 +168,17 @@ export class DiagramService {
         fRole.properties.midLat = midLatLng.lat;
         fRole.properties.midLng = midLatLng.lng;
         this.roleLayer.addData(fRole);
-
-        console.log(fRole.geometry.coordinates);
-        const pTmp = new L.point(fRole.geometry.coordinates[0][0]);
-        console.log(pTmp);
-        console.log(map.unproject(pTmp, map.getZoom()));
-        console.log(L.GeoJSON.coordsToLatLng(pTmp));
-        console.log(layer._latlngs);
-        const deviceTranform = new L.TransfromDevice(map);
-        const fRoleEdit = deviceTranform
-          .rotateRole(layer._latlngs, midLatLng, 90)
-          .toGeoJSON();
-        this.roleLayer.addData(fRoleEdit);
+        console.log(this.roleLayer)
+        // const pTmp = new L.point(fRole.geometry.coordinates[0][0][1], fRole.geometry.coordinates[0][0][0]);
+        // const point = L.CRS.EPSG4326.unproject(pTmp);
+        // console.log(fRole.geometry.coordinates[0][0])
+        // console.log(point)
+        // const deviceTranform = new L.TransfromDevice(map);
+        // const fRoleEdit = deviceTranform
+        //   .rotateRole(layer._latlngs, midLatLng, 90)
+        //   .toGeoJSON();
+        // this.roleLayer.addData(fRoleEdit);
+        // console.log(fRole)
       } else if (e.layerType === 'thanhCai') {
         const thanhCai = new L.polyline(layer._latlngs);
         let fThanhCai = thanhCai.toGeoJSON();

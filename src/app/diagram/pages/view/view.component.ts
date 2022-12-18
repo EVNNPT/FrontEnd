@@ -31,9 +31,10 @@ export class ViewComponent implements AfterViewInit {
     // Init map
     this.map = L.map('map', {
       center: [0, 0],
-      zoom: 18,
-      maxZoom: 20,
-      minZoom: 13,
+      zoom: 15,
+      maxZoom: 25,
+      minZoom: 10,
+      crs: L.CRS.EPSG4326
     });
 
     // Title

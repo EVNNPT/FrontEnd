@@ -13,10 +13,10 @@ export class RoleDetailComponent implements OnInit {
     color: [''],
     rotate: [''],
   });
-  private roleSelectOrigin: any;
-  private roleSelectEdit: any;
+  private roleLayers: any;
   private roleLayer: any;
-  private fRoleEdit: any;
+  private roleLayerClone: any;
+  private fRoleClone: any;
   private L: any;
   private map: any;
 
@@ -30,75 +30,72 @@ export class RoleDetailComponent implements OnInit {
       if (res === null) {
         return;
       }
+      // Reference
       this.map = res.map;
       this.L = res.L;
-      this.roleLayer = res.layer;
-      this.roleSelectOrigin = res.selected;
-      this.map.removeLayer(this.roleSelectOrigin);
+      this.roleLayers = res.layer;
+      this.roleLayer = res.selected;
 
-      const properties = this.roleSelectOrigin.feature.properties;
-      this.fRoleEdit = this.L.polyline(
-        this.roleSelectOrigin._latlngs
+      // Remove Role Layer Selected
+      this.roleLayers.removeLayer(this.roleLayer);
+
+      // Clone Role Layer
+      const properties = this.roleLayer.feature.properties;
+
+      this.fRoleClone = this.L.polyline(
+        this.roleLayer._latlngs
       ).toGeoJSON();
 
-      this.fRoleEdit.properties.isEdit = true;
-      this.fRoleEdit.properties.color = properties.color;
-      this.fRoleEdit.properties.rotate = properties.rotate;
+      this.fRoleClone.properties = {...properties}
 
-      this.roleSelectEdit = this.roleLayer.addData(this.fRoleEdit);
+      this.fRoleClone.properties.isEdit = true
+      this.fRoleClone.properties.color = '#ff0000';
 
+      console.log(this.fRoleClone)
+
+      // Add Clone Role Layer
+      this.roleLayerClone = this.roleLayers.addData(this.fRoleClone);
+
+      console.log(this.roleLayerClone)
+
+      // Fill Data To Form Role Detail
+
+      const roleCloneProperties = this.fRoleClone.properties;
       this.roleForm.patchValue({
-        rotate: properties.rotate,
-        color: properties.color,
+        rotate: roleCloneProperties.rotate,
+        color: roleCloneProperties.color,
       });
     });
 
     this.roleForm.valueChanges.subscribe((res) => {
-      const properties = this.fRoleEdit.properties;
-      if (properties.color !== res.color) {
-        this.roleSelectEdit.setStyle({ color: res.color });
-        this.fRoleEdit.properties.color = res.color;
-      }
-      if (properties.rotate !== res.rotate) {
-        // this.map.removeLayer(this.roleSelectEdit);
+      const properties = this.fRoleClone.properties;
+      // if (properties.color !== res.color) {
+      //   this.roleSelectEdit.setStyle({ color: res.color });
+      //   this.fRoleEdit.properties.color = res.color;
+      // }
+      // if (properties.rotate !== res.rotate) {
+      //   // this.map.removeLayer(this.roleSelectEdit);
 
-        const deviceTranform = new this.L.TransfromDevice(this.map);
-        const midLatLng = new this.L.latLng(
-          this.roleSelectOrigin.feature.properties.midLat,
-          this.roleSelectOrigin.feature.properties.midLng
-        );
+      //   const deviceTranform = new this.L.TransfromDevice(this.map);
+      //   const midLatLng = new this.L.latLng(
+      //     this.roleSelectOrigin.feature.properties.midLat,
+      //     this.roleSelectOrigin.feature.properties.midLng
+      //   );
 
-        console.log(this.fRoleEdit.geometry.coordinates);
+      //   console.log(this.fRoleEdit.geometry.coordinates);
 
-        this.L.marker(midLatLng).addTo(this.map);
-        this.fRoleEdit = deviceTranform
-          .rotateRole(this.fRoleEdit.geometry.coordinates, midLatLng, 90)
-          .toGeoJSON();
-        console.log(this.fRoleEdit);
+      //   this.L.marker(midLatLng).addTo(this.map);
+      //   this.fRoleEdit = deviceTranform
+      //     .rotateRole(this.fRoleEdit.geometry.coordinates, midLatLng, 90)
+      //     .toGeoJSON();
+      //   console.log(this.fRoleEdit);
 
-        this.fRoleEdit.properties.isEdit = true;
-        this.fRoleEdit.properties.color = res.color;
-        this.fRoleEdit.properties.rotate = res.rotate;
+      //   this.fRoleEdit.properties.isEdit = true;
+      //   this.fRoleEdit.properties.color = res.color;
+      //   this.fRoleEdit.properties.rotate = res.rotate;
 
-        this.roleSelectEdit = this.roleLayer.addData(this.fRoleEdit);
-      }
-      // console.log(this.roleSelectEdit);
-      // this.roleSelectEdit.setStyle({ color: res.color });
-      // this.roleSelectEdit.setStyle({ color: res.color });
-      // const deviceTranform = new this.L.TransfromDevice(this.map);
-      // const midLatLng = new this.L.latLng(
-      //   this.roleSelectOrigin.feature.properties.midLat,
-      //   this.roleSelectOrigin.feature.properties.midLng
-      // );
-      // const rRole = deviceTranform.rotateRole(
-      //   this.roleSelectEdit._latlngs,
-      //   midLatLng,
-      //   90
-      // );
-      // this.map.removeLayer(this.roleSelectEdit);
-      // this.roleSelectEdit = rRole.addTo(this.map);
-      // console.log(rRole);
-      // const angle = res.rotate;
+      //   this.roleSelectEdit = this.roleLayer.addData(this.fRoleEdit);
+      // }
     });
   }
 }
