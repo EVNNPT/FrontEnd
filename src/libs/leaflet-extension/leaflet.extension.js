@@ -5,17 +5,64 @@
       L.setOptions(this, options);
     },
 
+    // @method rotateMayBienAp(latlngs, angle): latlngs
+    rotateMayBienAp: function (latlngs, centerPoint, angle) {
+      // Lấy thông tin map, tỉ lệ zoom hiện tại
+      const map = this.map;
+      const zoom = map.getZoom();
+
+      // Chiếu lấy tọa độ x,y
+      // Vòng tròn I1
+      var prjI1s = [];
+      for (var i = 0; i < latlngs[0].length; i++) {
+        prjI1s.push(map.project(latlngs[0][i], zoom));
+      }
+      // Vòng tròn I2
+      var prjI2s = [];
+      for (var i = 0; i < latlngs[1].length; i++) {
+        prjI2s.push(map.project(latlngs[1][i], zoom));
+      }
+      // Center Point
+      const prjCenterPoint = map.project(centerPoint, zoom);
+
+      // Xoay góc angle quanh điểm centerPoint
+      // Vòng tròn I1
+      var rI1s = [];
+      for (var i = 0; i < prjI1s.length; i++) {
+        rI1s.push(this._rotatePoint(prjI1s[i], prjCenterPoint, angle));
+      }
+      // Vòng tròn I2
+      var rI2s = [];
+      for (var i = 0; i < prjI2s.length; i++) {
+        rI2s.push(this._rotatePoint(prjI2s[i], prjCenterPoint, angle));
+      }
+
+      // Chiếu lấy tọa độ latLng
+      // Vòng tròn I1
+      var uPrjI1s = [];
+      for (var i = 0; i < rI1s.length; i++) {
+        uPrjI1s.push(map.unproject(rI1s[i], zoom));
+      }
+      // Vòng tròn I2
+      var uPrjI2s = [];
+      for (var i = 0; i < rI2s.length; i++) {
+        uPrjI2s.push(map.unproject(rI2s[i], zoom));
+      }
+
+      return L.polyline([uPrjI1s, uPrjI2s]);
+    },
+
     // @method rotateThanhCai(latlngs, angle): latlngs
     // Thanh cái xác định bởi ba điểm (pA, pB, pC) với pB là trung điểm.
     // Xoay thanh cái một góc angle (đơn vị: độ). => Xoay hai điểm pA và pC quanh pB.
-    rotateThanhCai: function (latlngs, angle) {
+    rotateThanhCai: function (latlngs, centerPoint, angle) {
       // Lấy thông tin map, tỉ lệ zoom hiện tại
       const map = this.map;
       const zoom = map.getZoom();
 
       // Lấy tọa độ latLng
       const pA = new L.latLng(latlngs[0]);
-      const pB = new L.latLng(latlngs[1]);
+      const pB = centerPoint;
       const pC = new L.latLng(latlngs[2]);
 
       // Chiếu lấy tọa độ x,y
@@ -32,11 +79,11 @@
       const lC = map.unproject(rC, zoom);
 
       // Trả về dữ liệu
-      return [lA, pB, lC];
+      return L.polyline([lA, pB, lC]);
     },
 
     // @method rotateRole(latlngs, angle): latlngs
-    rotateRole: function (latlngs, midLatLng, angle) {
+    rotateRole: function (latlngs, centerPoint, angle) {
       // Lấy thông tin map, tỉ lệ zoom hiện tại
       const map = this.map;
       const zoom = map.getZoom();
@@ -53,7 +100,7 @@
       const prjC = map.project(pC, zoom);
       const prjD = map.project(pD, zoom);
 
-      const prjMidLatLng = map.project(midLatLng, zoom);
+      const prjMidLatLng = map.project(centerPoint, zoom);
 
       // Xoay góc angle quanh điểm prjB
       const rA = this._rotatePoint(prjA, prjMidLatLng, angle);
@@ -167,7 +214,7 @@
       const lB = map.unproject(pB, map.getZoom());
       const lC = map.unproject(pC, map.getZoom());
 
-      return L.polyline([lA, lB, lC], pDraw.styles);
+      return L.polyline([lA, lB, lC]);
     },
 
     // @method drawRole()
@@ -190,18 +237,12 @@
       const lB = map.unproject(pB, map.getZoom());
       const lC = map.unproject(pC, map.getZoom());
       const lD = map.unproject(pD, map.getZoom());
-      return {
-        geometry: L.polyline(
-          [
-            [lA, lB],
-            [lB, lC],
-            [lC, lD],
-            [lD, lA],
-          ],
-          pDraw.styles
-        ),
-        midLatLng: latlng,
-      };
+      return L.polyline([
+        [lA, lB],
+        [lB, lC],
+        [lC, lD],
+        [lD, lA],
+      ]);
     },
 
     // @method drawMayBienAp
@@ -226,13 +267,10 @@
       const pI1 = L.point(pG.x - dGI1, pG.y);
       const pI2 = L.point(pG.x + dGI2, pG.y);
 
-      return L.polyline(
-        [this._genPointOfCircle(pI1, rI1), this._genPointOfCircle(pI2, rI2)],
-        {
-          weight: 5,
-          lineCap: "square",
-        }
-      );
+      return L.polyline([
+        this._genPointOfCircle(pI1, rI1),
+        this._genPointOfCircle(pI2, rI2),
+      ]);
     },
 
     // @method _disToPixeldistance(distance, zoom)
@@ -258,6 +296,22 @@
       }
       points.push(points[0]);
       return points;
+    },
+  });
+
+  L.DrawExtUtil = L.Class.extend({
+    initialize: function (map) {
+      this.map = map;
+    },
+
+    getCenterPoint: function (layer) {
+      const bounds = layer.getBounds();
+      const zoom = this.map.getZoom();
+      const pA = this.map.project(bounds._northEast, zoom);
+      const pB = this.map.project(bounds._southWest, zoom);
+      const pM = L.point((pA.x + pB.x) / 2, (pA.y + pB.y) / 2);
+      const uPrjM = this.map.unproject(pM, zoom);
+      return uPrjM;
     },
   });
 })(window, document);

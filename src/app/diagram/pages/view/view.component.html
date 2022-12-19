@@ -9,7 +9,9 @@
 
 <mat-drawer-container hasBackdrop="false">
     <mat-drawer #drawer mode="side" position="end">
-        <app-role-detail *ngIf="deviceTypeName === 'role'"></app-role-detail>
+        <ng-template #detailContainer></ng-template>
+        <!-- <app-role-detail *ngIf="deviceTypeName === 'role'"></app-role-detail>
+        <app-thanh-cai-detail *ngIf="deviceTypeName === 'thanhCai'"></app-thanh-cai-detail> -->
     </mat-drawer>
     <mat-drawer-content>
         <div id="map"></div>

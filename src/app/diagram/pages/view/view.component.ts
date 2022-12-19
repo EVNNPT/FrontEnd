@@ -1,6 +1,17 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { DiagramService } from 'src/app/core';
+import { MayBienApDetailComponent } from '../may-bien-ap-detail/may-bien-ap-detail.component';
+import { RoleDetailComponent } from '../role-detail/role-detail.component';
+import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
 //#region 'import leaflet'
 require('leaflet');
 require('leaflet-path-transform');
@@ -20,21 +31,27 @@ declare let L: any;
 export class ViewComponent implements AfterViewInit {
   private map: any;
   private imgBackgroundMap = '/assets/images/white_bkg.png';
-  private deviceTypeNames: string[] = ['role'];
+  private deviceTypeNames: string[] = ['role', 'thanhCai', 'mayBienAp'];
   public deviceTypeName: string = '';
-  private roleLayer: any;
-  private thanhCaiLayer: any;
-  private mayBienApLayer: any;
   @ViewChild('drawer', { static: true }) private drawer!: MatDrawer;
+
+  @ViewChild('detailContainer', {
+    read: ViewContainerRef,
+  })
+  detailContainer!: ViewContainerRef;
+
+  componentRoleDetailRef!: ComponentRef<RoleDetailComponent>;
+  componentThanhCaiDetailRef!: ComponentRef<ThanhCaiDetailComponent>;
+  componentMayBienApDetailRef!: ComponentRef<MayBienApDetailComponent>;
 
   private initMap(): void {
     // Init map
     this.map = L.map('map', {
       center: [0, 0],
-      zoom: 15,
+      zoom: 17,
       maxZoom: 25,
       minZoom: 10,
-      crs: L.CRS.EPSG4326
+      // crs: L.CRS.EPSG4326,
     });
 
     // Title
@@ -44,41 +61,50 @@ export class ViewComponent implements AfterViewInit {
       attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
     });
     tiles.addTo(this.map);
-    // Draw control
-    this.diagramService.initDrawControl(L, this.map);
-    //#region "Layer"
-    // Role
-    this.roleLayer = this.diagramService.initRoleLayer(L, this.map);
-    // this.diagramService.getRoleData('234').subscribe((res) => {
-    //   this.roleLayer.addData(res);
-    // });
-    //#endregion
 
-    //#region "Thanh cái"
-    this.thanhCaiLayer = this.diagramService.initThanhCaiLayer(L, this.map);
-    //#endregion
+    this.diagramService.setMap(L, this.map);
 
-    //#region "Máy biến áp"
-    this.mayBienApLayer = this.diagramService.initMayBienApLayer(L, this.map);
-    //#endregion
+    this.diagramService.mapAddControlAndLayers();
 
-    // Draw events
-    this.diagramService.drawEvents(L, this.map);
-
-    this.map.on('click', (e: any) => {
-      // console.log(this.drawer.toggle());
-    });
-
-    this.diagramService.featureSelected.subscribe((res) => {
+    this.diagramService.layerSelect.subscribe((res) => {
       if (res === null) {
         return;
       }
       // Hiển thị
-      const feature = res.selected.feature;
-      this.deviceTypeName = feature.properties.deviceTypeName;
-      const found = this.deviceTypeNames.find(
-        (ele) => ele === this.deviceTypeName
-      );
+      const layer = res.layer;
+      const feature = layer.feature;
+      const deviceTypeName = feature.properties.deviceTypeName;
+      const found =
+        this.deviceTypeNames.findIndex((ele) => ele === deviceTypeName) === -1
+          ? false
+          : true;
+
+      this.detailContainer.clear();
+      this.componentRoleDetailRef?.destroy();
+      this.componentThanhCaiDetailRef?.destroy();
+      this.componentMayBienApDetailRef?.destroy();
+
+      if (deviceTypeName === 'role') {
+        const roleDetail =
+          this._resolver.resolveComponentFactory(RoleDetailComponent);
+        this.componentRoleDetailRef =
+          this.detailContainer.createComponent(roleDetail);
+      } else if (deviceTypeName === 'thanhCai') {
+        const thanhCaiDetail = this._resolver.resolveComponentFactory(
+          ThanhCaiDetailComponent
+        );
+        this.componentThanhCaiDetailRef =
+          this.detailContainer.createComponent(thanhCaiDetail);
+      } else if (deviceTypeName === 'mayBienAp') {
+        const mayBienApDetail = this._resolver.resolveComponentFactory(
+          MayBienApDetailComponent
+        );
+        this.componentMayBienApDetailRef =
+          this.detailContainer.createComponent(mayBienApDetail);
+      }
+
+      this.deviceTypeName = deviceTypeName;
+
       if (!this.drawer.opened && found) {
         this.drawer.open();
       } else if (this.drawer.opened && !found) {
@@ -87,7 +113,10 @@ export class ViewComponent implements AfterViewInit {
     });
   }
 
-  constructor(private diagramService: DiagramService) {}
+  constructor(
+    private diagramService: DiagramService,
+    private _resolver: ComponentFactoryResolver
+  ) {}
 
   ngAfterViewInit(): void {
     this.initMap();

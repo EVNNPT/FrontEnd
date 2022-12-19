@@ -489,11 +489,10 @@ L.Draw.Feature = L.Handler.extend({
 		L.setOptions(this, options);
 	},
 
-	_fireCreatedEvent: function (layer, midLatLng) {
+	_fireCreatedEvent: function (layer) {
 		this._map.fire(L.Draw.Event.CREATED, {
 			layer: layer,
 			layerType: this.type,
-			midLatLng: midLatLng,
 		});
 	},
 
@@ -1805,14 +1804,14 @@ L.Draw.Role = L.Draw.Feature.extend({
 		this._mouseMarker.setLatLng(latlng);
 
 		if (!this._marker) {
-			this._marker = this._createRole(latlng).geometry;
+			this._marker = this._createRole(latlng);
 			// Bind to both marker and map to make sure we get the click event.
 			this._marker.on("click", this._onClick, this);
 			this._map.on("click", this._onClick, this).addLayer(this._marker);
 		} else {
 			latlng = this._mouseMarker.getLatLng();
 			this._map.removeLayer(this._marker);
-			this._marker = this._createRole(latlng).geometry;
+			this._marker = this._createRole(latlng);
 			this._map.addLayer(this._marker);
 		}
 	},
@@ -1837,10 +1836,8 @@ L.Draw.Role = L.Draw.Feature.extend({
 	},
 
 	_fireCreatedEvent: function () {
-		const result = this._createRole(this._mouseMarker.getLatLng());
-		const marker = result.geometry;
-		const midLatLng = result.midLatLng;
-		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker, midLatLng);
+		const marker = this._createRole(this._mouseMarker.getLatLng());
+		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker);
 	},
 });
 

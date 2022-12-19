@@ -4,20 +4,20 @@ import { DiagramService } from 'src/app/core';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
-  selector: 'app-role-detail',
-  templateUrl: './role-detail.component.html',
-  styleUrls: ['./role-detail.component.css'],
+  selector: 'app-thanh-cai-detail',
+  templateUrl: './thanh-cai-detail.component.html',
+  styleUrls: ['./thanh-cai-detail.component.css'],
 })
-export class RoleDetailComponent implements OnInit, OnDestroy {
+export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
   public roleForm = this.fb.group({
     color: [''],
     rotate: [''],
   });
-  // Layer Group Role.
-  private _roleLayers: any;
-  // Role Layer đang chỉnh sửa.
-  private _roleLayer: any;
-  // Role Properties đang chỉnh sửa.
+  // Layer Group Thanh Cái.
+  private _thanhCaiLayers: any;
+  // Thanh Cái Layer đang chỉnh sửa.
+  private _thanhCaiLayer: any;
+  // Thanh Cái Properties đang chỉnh sửa.
   private _fProperties: any = null;
 
   private _L: any;
@@ -34,9 +34,8 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     private diagramService: DiagramService,
     private fb: FormBuilder
   ) {}
-
   ngOnDestroy(): void {
-    console.log('Role Destroy');
+    console.log('Thanh Cái Destroy');
     this._mapDataSubcribe.unsubscribe();
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
@@ -52,22 +51,22 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._mapDataSubcribe = this.diagramService.mapData.subscribe((res) => {
-      console.log('Role');
+      console.log('ThanhCai');
       if (res === null) return;
-      this._roleLayers = res.roleLayers;
+      this._thanhCaiLayers = res.thanhCaiLayers;
       this._map = res.map;
       this._L = res.L;
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
-      console.log('Role Edit');
+      console.log('Thanh Cái Edit');
       if (res === null) return;
-      this._roleLayer = res.layer;
+      this._thanhCaiLayer = res.layer;
     });
 
     this._layerSelectSubcribe = this.diagramService.layerSelect.subscribe(
       (res) => {
-        console.log('Role Select');
+        console.log('Thanh Cái Select');
         // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (
           res === null ||
@@ -77,16 +76,16 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
           return;
         }
         // Reference
-        this._roleLayer = res.layer;
-        this._fProperties = { ...this._roleLayer.feature.properties };
+        this._thanhCaiLayer = res.layer;
+        this._fProperties = { ...this._thanhCaiLayer.feature.properties };
         this._drawExtUtil = new this._L.DrawExtUtil(this._map);
         this._tranformDevice = new this._L.TransfromDevice(this._map);
 
         // Remove Role Layer Selected
-        this._roleLayers.removeLayer(this._roleLayer);
+        this._thanhCaiLayers.removeLayer(this._thanhCaiLayer);
 
         // Clone Role Layer
-        let fTmp = this._L.polyline(this._roleLayer._latlngs).toGeoJSON();
+        let fTmp = this._L.polyline(this._thanhCaiLayer._latlngs).toGeoJSON();
 
         // this.fProperties.color = '#ff0000';
         this._fProperties.isEdit = true;
@@ -94,7 +93,7 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
         fTmp.properties = this._fProperties;
 
         // Add Clone Role Layer
-        this._roleLayers.addData(fTmp);
+        this._thanhCaiLayers.addData(fTmp);
 
         // Fill Data To Form Role Detail
         this.roleForm.patchValue({
@@ -106,32 +105,34 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
     this._formValueChangeSubcribe = this.roleForm.valueChanges.subscribe(
       (res) => {
-        this._roleLayers.removeLayer(this._roleLayer);
+        this._thanhCaiLayers.removeLayer(this._thanhCaiLayer);
         this._fProperties.id = uuidv4();
         if (this._fProperties.color !== res.color) {
           this._fProperties.color = res.color;
         }
         if (this._fProperties.rotate !== res.rotate) {
-          const centerPoint = this._drawExtUtil.getCenterPoint(this._roleLayer);
+          const centerPoint = this._drawExtUtil.getCenterPoint(
+            this._thanhCaiLayer
+          );
           let angle = -parseInt(this._fProperties.rotate);
           // Xoay ngược lại trả về góc 0°
-          this._roleLayer = this._tranformDevice.rotateRole(
-            this._roleLayer._latlngs,
+          this._thanhCaiLayer = this._tranformDevice.rotateThanhCai(
+            this._thanhCaiLayer._latlngs,
             centerPoint,
             angle
           );
           // Xoay góc
           this._fProperties.rotate = res.rotate;
           angle = parseInt(this._fProperties.rotate);
-          this._roleLayer = this._tranformDevice.rotateRole(
-            this._roleLayer._latlngs,
+          this._thanhCaiLayer = this._tranformDevice.rotateThanhCai(
+            this._thanhCaiLayer._latlngs,
             centerPoint,
             angle
           );
         }
-        let fTmp = this._L.polyline(this._roleLayer._latlngs).toGeoJSON();
+        let fTmp = this._L.polyline(this._thanhCaiLayer._latlngs).toGeoJSON();
         fTmp.properties = this._fProperties;
-        this._roleLayers.addData(fTmp);
+        this._thanhCaiLayers.addData(fTmp);
       }
     );
   }
