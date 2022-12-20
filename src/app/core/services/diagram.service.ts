@@ -18,6 +18,11 @@ export class DiagramService {
   private _roleLayers: any;
   private _thanhCaiLayers: any;
   private _mayBienApLayers: any;
+  private _pointSnapLayers: any;
+
+  private _myIcon: any;
+
+  private _drawExtUtil: any;
 
   //#region "Observable"
   public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -30,6 +35,13 @@ export class DiagramService {
   setMap(L: any, map: any) {
     this._L = L;
     this._map = map;
+
+    this._drawExtUtil = new this._L.DrawExtUtil(this._map);
+
+    this._myIcon = this._L.icon({
+      iconUrl: 'marker-icon.png',
+      shadowUrl: null
+    });
   }
 
   mapAddControlAndLayers() {
@@ -74,55 +86,11 @@ export class DiagramService {
         mayBienAp: true,
       },
     });
-    const guides = this._L
-      .polyline([
-        [
-          {
-            lat: -0.000245,
-            lng: 0.000149,
-          },
-          {
-            lat: -0.000245,
-            lng: 0.000374,
-          },
-        ],
-        [
-          {
-            lat: -0.000245,
-            lng: 0.000374,
-          },
-          {
-            lat: 0.000204,
-            lng: 0.000374,
-          },
-        ],
-        [
-          {
-            lat: 0.000204,
-            lng: 0.000374,
-          },
-          {
-            lat: 0.000204,
-            lng: 0.000149,
-          },
-        ],
-        [
-          {
-            lat: 0.000204,
-            lng: 0.000149,
-          },
-          {
-            lat: -0.000245,
-            lng: 0.000149,
-          },
-        ],
-      ])
-      .addTo(this._map);
-    const guideLayers = [guides];
+    this._pointSnapLayers = this._L.layerGroup([]).addTo(this._map);
+    const guideLayers = [this._pointSnapLayers];
     drawControl.setDrawingOptions({
       polyline: { guideLayers: guideLayers },
     });
-    console.log(drawControl);
     this._map.addControl(drawControl);
   }
 
@@ -208,6 +176,12 @@ export class DiagramService {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
+          // console.log(layer._latlngs);
+          const pMs = this._drawExtUtil.roleGetSnapPoints(layer);
+          const markerM1 = this._L.marker(pMs[0], { icon: this._myIcon, opacity: 0});
+          const markerM2 = this._L.marker(pMs[1], { icon: this._myIcon, opacity: 0});
+          this._pointSnapLayers.addLayer(markerM1);
+          this._pointSnapLayers.addLayer(markerM2);
           const properties = layer.feature.properties;
           if (properties.isEdit !== undefined && properties.isEdit) {
             // Kiểm tra layerEdit hiện tại với layerEdit mới.

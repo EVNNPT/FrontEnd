@@ -304,6 +304,22 @@
       this.map = map;
     },
 
+    roleGetSnapPoints: function(layer) {
+      const bounds = layer.getBounds();
+      const zoom = this.map.getZoom();
+      const pB = this.map.project(bounds._northEast, zoom);
+      const pD = this.map.project(bounds._southWest, zoom);
+
+      const pC = L.point(pB.x, pD.y);
+      const pA = L.point(pD.x, pB.y);
+
+      const pM1 = L.point((pA.x + pB.x) / 2, (pA.y + pB.y) / 2);
+      const pM2 = L.point((pC.x + pD.x) / 2, (pC.y + pD.y) / 2);
+      const uPrjM1 = this.map.unproject(pM1, zoom);
+      const uPrjM2 = this.map.unproject(pM2, zoom);
+      return [uPrjM1, uPrjM2];
+    },
+
     getCenterPoint: function (layer) {
       const bounds = layer.getBounds();
       const zoom = this.map.getZoom();

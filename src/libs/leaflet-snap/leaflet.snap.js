@@ -626,7 +626,6 @@ L.EditToolbar.prototype.getEditHandler = function (map, featureGroup) {
 
 L.Draw.Feature.SnapMixin = {
   _snap_initialize: function () {
-    console.log("fuck");
     this.on("enabled", this._snap_on_enabled, this);
     this.on("disabled", this._snap_on_disabled, this);
   },
