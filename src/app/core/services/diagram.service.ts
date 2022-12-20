@@ -12,7 +12,9 @@ export class DiagramService {
 
   private _map: any;
   private _L: any;
+  private _drawnItems: any;
 
+  private _duongDayLayers: any;
   private _roleLayers: any;
   private _thanhCaiLayers: any;
   private _mayBienApLayers: any;
@@ -35,6 +37,7 @@ export class DiagramService {
     this._initMayBienApLayer();
     this._initThanhCaiLayer();
     this._initRoleLayer();
+    this._initDuongDayLayer();
 
     this._drawEvents();
     this.mapData.next({
@@ -50,12 +53,12 @@ export class DiagramService {
     return this.http.get<any>(`${this.baseURL}/${this.roleGeoJSON}`);
   }
 
-  private _initDrawControl(): void {
-    const drawnItems = new this._L.FeatureGroup();
-    this._map.addLayer(drawnItems);
+  private _initDrawControl() {
+    this._drawnItems = new this._L.FeatureGroup();
+    this._map.addLayer(this._drawnItems);
     const drawControl = new this._L.Control.Draw({
       edit: {
-        featureGroup: drawnItems,
+        featureGroup: this._drawnItems,
         edit: false,
         remove: false,
       },
@@ -71,17 +74,76 @@ export class DiagramService {
         mayBienAp: true,
       },
     });
+    const guides = this._L
+      .polyline([
+        [
+          {
+            lat: -0.000245,
+            lng: 0.000149,
+          },
+          {
+            lat: -0.000245,
+            lng: 0.000374,
+          },
+        ],
+        [
+          {
+            lat: -0.000245,
+            lng: 0.000374,
+          },
+          {
+            lat: 0.000204,
+            lng: 0.000374,
+          },
+        ],
+        [
+          {
+            lat: 0.000204,
+            lng: 0.000374,
+          },
+          {
+            lat: 0.000204,
+            lng: 0.000149,
+          },
+        ],
+        [
+          {
+            lat: 0.000204,
+            lng: 0.000149,
+          },
+          {
+            lat: -0.000245,
+            lng: 0.000149,
+          },
+        ],
+      ])
+      .addTo(this._map);
+    const guideLayers = [guides];
+    drawControl.setDrawingOptions({
+      polyline: { guideLayers: guideLayers },
+    });
+    console.log(drawControl);
     this._map.addControl(drawControl);
   }
 
-  private _initMayBienApLayer(): any {
+  private _initMayBienApLayer() {
     this._mayBienApLayers = this._L
       .geoJSON(undefined, {
         draggable: true,
-        // transform: true,
         onEachFeature: (feature: any, layer: any) => {
+          layer.dragging.disable();
           const properties = layer.feature.properties;
           if (properties.isEdit !== undefined && properties.isEdit) {
+            // Kiểm tra layerEdit hiện tại với layerEdit mới.
+            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
+            const layerEditCur = this.layerEdit.getValue()?.layer;
+            if (
+              layerEditCur &&
+              layerEditCur.feature.properties.id !== properties.id
+            ) {
+              layerEditCur.dragging.disable();
+            }
+            // Publish Layer Edit
             this.layerEdit.next({
               layer: layer,
             });
@@ -102,13 +164,24 @@ export class DiagramService {
     });
   }
 
-  private _initThanhCaiLayer(): any {
+  private _initThanhCaiLayer() {
     this._thanhCaiLayers = this._L
       .geoJSON(undefined, {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
+          layer.dragging.disable();
           const properties = layer.feature.properties;
           if (properties.isEdit !== undefined && properties.isEdit) {
+            // Kiểm tra layerEdit hiện tại với layerEdit mới.
+            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
+            const layerEditCur = this.layerEdit.getValue()?.layer;
+            if (
+              layerEditCur &&
+              layerEditCur.feature.properties.id !== properties.id
+            ) {
+              layerEditCur.dragging.disable();
+            }
+            // Publish Layer Edit
             this.layerEdit.next({
               layer: layer,
             });
@@ -129,13 +202,24 @@ export class DiagramService {
     });
   }
 
-  private _initRoleLayer(): any {
+  private _initRoleLayer() {
     this._roleLayers = this._L
       .geoJSON(undefined, {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
+          layer.dragging.disable();
           const properties = layer.feature.properties;
           if (properties.isEdit !== undefined && properties.isEdit) {
+            // Kiểm tra layerEdit hiện tại với layerEdit mới.
+            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
+            const layerEditCur = this.layerEdit.getValue()?.layer;
+            if (
+              layerEditCur &&
+              layerEditCur.feature.properties.id !== properties.id
+            ) {
+              layerEditCur.dragging.disable();
+            }
+            // Publish Layer Edit
             this.layerEdit.next({
               layer: layer,
             });
@@ -156,10 +240,39 @@ export class DiagramService {
     });
   }
 
+  private _initDuongDayLayer() {
+    this._duongDayLayers = this._L
+      .geoJSON(undefined, {
+        draggable: true,
+        onEachFeature: (feature: any, layer: any) => {
+          layer.dragging.disable();
+          const properties = layer.feature.properties;
+          if (properties.isEdit !== undefined && properties.isEdit) {
+            this.layerEdit.next({
+              layer: layer,
+            });
+          }
+        },
+        style: (feature: any) => {
+          const color = feature.properties?.color || '#0000ff';
+          return { color: color };
+        },
+        lineCap: 'square',
+        weight: 5,
+      })
+      .addTo(this._map);
+    this._duongDayLayers.on('click', (e: any) => {
+      this.layerSelect.next({
+        layer: e.layer,
+      });
+    });
+  }
+
   private _drawEvents() {
     const L = this._L;
     this._map.on(this._L.Draw.Event.CREATED, (e: any) => {
       const layer = e.layer;
+      // this._drawnItems.addLayer(layer);
       if (e.layerType === 'role') {
         const role = new L.polyline(layer._latlngs);
         let fRole = role.toGeoJSON();
@@ -187,6 +300,15 @@ export class DiagramService {
         fMayBienAp.properties.color = '#0000ff';
         fMayBienAp.properties.rotate = '0';
         this._mayBienApLayers.addData(fMayBienAp);
+      } else if (e.layerType === 'polyline') {
+        const line = new L.polyline(layer._latlngs);
+        let fLine = line.toGeoJSON();
+        fLine.properties.id = uuidv4();
+        fLine.properties.deviceTypeName = 'duongDay';
+        fLine.properties.name = '';
+        fLine.properties.color = '#0000ff';
+        fLine.properties.rotate = '0';
+        this._duongDayLayers.addData(fLine);
       }
     });
   }

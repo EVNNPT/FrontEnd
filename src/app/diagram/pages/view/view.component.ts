@@ -14,11 +14,15 @@ import { RoleDetailComponent } from '../role-detail/role-detail.component';
 import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
 //#region 'import leaflet'
 require('leaflet');
+require('../../../../libs/leaflet-draw/leaflet.draw-src.js');
 require('leaflet-path-transform');
+// require('leaflet.path.drag');
 require('leaflet-geometryutil');
-require('proj4leaflet');
+require('../../../../libs/leaflet-snap/leaflet.snap.js');
+// require('../../../../libs/leaflet-snap/leaflet.sanp_v1.0.js');
+//leaflet.sanp_v1.0
+// require('proj4leaflet');
 require('../../../../libs/leaflet-extension/leaflet.extension.js');
-require('../../../../libs/leaflet-draw/leaflet.draw.js');
 
 declare let L: any;
 //#endregion
@@ -49,8 +53,9 @@ export class ViewComponent implements AfterViewInit {
     this.map = L.map('map', {
       center: [0, 0],
       zoom: 17,
-      maxZoom: 25,
-      minZoom: 10,
+      maxZoom: 20,
+      minZoom: 15,
+      // drawControl: true,
       // crs: L.CRS.EPSG4326,
     });
 
@@ -111,6 +116,70 @@ export class ViewComponent implements AfterViewInit {
         this.drawer.close();
       }
     });
+
+    // var marker =
+    // L.marker([0, 0]).addTo(this.map);
+    // const marker = L.marker([-0.000245, 0.000149], {
+    //   opacity: 0,
+    // }).addTo(this.map);
+    // // marker.snapediting = new L.Handler.MarkerSnap(this.map, marker);
+    // const road = L.polyline([
+    //   {
+    //     lat: 0.000795,
+    //     lng: 0.000092,
+    //   },
+    //   {
+    //     lat: 0.000795,
+    //     lng: 0.000316,
+    //   },
+    // ]).addTo(this.map);
+
+    // const guides = L.polyline([
+    //   [
+    //     {
+    //       lat: -0.000245,
+    //       lng: 0.000149,
+    //     },
+    //     {
+    //       lat: -0.000245,
+    //       lng: 0.000374,
+    //     },
+    //   ],
+    //   [
+    //     {
+    //       lat: -0.000245,
+    //       lng: 0.000374,
+    //     },
+    //     {
+    //       lat: 0.000204,
+    //       lng: 0.000374,
+    //     },
+    //   ],
+    //   [
+    //     {
+    //       lat: 0.000204,
+    //       lng: 0.000374,
+    //     },
+    //     {
+    //       lat: 0.000204,
+    //       lng: 0.000149,
+    //     },
+    //   ],
+    //   [
+    //     {
+    //       lat: 0.000204,
+    //       lng: 0.000149,
+    //     },
+    //     {
+    //       lat: -0.000245,
+    //       lng: 0.000149,
+    //     },
+    //   ],
+    // ]).addTo(this.map);
+
+    // road.snapediting = new L.Handler.PolylineSnap(this.map, road);
+    // road.snapediting.addGuideLayer(guides);
+    // road.snapediting.enable();
   }
 
   constructor(

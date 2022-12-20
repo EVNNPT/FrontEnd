@@ -34,8 +34,8 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
     private diagramService: DiagramService,
     private fb: FormBuilder
   ) {}
+
   ngOnDestroy(): void {
-    console.log('Thanh Cái Destroy');
     this._mapDataSubcribe.unsubscribe();
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
@@ -51,7 +51,6 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._mapDataSubcribe = this.diagramService.mapData.subscribe((res) => {
-      console.log('ThanhCai');
       if (res === null) return;
       this._thanhCaiLayers = res.thanhCaiLayers;
       this._map = res.map;
@@ -59,14 +58,14 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
-      console.log('Thanh Cái Edit');
       if (res === null) return;
       this._thanhCaiLayer = res.layer;
+      // Bật tính năng drag cho layerEdit
+      this._thanhCaiLayer.dragging.enable();
     });
 
     this._layerSelectSubcribe = this.diagramService.layerSelect.subscribe(
       (res) => {
-        console.log('Thanh Cái Select');
         // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (
           res === null ||

@@ -36,7 +36,6 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    console.log('Role Destroy');
     this._mapDataSubcribe.unsubscribe();
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
@@ -52,7 +51,6 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._mapDataSubcribe = this.diagramService.mapData.subscribe((res) => {
-      console.log('Role');
       if (res === null) return;
       this._roleLayers = res.roleLayers;
       this._map = res.map;
@@ -60,14 +58,14 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
-      console.log('Role Edit');
       if (res === null) return;
       this._roleLayer = res.layer;
+      // Bật tính năng drag cho layerEdit
+      this._roleLayer.dragging.enable();
     });
 
     this._layerSelectSubcribe = this.diagramService.layerSelect.subscribe(
       (res) => {
-        console.log('Role Select');
         // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (
           res === null ||

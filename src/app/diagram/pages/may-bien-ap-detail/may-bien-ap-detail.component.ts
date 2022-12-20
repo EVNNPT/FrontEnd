@@ -36,7 +36,6 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    console.log('Role Destroy');
     this._mapDataSubcribe.unsubscribe();
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
@@ -52,7 +51,6 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._mapDataSubcribe = this.diagramService.mapData.subscribe((res) => {
-      console.log('Máy Biến Áp');
       if (res === null) return;
       this._mayBienApLayers = res.mayBienApLayers;
       this._map = res.map;
@@ -60,14 +58,14 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
-      console.log('Máy Biến Áp Edit');
       if (res === null) return;
       this._mayBienApLayer = res.layer;
+      // Bật tính năng drag cho layerEdit
+      this._mayBienApLayer.dragging.enable();
     });
 
     this._layerSelectSubcribe = this.diagramService.layerSelect.subscribe(
       (res) => {
-        console.log('Máy Biến Áp Select');
         // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (
           res === null ||

@@ -136,8 +136,8 @@
       const cosr = Math.cos(r);
       const sinr = Math.sin(r);
 
-      const dx = ox * cosr - oy * sinr;
-      const dy = ox * sinr + oy * cosr;
+      const dx = ox * cosr + oy * sinr;
+      const dy = -ox * sinr + oy * cosr;
 
       return L.point(dx + midPoint.x, dy + midPoint.y);
     },
