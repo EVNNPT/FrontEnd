@@ -17,6 +17,8 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
   private _thanhCaiLayers: any;
   // Thanh Cái Layer đang chỉnh sửa.
   private _thanhCaiLayer: any;
+  // Snap Layers
+  private _snapLayers: any;
   // Thanh Cái Properties đang chỉnh sửa.
   private _fProperties: any = null;
 
@@ -44,6 +46,7 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
     this._layerEditSubcribe = null;
     this._layerSelectSubcribe = null;
     this._formValueChangeSubcribe = null;
+    this._snapLayers = null;
     this._drawExtUtil = null;
     this._tranformDevice = null;
     this._fProperties = null;
@@ -55,6 +58,9 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
       this._thanhCaiLayers = res.thanhCaiLayers;
       this._map = res.map;
       this._L = res.L;
+      this._snapLayers = res.snapLayers;
+      this._drawExtUtil = res.drawExtUtil;
+      this._tranformDevice = res.tranformDevice;
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
@@ -77,13 +83,11 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
         // Reference
         this._thanhCaiLayer = res.layer;
         this._fProperties = { ...this._thanhCaiLayer.feature.properties };
-        this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-        this._tranformDevice = new this._L.TransfromDevice(this._map);
 
-        // Remove Role Layer Selected
-        this._thanhCaiLayers.removeLayer(this._thanhCaiLayer);
+        // Remove Thanh Cái Layer Selected
+        this._removeLayer();
 
-        // Clone Role Layer
+        // Clone Thanh Cái Layer
         let fTmp = this._L.polyline(this._thanhCaiLayer._latlngs).toGeoJSON();
 
         // this.fProperties.color = '#ff0000';
@@ -91,10 +95,10 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
 
         fTmp.properties = this._fProperties;
 
-        // Add Clone Role Layer
+        // Add Clone Thanh Cái Layer
         this._thanhCaiLayers.addData(fTmp);
 
-        // Fill Data To Form Role Detail
+        // Fill Data To Form Thanh Cái Detail
         this.roleForm.patchValue({
           rotate: this._fProperties.rotate,
           color: this._fProperties.color,
@@ -104,7 +108,8 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
 
     this._formValueChangeSubcribe = this.roleForm.valueChanges.subscribe(
       (res) => {
-        this._thanhCaiLayers.removeLayer(this._thanhCaiLayer);
+        // Remove Thanh Cái Layer Selected
+        this._removeLayer();
         this._fProperties.id = uuidv4();
         if (this._fProperties.color !== res.color) {
           this._fProperties.color = res.color;
@@ -134,5 +139,15 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
         this._thanhCaiLayers.addData(fTmp);
       }
     );
+  }
+
+  private _removeLayer(): void {
+    // Remove Snap LayerId
+    const properties = this._thanhCaiLayer.feature.properties;
+    for (var i = 0; i < properties.snapLayerIds.length; i++) {
+      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
+    }
+    // Remove Thanh Cái Layer Selected
+    this._thanhCaiLayers.removeLayer(this._thanhCaiLayer);
   }
 }

@@ -18,11 +18,12 @@ export class DiagramService {
   private _roleLayers: any;
   private _thanhCaiLayers: any;
   private _mayBienApLayers: any;
-  private _pointSnapLayers: any;
+  private _snapLayers: any;
 
-  private _myIcon: any;
+  private _opacity: number = 0;
 
   private _drawExtUtil: any;
+  private _tranformDevice: any;
 
   //#region "Observable"
   public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -35,13 +36,8 @@ export class DiagramService {
   setMap(L: any, map: any) {
     this._L = L;
     this._map = map;
-
     this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-
-    this._myIcon = this._L.icon({
-      iconUrl: 'marker-icon.png',
-      shadowUrl: null
-    });
+    this._tranformDevice = new this._L.TransfromDevice(this._map);
   }
 
   mapAddControlAndLayers() {
@@ -58,6 +54,9 @@ export class DiagramService {
       roleLayers: this._roleLayers,
       thanhCaiLayers: this._thanhCaiLayers,
       mayBienApLayers: this._mayBienApLayers,
+      snapLayers: this._snapLayers,
+      drawExtUtil: this._drawExtUtil,
+      tranformDevice: this._tranformDevice,
     });
   }
 
@@ -75,7 +74,8 @@ export class DiagramService {
         remove: false,
       },
       draw: {
-        polyline: true,
+        duongDay: true,
+        polyline: false,
         polygon: false,
         marker: false,
         circle: false,
@@ -86,10 +86,10 @@ export class DiagramService {
         mayBienAp: true,
       },
     });
-    this._pointSnapLayers = this._L.layerGroup([]).addTo(this._map);
-    const guideLayers = [this._pointSnapLayers];
+    this._snapLayers = this._L.layerGroup([]).addTo(this._map);
+    const guideLayers = [this._snapLayers];
     drawControl.setDrawingOptions({
-      polyline: { guideLayers: guideLayers },
+      duongDay: { guideLayers: guideLayers },
     });
     this._map.addControl(drawControl);
   }
@@ -101,6 +101,7 @@ export class DiagramService {
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
           const properties = layer.feature.properties;
+          properties.snapLayerIds = this._addMayBienApSnapLayer(layer);
           if (properties.isEdit !== undefined && properties.isEdit) {
             // Kiểm tra layerEdit hiện tại với layerEdit mới.
             // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
@@ -116,6 +117,12 @@ export class DiagramService {
               layer: layer,
             });
           }
+          layer.on('dragend', (event: any) => {
+            const layer = event.target;
+            this._removeSnapLayer(layer);
+            const properties = layer.feature.properties;
+            properties.snapLayerIds = this._addMayBienApSnapLayer(layer);
+          });
         },
         style: (feature: any) => {
           const color = feature.properties?.color || '#0000ff';
@@ -139,6 +146,7 @@ export class DiagramService {
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
           const properties = layer.feature.properties;
+          properties.snapLayerIds = this._addThanhCaiSnapLayer(layer);
           if (properties.isEdit !== undefined && properties.isEdit) {
             // Kiểm tra layerEdit hiện tại với layerEdit mới.
             // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
@@ -154,12 +162,18 @@ export class DiagramService {
               layer: layer,
             });
           }
+          layer.on('dragend', (event: any) => {
+            const layer = event.target;
+            this._removeSnapLayer(layer);
+            const properties = layer.feature.properties;
+            properties.snapLayerIds = this._addThanhCaiSnapLayer(layer);
+          });
         },
         style: (feature: any) => {
           const color = feature.properties?.color || '#0000ff';
           return { color: color };
         },
-        weight: 8,
+        weight: 9,
         lineCap: 'square',
       })
       .addTo(this._map);
@@ -176,13 +190,8 @@ export class DiagramService {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
-          // console.log(layer._latlngs);
-          const pMs = this._drawExtUtil.roleGetSnapPoints(layer);
-          const markerM1 = this._L.marker(pMs[0], { icon: this._myIcon, opacity: 0});
-          const markerM2 = this._L.marker(pMs[1], { icon: this._myIcon, opacity: 0});
-          this._pointSnapLayers.addLayer(markerM1);
-          this._pointSnapLayers.addLayer(markerM2);
           const properties = layer.feature.properties;
+          properties.snapLayerIds = this._addRoleSnapLayer(layer);
           if (properties.isEdit !== undefined && properties.isEdit) {
             // Kiểm tra layerEdit hiện tại với layerEdit mới.
             // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
@@ -198,6 +207,12 @@ export class DiagramService {
               layer: layer,
             });
           }
+          layer.on('dragend', (event: any) => {
+            const layer = event.target;
+            this._removeSnapLayer(layer);
+            const properties = layer.feature.properties;
+            properties.snapLayerIds = this._addRoleSnapLayer(layer);
+          });
         },
         style: (feature: any) => {
           const color = feature.properties?.color || '#0000ff';
@@ -217,15 +232,15 @@ export class DiagramService {
   private _initDuongDayLayer() {
     this._duongDayLayers = this._L
       .geoJSON(undefined, {
-        draggable: true,
+        draggable: false,
         onEachFeature: (feature: any, layer: any) => {
-          layer.dragging.disable();
-          const properties = layer.feature.properties;
-          if (properties.isEdit !== undefined && properties.isEdit) {
-            this.layerEdit.next({
-              layer: layer,
-            });
-          }
+          // layer.dragging.disable();
+          // const properties = layer.feature.properties;
+          // if (properties.isEdit !== undefined && properties.isEdit) {
+          //   this.layerEdit.next({
+          //     layer: layer,
+          //   });
+          // }
         },
         style: (feature: any) => {
           const color = feature.properties?.color || '#0000ff';
@@ -235,11 +250,11 @@ export class DiagramService {
         weight: 5,
       })
       .addTo(this._map);
-    this._duongDayLayers.on('click', (e: any) => {
-      this.layerSelect.next({
-        layer: e.layer,
-      });
-    });
+    // this._duongDayLayers.on('click', (e: any) => {
+    //   this.layerSelect.next({
+    //     layer: e.layer,
+    //   });
+    // });
   }
 
   private _drawEvents() {
@@ -274,7 +289,7 @@ export class DiagramService {
         fMayBienAp.properties.color = '#0000ff';
         fMayBienAp.properties.rotate = '0';
         this._mayBienApLayers.addData(fMayBienAp);
-      } else if (e.layerType === 'polyline') {
+      } else if (e.layerType === 'duongDay') {
         const line = new L.polyline(layer._latlngs);
         let fLine = line.toGeoJSON();
         fLine.properties.id = uuidv4();
@@ -285,5 +300,62 @@ export class DiagramService {
         this._duongDayLayers.addData(fLine);
       }
     });
+  }
+
+  private _removeSnapLayer(layer: any): void {
+    const properties = layer.feature.properties;
+    // Remove
+    for (var i = 0; i < properties.snapLayerIds?.length; i++) {
+      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
+    }
+    properties.snapLayerIds = [];
+  }
+
+  private _addRoleSnapLayer(layer: any): number[] {
+    // Add
+    const pMs = this._drawExtUtil.getSnapPoints(layer);
+    const markerM1 = this._L.marker(pMs[0], {
+      opacity: this._opacity,
+    });
+    const markerM2 = this._L.marker(pMs[1], {
+      opacity: this._opacity,
+    });
+    this._snapLayers.addLayer(markerM1);
+    this._snapLayers.addLayer(markerM2);
+    return [markerM1._leaflet_id, markerM2._leaflet_id];
+  }
+
+  private _addThanhCaiSnapLayer(layer: any): number[] {
+    const snapLayer = this._L.polyline(layer.getLatLngs(), {
+      opacity: this._opacity,
+    });
+    this._snapLayers.addLayer(snapLayer);
+    return [snapLayer._leaflet_id];
+  }
+
+  private _addMayBienApSnapLayer(layer: any): number[] {
+    // Tạo 2 điểm bắt snap cho Rơle
+    const pMs = this._drawExtUtil.getSnapPoints(layer);
+    const rotate = parseInt(layer.feature.properties.rotate);
+    let markerM1 = null;
+    let markerM2 = null;
+    if (rotate === 0 || rotate === 180) {
+      markerM1 = this._L.marker(pMs[2], {
+        opacity: this._opacity,
+      });
+      markerM2 = this._L.marker(pMs[3], {
+        opacity: this._opacity,
+      });
+    } else if (rotate === 90 || rotate === 270) {
+      markerM1 = this._L.marker(pMs[0], {
+        opacity: this._opacity,
+      });
+      markerM2 = this._L.marker(pMs[1], {
+        opacity: this._opacity,
+      });
+    }
+    this._snapLayers.addLayer(markerM1);
+    this._snapLayers.addLayer(markerM2);
+    return [markerM1._leaflet_id, markerM2._leaflet_id];
   }
 }

@@ -17,6 +17,8 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
   private _roleLayers: any;
   // Role Layer đang chỉnh sửa.
   private _roleLayer: any;
+  // Snap Layers
+  private _snapLayers: any;
   // Role Properties đang chỉnh sửa.
   private _fProperties: any = null;
 
@@ -40,13 +42,14 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
     this._formValueChangeSubcribe.unsubscribe();
-    this._mapDataSubcribe = null;
     this._layerEditSubcribe = null;
     this._layerSelectSubcribe = null;
     this._formValueChangeSubcribe = null;
+    this._mapDataSubcribe = null;
     this._drawExtUtil = null;
     this._tranformDevice = null;
     this._fProperties = null;
+    this._snapLayers = null;
   }
 
   ngOnInit(): void {
@@ -55,6 +58,9 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
       this._roleLayers = res.roleLayers;
       this._map = res.map;
       this._L = res.L;
+      this._snapLayers = res.snapLayers;
+      this._drawExtUtil = res.drawExtUtil;
+      this._tranformDevice = res.tranformDevice;
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
@@ -77,11 +83,9 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
         // Reference
         this._roleLayer = res.layer;
         this._fProperties = { ...this._roleLayer.feature.properties };
-        this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-        this._tranformDevice = new this._L.TransfromDevice(this._map);
 
         // Remove Role Layer Selected
-        this._roleLayers.removeLayer(this._roleLayer);
+        this._removeLayer();
 
         // Clone Role Layer
         let fTmp = this._L.polyline(this._roleLayer._latlngs).toGeoJSON();
@@ -104,7 +108,9 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
     this._formValueChangeSubcribe = this.roleForm.valueChanges.subscribe(
       (res) => {
-        this._roleLayers.removeLayer(this._roleLayer);
+        // Remove Role Layer Selected
+        this._removeLayer();
+        // Create Role Layer
         this._fProperties.id = uuidv4();
         if (this._fProperties.color !== res.color) {
           this._fProperties.color = res.color;
@@ -132,5 +138,16 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
         this._roleLayers.addData(fTmp);
       }
     );
+  }
+
+  private _removeLayer(): void {
+    this._roleLayer.redraw();
+    // Remove Snap LayerId
+    const properties = this._roleLayer.feature.properties;
+    for (var i = 0; i < properties.snapLayerIds.length; i++) {
+      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
+    }
+    // Remove Role Layer Selected
+    this._roleLayers.removeLayer(this._roleLayer);
   }
 }

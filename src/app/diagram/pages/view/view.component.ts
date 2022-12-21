@@ -3,7 +3,6 @@ import {
   Component,
   ComponentFactoryResolver,
   ComponentRef,
-  ElementRef,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -12,18 +11,14 @@ import { DiagramService } from 'src/app/core';
 import { MayBienApDetailComponent } from '../may-bien-ap-detail/may-bien-ap-detail.component';
 import { RoleDetailComponent } from '../role-detail/role-detail.component';
 import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
-//#region 'import leaflet'
+//#region 'import leaflet and plugin'
 require('leaflet');
 require('../../../../libs/leaflet-draw/leaflet.draw-src.js');
 require('leaflet-path-transform');
-// require('leaflet.path.drag');
 require('leaflet-geometryutil');
 require('../../../../libs/leaflet-snap/leaflet.snap.js');
-// require('../../../../libs/leaflet-snap/leaflet.sanp_v1.0.js');
-//leaflet.sanp_v1.0
 // require('proj4leaflet');
 require('../../../../libs/leaflet-extension/leaflet.extension.js');
-
 declare let L: any;
 //#endregion
 
@@ -52,9 +47,9 @@ export class ViewComponent implements AfterViewInit {
     // Init map
     this.map = L.map('map', {
       center: [0, 0],
-      zoom: 17,
-      maxZoom: 20,
-      minZoom: 15,
+      zoom: 16,
+      maxZoom: 18,
+      minZoom: 13,
       // drawControl: true,
       // crs: L.CRS.EPSG4326,
     });

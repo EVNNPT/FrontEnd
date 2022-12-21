@@ -716,6 +716,9 @@ L.Draw.Feature.SnapMixin = {
       var mdOrigin = this._map.unproject(this._mouseDownOrigin, z);
       var closestMDO = this._manuallyCorrectClick(mdOrigin);
 
+      if (closestMDO === undefined) {
+        return;
+      }
       if (closestMDO.latlng) {
         this._mouseMarker.setLatLng(closestMDO.latlng);
         this._mouseDownOrigin = this._map.project(closestMDO.latlng, z);
@@ -769,8 +772,5 @@ L.Draw.Feature.SnapMixin = {
   },
 };
 
-// L.Draw.Feature.include(L.Draw.Feature.SnapMixin);
-// L.Draw.Feature.addInitHook("_snap_initialize");
-
-L.Draw.Polyline.include(L.Draw.Feature.SnapMixin);
-L.Draw.Polyline.addInitHook("_snap_initialize");
+L.Draw.DuongDay.include(L.Draw.Feature.SnapMixin);
+L.Draw.DuongDay.addInitHook("_snap_initialize");

@@ -13,11 +13,13 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
     color: [''],
     rotate: [''],
   });
-  // Layer Group Role.
+  // Layer Group Máy Biến Áp.
   private _mayBienApLayers: any;
-  // Role Layer đang chỉnh sửa.
+  // Máy Biến Áp Layer đang chỉnh sửa.
   private _mayBienApLayer: any;
-  // Role Properties đang chỉnh sửa.
+  // Snap Layers
+  private _snapLayers: any;
+  // Máy Biến Áp Properties đang chỉnh sửa.
   private _fProperties: any = null;
 
   private _L: any;
@@ -44,6 +46,7 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
     this._layerEditSubcribe = null;
     this._layerSelectSubcribe = null;
     this._formValueChangeSubcribe = null;
+    this._snapLayers = null;
     this._drawExtUtil = null;
     this._tranformDevice = null;
     this._fProperties = null;
@@ -55,6 +58,9 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
       this._mayBienApLayers = res.mayBienApLayers;
       this._map = res.map;
       this._L = res.L;
+      this._snapLayers = res.snapLayers;
+      this._drawExtUtil = res.drawExtUtil;
+      this._tranformDevice = res.tranformDevice;
     });
 
     this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
@@ -77,13 +83,11 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
         // Reference
         this._mayBienApLayer = res.layer;
         this._fProperties = { ...this._mayBienApLayer.feature.properties };
-        this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-        this._tranformDevice = new this._L.TransfromDevice(this._map);
 
-        // Remove Role Layer Selected
-        this._mayBienApLayers.removeLayer(this._mayBienApLayer);
+        // Remove Máy Biến Áp Layer Selected
+        this._removeLayer();
 
-        // Clone Role Layer
+        // Clone Máy Biến Áp Layer
         let fTmp = this._L.polyline(this._mayBienApLayer._latlngs).toGeoJSON();
 
         // this.fProperties.color = '#ff0000';
@@ -91,10 +95,10 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
 
         fTmp.properties = this._fProperties;
 
-        // Add Clone Role Layer
+        // Add Clone Máy Biến Áp Layer
         this._mayBienApLayers.addData(fTmp);
 
-        // Fill Data To Form Role Detail
+        // Fill Data To Form Máy Biến Áp Detail
         this.mayBienApForm.patchValue({
           rotate: this._fProperties.rotate,
           color: this._fProperties.color,
@@ -104,7 +108,9 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
 
     this._formValueChangeSubcribe = this.mayBienApForm.valueChanges.subscribe(
       (res) => {
-        this._mayBienApLayers.removeLayer(this._mayBienApLayer);
+        // Remove Máy Biến Áp Layer Selected
+        this._removeLayer();
+
         this._fProperties.id = uuidv4();
         if (this._fProperties.color !== res.color) {
           this._fProperties.color = res.color;
@@ -134,5 +140,15 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
         this._mayBienApLayers.addData(fTmp);
       }
     );
+  }
+
+  private _removeLayer(): void {
+    // Remove Snap LayerId
+    const properties = this._mayBienApLayer.feature.properties;
+    for (var i = 0; i < properties.snapLayerIds.length; i++) {
+      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
+    }
+    // Remove Máy Biến Áp Layer Selected
+    this._mayBienApLayers.removeLayer(this._mayBienApLayer);
   }
 }

@@ -304,7 +304,7 @@
       this.map = map;
     },
 
-    roleGetSnapPoints: function(layer) {
+    getSnapPoints: function (layer) {
       const bounds = layer.getBounds();
       const zoom = this.map.getZoom();
       const pB = this.map.project(bounds._northEast, zoom);
@@ -313,11 +313,15 @@
       const pC = L.point(pB.x, pD.y);
       const pA = L.point(pD.x, pB.y);
 
-      const pM1 = L.point((pA.x + pB.x) / 2, (pA.y + pB.y) / 2);
-      const pM2 = L.point((pC.x + pD.x) / 2, (pC.y + pD.y) / 2);
-      const uPrjM1 = this.map.unproject(pM1, zoom);
-      const uPrjM2 = this.map.unproject(pM2, zoom);
-      return [uPrjM1, uPrjM2];
+      const pMAB = L.point((pA.x + pB.x) / 2, (pA.y + pB.y) / 2);
+      const pMCD = L.point((pC.x + pD.x) / 2, (pC.y + pD.y) / 2);
+      const pMBC = L.point((pC.x + pB.x) / 2, (pC.y + pB.y) / 2);
+      const pMDA = L.point((pA.x + pD.x) / 2, (pA.y + pD.y) / 2);
+      const uPrjMAB = this.map.unproject(pMAB, zoom);
+      const uPrjMCD = this.map.unproject(pMCD, zoom);
+      const uPrjMBC = this.map.unproject(pMBC, zoom);
+      const uPrjMDA = this.map.unproject(pMDA, zoom);
+      return [uPrjMAB, uPrjMCD, uPrjMBC, uPrjMDA];
     },
 
     getCenterPoint: function (layer) {
