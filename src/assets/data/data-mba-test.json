@@ -1,0 +1,30 @@
+[
+  {
+    "MAPMIS": "NPT.PTC1.409233",
+    "MADVQL": "EVN01001004",
+    "TENCONGTY": "Công ty Truyền tải điện 1",
+    "TRUYENTAIDIEN": "TTĐ HÀ NỘI",
+    "TENMBA": "Máy biến áp 220kV – 125MVA",
+    "SOHIEU": "S748",
+    "SOHUU": "NPT",
+    "NGAYLAPDAT": "2020-11-05T08:15:30-05:00",
+    "NGAYVH": "2021-11-05T08:15:30-05:00",
+    "THUOCTRAM": "NPT.3468",
+    "TENTRAM": "Trạm 220kV Bắc Ninh 2",
+    "HANGSX": "Lioa",
+    "SOSERIAL": "SN94682",
+    "SOHIEUBANVE": "908F",
+    "SODODANHSO": "I23O",
+    "MACH": "A-B-C",
+    "COTTENHIENTHI": "Máy biến áp 220kV",
+    "DAHIENTHITRENSD": "N",
+    "HIENTHITEN": "N",
+    "HOATDONG": "N",
+    "TTHIENTAI": "Cắt",
+    "JSONGEO": "",
+    "MAUDONG": "#16CAB5",
+    "MAUCAT": "#ff1900",
+    "DAUNOI": "",
+    "GHICHU": "Test"
+  }
+]

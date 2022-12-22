@@ -9,7 +9,6 @@ import { DiagramModule } from './diagram/diagram.module';
 import { CoreModule } from './core';
 import { HttpClientModule } from '@angular/common/http';
 
-
 @NgModule({
   declarations: [AppComponent],
   imports: [

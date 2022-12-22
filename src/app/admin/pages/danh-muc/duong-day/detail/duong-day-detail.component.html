@@ -1,0 +1,325 @@
+<form class="body-form" [formGroup]="duongDayDetailForm">
+  <div class="header-table"><b>Thông tin</b></div>
+  <mat-grid-list cols="4" rowHeight="4:1">
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Mã PMIS</mat-label>
+        <input matInput formControlName="MAPMIS" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Tên đường dây</mat-label>
+        <input matInput formControlName="TENDUONGDAY" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Mã đơn vị quản lý</mat-label>
+        <input matInput formControlName="MADVQL" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Tên công ty</mat-label>
+        <input matInput formControlName="TENCONGTY" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Truyền tải điện</mat-label>
+        <input matInput formControlName="TRUYENTAIDIEN" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Cấp điện áp</mat-label>
+        <input matInput formControlName="CAPDA" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Số hiệu</mat-label>
+        <input matInput formControlName="SOHIEU" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Sở hữu</mat-label>
+        <input matInput formControlName="SOHUU" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Ngày lắp đặt</mat-label>
+        <input
+          matInput
+          [matDatepicker]="pickerLD"
+          formControlName="NGAYLAPDAT"
+        />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="pickerLD"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #pickerLD></mat-datepicker>
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Ngày vận hành</mat-label>
+        <input matInput [matDatepicker]="pickerVH" formControlName="NGAYVH" />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="pickerVH"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #pickerVH></mat-datepicker>
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Mã từ trạm</mat-label>
+        <input matInput formControlName="TUTRAM" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Tên từ trạm</mat-label>
+        <input matInput formControlName="TENTUTRAM" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Mã đến trạm</mat-label>
+        <input matInput formControlName="DENTRAM" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Tên đến trạm</mat-label>
+        <input matInput formControlName="TENDENTRAM" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Số hiệu bản vẽ</mat-label>
+        <input matInput formControlName="SOHIEUBANVE" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Sơ đồ đánh số</mat-label>
+        <input matInput formControlName="SODODANHSO" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Mạch</mat-label>
+        <input matInput formControlName="MACH" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Cột tên hiển thị</mat-label>
+        <input matInput formControlName="COTTENHIENTHI" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Tình trạng hiện tại</mat-label>
+        <input matInput formControlName="TTHIENTAI" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Màu đóng</mat-label>
+        <input type="color" matInput formControlName="MAUDONG" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Màu cắt</mat-label>
+        <input type="color" matInput formControlName="MAUCAT" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Đầu nối đầu</mat-label>
+        <input matInput formControlName="DAUNOIDAU" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="custom-width">
+        <mat-label>Đầu nối cuối</mat-label>
+        <input matInput formControlName="DAUNOICUOI" />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile
+      ><mat-form-field class="custom-width">
+        <mat-label>Ghi chú</mat-label>
+        <input matInput formControlName="GHICHU" /> </mat-form-field
+    ></mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-checkbox class="example-margin" formControlName="DAHIENTHITRENSD"
+        >Đã hiển thị trên sơ đồ</mat-checkbox
+      >
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-checkbox class="example-margin" formControlName="HIENTHITEN"
+        >Hiển thị tên</mat-checkbox
+      >
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-checkbox class="example-margin" formControlName="HOATDONG"
+        >Hoạt động</mat-checkbox
+      >
+    </mat-grid-tile>
+  </mat-grid-list>
+  <div class="grpbtn" *ngIf="!formType">
+    <button mat-raised-button color="primary" (click)="onClickGoBack()">
+      <mat-icon>arrow_back</mat-icon>Quay lại danh sách
+    </button>
+    <button mat-raised-button color="primary" (click)="onClickAddOrUpdate()">
+      <mat-icon> add</mat-icon>Thêm mới
+    </button>
+  </div>
+  <div class="grpbtn" *ngIf="formType">
+    <button mat-raised-button color="primary" (click)="onClickGoBack()">
+      <mat-icon>arrow_back</mat-icon>Quay lại danh sách
+    </button>
+    <button mat-raised-button color="primary" (click)="onClickAddOrUpdate()">
+      <mat-icon>update</mat-icon>Cập nhật
+    </button>
+    <button mat-raised-button color="primary">
+      <mat-icon>pageview</mat-icon>Xem trên sơ đồ
+    </button>
+  </div>
+
+  <mat-tab-group backgroundColor="primary">
+    <mat-tab label="Danh sách tài liệu đính kèm">
+      <div class="mat-elevation-z8 list-item">
+        <table mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="TENFILE">
+            <th mat-header-cell *matHeaderCellDef>Tên file</th>
+            <td mat-cell *matCellDef="let element" [title]="element.TENFILE">
+              {{ element.TENFILE }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DUONGDAN">
+            <th mat-header-cell *matHeaderCellDef>Đường dẫn</th>
+            <td mat-cell *matCellDef="let element" [title]="element.DUONGDAN">
+              {{ element.DUONGDAN }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DOWNLOAD">
+            <th mat-header-cell *matHeaderCellDef>Tải xuống</th>
+            <td mat-cell *matCellDef="let element" title="Tải xuống">
+              <button mat-icon-button color="primary" (click)="onClickDetail(element)">
+                <mat-icon>cloud_download</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DELETE">
+            <th mat-header-cell *matHeaderCellDef>Xóa</th>
+            <td mat-cell *matCellDef="let element" title="Xóa">
+              <button mat-icon-button color="primary">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            class="rowDetail"
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+          ></tr>
+        </table>
+
+        <mat-paginator
+          #MatPaginator
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons
+          aria-label="Select page of periodic elements"
+          (page)="changePagination($event)"
+        >
+        </mat-paginator>
+      </div>
+    </mat-tab>
+    <mat-tab label="Danh sách đối tượng liên quan">
+      <div class="mat-elevation-z8 list-item">
+        <div>
+          <div class="grpbtn">
+            <button mat-raised-button color="primary" (click)="openDialog()">
+              <mat-icon>add</mat-icon>Thêm mới
+            </button>
+          </div>
+        </div>
+
+        <table mat-table [dataSource]="dataSourceTBLQ">
+          <ng-container matColumnDef="LOAITBKHAC">
+            <th mat-header-cell *matHeaderCellDef>Loại thiết bị</th>
+            <td mat-cell *matCellDef="let element" [title]="element.LOAITBKHAC">
+              {{ element.LOAITBKHAC }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="TENTHIETBI">
+            <th mat-header-cell *matHeaderCellDef>Tên thiết bị</th>
+            <td mat-cell *matCellDef="let element" [title]="element.TENTHIETBI">
+              {{ element.TENTHIETBI }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DELETE">
+            <th mat-header-cell *matHeaderCellDef>Xóa</th>
+            <td mat-cell *matCellDef="let element" title="Xóa">
+              <button mat-icon-button color="primary">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsTBLQ"></tr>
+          <tr
+            class="rowDetail"
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsTBLQ"
+          ></tr>
+        </table>
+
+        <mat-paginator
+          #MatPaginator_TBLQ
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons
+          aria-label="Select page of periodic elements"
+          (page)="changePagination_TBLQ($event)"
+        >
+        </mat-paginator>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</form>

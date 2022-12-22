@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Thêm mới đối tượng liên quan</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="dialogAddDTLQ">
+    <div style="display: flex;">
+      <div class="select-input">
+        <mat-form-field>
+          <mat-label>Loại thiết bị</mat-label>
+          <mat-select formControlName="LOAITBKHAC">
+            <mat-option value="MBA">Máy biến áp</mat-option>
+            <mat-option value="RL">Rơ le </mat-option>
+          </mat-select>
+          <!-- <div *ngIf="LOAITBKHAC.errors" class="invalid-feedback">
+            <div *ngIf="LOAITBKHAC.errors.required">
+              Tên đối tượng quan sát không được bỏ trống
+            </div>
+            <div *ngIf="LOAITBKHAC.errors.errorServer">
+              {{ LOAITBKHAC.errors.message }}
+            </div>
+          </div> -->
+        </mat-form-field>
+      </div>
+      <div class="select-input">
+        <mat-form-field>
+          <mat-label>Tên thiết bị</mat-label>
+          <mat-select formControlName="MATBKHAC">
+            <mat-option value="MBA">Máy biến áp</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="addClick()">Add</button>
+</mat-dialog-actions>
