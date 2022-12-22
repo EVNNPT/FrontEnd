@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
   styleUrls: ['./role-detail.component.css'],
 })
 export class RoleDetailComponent implements OnInit, OnDestroy {
-  public roleForm = this.fb.group({
+  public roleForm = this._fb.group({
     color: [''],
     rotate: [''],
   });
@@ -27,50 +27,43 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
   private _drawExtUtil: any;
   private _tranformDevice: any;
 
-  private _mapDataSubcribe: any;
   private _layerEditSubcribe: any;
   private _layerSelectSubcribe: any;
   private _formValueChangeSubcribe: any;
 
   constructor(
-    private diagramService: DiagramService,
-    private fb: FormBuilder
-  ) {}
+    private _diagramService: DiagramService,
+    private _fb: FormBuilder
+  ) {
+    this._map = _diagramService.map;
+    this._L = _diagramService.L;
+    this._roleLayers = _diagramService.roleLayers;
+    this._snapLayers = _diagramService.snapLayers;
+    this._drawExtUtil = _diagramService.drawExtUtil;
+    this._tranformDevice = _diagramService.tranformDevice;
+  }
 
   ngOnDestroy(): void {
-    this._mapDataSubcribe.unsubscribe();
     this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
     this._formValueChangeSubcribe.unsubscribe();
     this._layerEditSubcribe = null;
     this._layerSelectSubcribe = null;
     this._formValueChangeSubcribe = null;
-    this._mapDataSubcribe = null;
-    this._drawExtUtil = null;
-    this._tranformDevice = null;
     this._fProperties = null;
-    this._snapLayers = null;
   }
 
   ngOnInit(): void {
-    this._mapDataSubcribe = this.diagramService.mapData.subscribe((res) => {
-      if (res === null) return;
-      this._roleLayers = res.roleLayers;
-      this._map = res.map;
-      this._L = res.L;
-      this._snapLayers = res.snapLayers;
-      this._drawExtUtil = res.drawExtUtil;
-      this._tranformDevice = res.tranformDevice;
-    });
+    this._layerEditSubcribe = this._diagramService.layerEdit.subscribe(
+      (res) => {
+        if (res === null) return;
+        this._roleLayer = res.layer;
+        // Bật tính năng drag cho layerEdit
+        this._roleLayer.dragging.enable();
+      }
+    );
 
-    this._layerEditSubcribe = this.diagramService.layerEdit.subscribe((res) => {
-      if (res === null) return;
-      this._roleLayer = res.layer;
-      // Bật tính năng drag cho layerEdit
-      this._roleLayer.dragging.enable();
-    });
-
-    this._layerSelectSubcribe = this.diagramService.layerSelect.subscribe(
+    this._layerSelectSubcribe = this._diagramService.layerSelect.subscribe(
       (res) => {
         // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (

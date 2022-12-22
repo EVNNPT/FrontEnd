@@ -28,10 +28,49 @@ export class DiagramService {
   //#region "Observable"
   public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public layerEdit: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  public mapData: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  // public mapData: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   //#endregion
 
   constructor(private http: HttpClient) {}
+
+  //#region "Get"
+  public get map() {
+    return this._map;
+  }
+
+  public get L() {
+    return this._L;
+  }
+
+  public get duongDayLayers() {
+    return this._duongDayLayers;
+  }
+
+  public get roleLayers() {
+    return this._roleLayers;
+  }
+
+  public get thanhCaiLayers() {
+    return this._thanhCaiLayers;
+  }
+
+  public get mayBienApLayers() {
+    return this._mayBienApLayers;
+  }
+
+  public get snapLayers() {
+    return this._snapLayers;
+  }
+
+  public get drawExtUtil() {
+    return this._drawExtUtil;
+  }
+
+  public get tranformDevice() {
+    return this._tranformDevice;
+  }
+
+  //#endregion
 
   setMap(L: any, map: any) {
     this._L = L;
@@ -48,16 +87,6 @@ export class DiagramService {
     this._initDuongDayLayer();
 
     this._drawEvents();
-    this.mapData.next({
-      L: this._L,
-      map: this._map,
-      roleLayers: this._roleLayers,
-      thanhCaiLayers: this._thanhCaiLayers,
-      mayBienApLayers: this._mayBienApLayers,
-      snapLayers: this._snapLayers,
-      drawExtUtil: this._drawExtUtil,
-      tranformDevice: this._tranformDevice,
-    });
   }
 
   getRoleData(id: string): Observable<any> {

@@ -28,7 +28,7 @@ declare let L: any;
   styleUrls: ['./view.component.css'],
 })
 export class ViewComponent implements AfterViewInit {
-  private map: any;
+  // private map: any;
   private imgBackgroundMap = '/assets/images/white_bkg.png';
   private deviceTypeNames: string[] = ['role', 'thanhCai', 'mayBienAp'];
   public deviceTypeName: string = '';
@@ -43,30 +43,28 @@ export class ViewComponent implements AfterViewInit {
   componentThanhCaiDetailRef!: ComponentRef<ThanhCaiDetailComponent>;
   componentMayBienApDetailRef!: ComponentRef<MayBienApDetailComponent>;
 
-  private initMap(): void {
+  private _initMap(): void {
     // Init map
-    this.map = L.map('map', {
+    const map = L.map('map', {
       center: [0, 0],
       zoom: 16,
       maxZoom: 18,
       minZoom: 13,
-      // drawControl: true,
-      // crs: L.CRS.EPSG4326,
     });
 
     // Title
     const tiles = L.tileLayer(this.imgBackgroundMap, {
       maxZoom: 18,
       minZoom: 3,
-      attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
+      // attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
     });
-    tiles.addTo(this.map);
+    tiles.addTo(map);
 
-    this.diagramService.setMap(L, this.map);
+    this._diagramService.setMap(L, map);
 
-    this.diagramService.mapAddControlAndLayers();
+    this._diagramService.mapAddControlAndLayers();
 
-    this.diagramService.layerSelect.subscribe((res) => {
+    this._diagramService.layerSelect.subscribe((res) => {
       if (res === null) {
         return;
       }
@@ -111,78 +109,14 @@ export class ViewComponent implements AfterViewInit {
         this.drawer.close();
       }
     });
-
-    // var marker =
-    // L.marker([0, 0]).addTo(this.map);
-    // const marker = L.marker([-0.000245, 0.000149], {
-    //   opacity: 0,
-    // }).addTo(this.map);
-    // // marker.snapediting = new L.Handler.MarkerSnap(this.map, marker);
-    // const road = L.polyline([
-    //   {
-    //     lat: 0.000795,
-    //     lng: 0.000092,
-    //   },
-    //   {
-    //     lat: 0.000795,
-    //     lng: 0.000316,
-    //   },
-    // ]).addTo(this.map);
-
-    // const guides = L.polyline([
-    //   [
-    //     {
-    //       lat: -0.000245,
-    //       lng: 0.000149,
-    //     },
-    //     {
-    //       lat: -0.000245,
-    //       lng: 0.000374,
-    //     },
-    //   ],
-    //   [
-    //     {
-    //       lat: -0.000245,
-    //       lng: 0.000374,
-    //     },
-    //     {
-    //       lat: 0.000204,
-    //       lng: 0.000374,
-    //     },
-    //   ],
-    //   [
-    //     {
-    //       lat: 0.000204,
-    //       lng: 0.000374,
-    //     },
-    //     {
-    //       lat: 0.000204,
-    //       lng: 0.000149,
-    //     },
-    //   ],
-    //   [
-    //     {
-    //       lat: 0.000204,
-    //       lng: 0.000149,
-    //     },
-    //     {
-    //       lat: -0.000245,
-    //       lng: 0.000149,
-    //     },
-    //   ],
-    // ]).addTo(this.map);
-
-    // road.snapediting = new L.Handler.PolylineSnap(this.map, road);
-    // road.snapediting.addGuideLayer(guides);
-    // road.snapediting.enable();
   }
 
   constructor(
-    private diagramService: DiagramService,
+    private _diagramService: DiagramService,
     private _resolver: ComponentFactoryResolver
   ) {}
 
   ngAfterViewInit(): void {
-    this.initMap();
+    this._initMap();
   }
 }
