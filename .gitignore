@@ -1,7 +1,6 @@
 # angular
 .angular/
 .vscode/
-
 # Logs
 logs
 *.log

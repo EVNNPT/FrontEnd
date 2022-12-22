@@ -12,9 +12,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { ThanhCaiDetailComponent } from './pages/thanh-cai-detail/thanh-cai-detail.component';
+import { MayBienApDetailComponent } from './pages/may-bien-ap-detail/may-bien-ap-detail.component';
 
 @NgModule({
-  declarations: [DiagramComponent, ViewComponent, RoleDetailComponent],
+  declarations: [
+    DiagramComponent,
+    ViewComponent,
+    RoleDetailComponent,
+    ThanhCaiDetailComponent,
+    MayBienApDetailComponent,
+  ],
   imports: [
     CommonModule,
     DiagramRoutingModule,
@@ -27,6 +36,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatSidenavModule,
     MatCardModule,
     MatButtonModule,
+    MatSelectModule,
   ],
 })
 export class DiagramModule {}

@@ -3,18 +3,18 @@ import { FormBuilder } from '@angular/forms';
 import { DiagramService } from 'src/app/core';
 
 @Component({
-  selector: 'app-role-detail',
-  templateUrl: './role-detail.component.html',
-  styleUrls: ['./role-detail.component.css'],
+  selector: 'app-may-bien-ap-detail',
+  templateUrl: './may-bien-ap-detail.component.html',
+  styleUrls: ['./may-bien-ap-detail.component.css'],
 })
-export class RoleDetailComponent implements OnInit, OnDestroy {
-  public roleForm = this._fb.group({
+export class MayBienApDetailComponent implements OnInit, OnDestroy {
+  public mayBienApForm = this._fb.group({
     color: [''],
     rotate: [''],
   });
-  // Role Layer đang chỉnh sửa.
-  private _roleLayer: any;
-  // Role Properties Id đang chỉnh sửa.
+  // Máy Biến Áp Layer đang chỉnh sửa.
+  private _mayBienApLayer: any;
+  // Máy Biến Áp Properties Id đang chỉnh sửa.
   private _fPropertieId: any = null;
 
   private _layerSelectSubcribe: any;
@@ -42,28 +42,28 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
         ) {
           return;
         }
-        this._roleLayer = res.layer;
+        this._mayBienApLayer = res.layer;
         // Bật tính năng drag cho layerEdit
-        this._roleLayer.dragging.enable();
-        const properties = this._roleLayer.feature.properties;
+        this._mayBienApLayer.dragging.enable();
+        const properties = this._mayBienApLayer.feature.properties;
         this._fPropertieId = properties.id;
 
         // Fill Data To Form Máy Biến Áp Detail
-        this.roleForm.patchValue({
+        this.mayBienApForm.patchValue({
           rotate: properties.rotate,
           color: properties.color,
         });
       }
     );
 
-    this._formValueChangeSubcribe = this.roleForm.valueChanges.subscribe(
+    this._formValueChangeSubcribe = this.mayBienApForm.valueChanges.subscribe(
       (res) => {
-        const properties = this._roleLayer.feature.properties;
+        const properties = this._mayBienApLayer.feature.properties;
         if (properties.color !== res.color) {
           // Cập nhật thuộc tính
           properties.color = res.color;
           // Cập nhật view
-          this._roleLayer.setStyle({
+          this._mayBienApLayer.setStyle({
             color: properties.color,
           });
         }
@@ -72,12 +72,12 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
           const angleA = -parseInt(properties.rotate);
           properties.rotate = res.rotate;
           const angleB = parseInt(properties.rotate);
-          this._diagramService.rotate(this._roleLayer, angleA, angleB);
+          this._diagramService.rotate(this._mayBienApLayer, angleA, angleB);
           changeLatLng = true;
         }
         if (changeLatLng) {
-          this._diagramService.removeSnapLayer(this._roleLayer);
-          this._diagramService.addSnapLayer(this._roleLayer);
+          this._diagramService.removeSnapLayer(this._mayBienApLayer);
+          this._diagramService.addSnapLayer(this._mayBienApLayer);
         }
       }
     );
