@@ -343,12 +343,25 @@ export class DiagramService {
   private _addRoleSnapLayer(layer: any): number[] {
     // Add
     const pMs = this._drawExtUtil.getSnapPoints(layer);
-    const markerM1 = this._L.marker(pMs[0], {
-      opacity: this._opacity,
-    });
-    const markerM2 = this._L.marker(pMs[1], {
-      opacity: this._opacity,
-    });
+    const rotate = parseInt(layer.feature.properties.rotate);
+
+    let markerM1 = null;
+    let markerM2 = null;
+    if (rotate === 0) {
+      markerM1 = this._L.marker(pMs[0], {
+        opacity: this._opacity,
+      });
+      markerM2 = this._L.marker(pMs[1], {
+        opacity: this._opacity,
+      });
+    } else if (rotate === 90) {
+      markerM1 = this._L.marker(pMs[2], {
+        opacity: this._opacity,
+      });
+      markerM2 = this._L.marker(pMs[3], {
+        opacity: this._opacity,
+      });
+    }
     this._snapLayers.addLayer(markerM1);
     this._snapLayers.addLayer(markerM2);
     return [markerM1._leaflet_id, markerM2._leaflet_id];

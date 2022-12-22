@@ -23,7 +23,6 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
   private _fProperties: any = null;
 
   private _L: any;
-  private _map: any;
   private _drawExtUtil: any;
   private _tranformDevice: any;
 
@@ -35,7 +34,6 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
     private _diagramService: DiagramService,
     private _fb: FormBuilder
   ) {
-    this._map = _diagramService.map;
     this._L = _diagramService.L;
     this._thanhCaiLayers = _diagramService.thanhCaiLayers;
     this._snapLayers = _diagramService.snapLayers;
