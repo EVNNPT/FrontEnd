@@ -1,7 +1,6 @@
 (function (window, document, undefined) {
   L.TransfromDevice = L.Class.extend({
     initialize: function (map, drawExtUtil, options) {
-      debugger;
       this.map = map;
       this.drawExtUtil = drawExtUtil || new L.DrawExtUtil(map);
       L.setOptions(this, options);
