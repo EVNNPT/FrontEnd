@@ -1,12 +1,17 @@
 (function (window, document, undefined) {
   L.TransfromDevice = L.Class.extend({
-    initialize: function (map, options) {
+    initialize: function (map, drawExtUtil, options) {
+      debugger;
       this.map = map;
+      this.drawExtUtil = drawExtUtil || new L.DrawExtUtil(map);
       L.setOptions(this, options);
     },
 
-    // @method rotateMayBienAp(latlngs, angle): latlngs
-    rotateMayBienAp: function (latlngs, centerPoint, angle) {
+    // @method rotateMayBienAp(layer, angle): latlngs
+    rotateMayBienAp: function (layer, angle) {
+      const centerPoint = this.drawExtUtil.getCenterPoint(layer);
+      const latlngs = layer.getLatLngs();
+
       // Lấy thông tin map, tỉ lệ zoom hiện tại
       const map = this.map;
       const zoom = map.getZoom();
@@ -52,10 +57,13 @@
       return L.polyline([uPrjI1s, uPrjI2s]);
     },
 
-    // @method rotateThanhCai(latlngs, angle): latlngs
+    // @method rotateThanhCai(layer, angle): latlngs
     // Thanh cái xác định bởi ba điểm (pA, pB, pC) với pB là trung điểm.
     // Xoay thanh cái một góc angle (đơn vị: độ). => Xoay hai điểm pA và pC quanh pB.
-    rotateThanhCai: function (latlngs, centerPoint, angle) {
+    rotateThanhCai: function (layer, angle) {
+      const centerPoint = this.drawExtUtil.getCenterPoint(layer);
+      const latlngs = layer.getLatLngs();
+
       // Lấy thông tin map, tỉ lệ zoom hiện tại
       const map = this.map;
       const zoom = map.getZoom();
@@ -82,8 +90,11 @@
       return L.polyline([lA, pB, lC]);
     },
 
-    // @method rotateRole(latlngs, angle): latlngs
-    rotateRole: function (latlngs, centerPoint, angle) {
+    // @method rotateRole(layer, angle): latlngs
+    rotateRole: function (layer, angle) {
+      const centerPoint = this.drawExtUtil.getCenterPoint(layer);
+      const latlngs = layer.getLatLngs();
+
       // Lấy thông tin map, tỉ lệ zoom hiện tại
       const map = this.map;
       const zoom = map.getZoom();

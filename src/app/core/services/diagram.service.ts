@@ -21,14 +21,11 @@ export class DiagramService {
   private _snapLayers: any;
 
   private _opacity: number = 0;
-
   private _drawExtUtil: any;
   private _tranformDevice: any;
 
   //#region "Observable"
   public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  public layerEdit: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  // public mapData: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   //#endregion
 
   constructor(private http: HttpClient) {}
@@ -76,7 +73,10 @@ export class DiagramService {
     this._L = L;
     this._map = map;
     this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-    this._tranformDevice = new this._L.TransfromDevice(this._map);
+    this._tranformDevice = new this._L.TransfromDevice(
+      this._map,
+      this._drawExtUtil
+    );
   }
 
   mapAddControlAndLayers() {
@@ -85,7 +85,6 @@ export class DiagramService {
     this._initThanhCaiLayer();
     this._initRoleLayer();
     this._initDuongDayLayer();
-
     this._drawEvents();
   }
 
@@ -129,28 +128,11 @@ export class DiagramService {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
-          const properties = layer.feature.properties;
-          properties.snapLayerIds = this._addMayBienApSnapLayer(layer);
-          if (properties.isEdit !== undefined && properties.isEdit) {
-            // Kiểm tra layerEdit hiện tại với layerEdit mới.
-            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
-            const layerEditCur = this.layerEdit.getValue()?.layer;
-            if (
-              layerEditCur &&
-              layerEditCur.feature.properties.id !== properties.id
-            ) {
-              layerEditCur.dragging.disable();
-            }
-            // Publish Layer Edit
-            this.layerEdit.next({
-              layer: layer,
-            });
-          }
+          this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
-            this._removeSnapLayer(layer);
-            const properties = layer.feature.properties;
-            properties.snapLayerIds = this._addMayBienApSnapLayer(layer);
+            this.removeSnapLayer(layer);
+            this.addSnapLayer(layer);
           });
         },
         style: (feature: any) => {
@@ -162,8 +144,10 @@ export class DiagramService {
       })
       .addTo(this._map);
     this._mayBienApLayers.on('click', (e: any) => {
+      const layerSelectNew = e.layer;
+      this._disableDragSelectCur(layerSelectNew);
       this.layerSelect.next({
-        layer: e.layer,
+        layer: layerSelectNew,
       });
     });
   }
@@ -174,28 +158,11 @@ export class DiagramService {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
-          const properties = layer.feature.properties;
-          properties.snapLayerIds = this._addThanhCaiSnapLayer(layer);
-          if (properties.isEdit !== undefined && properties.isEdit) {
-            // Kiểm tra layerEdit hiện tại với layerEdit mới.
-            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
-            const layerEditCur = this.layerEdit.getValue()?.layer;
-            if (
-              layerEditCur &&
-              layerEditCur.feature.properties.id !== properties.id
-            ) {
-              layerEditCur.dragging.disable();
-            }
-            // Publish Layer Edit
-            this.layerEdit.next({
-              layer: layer,
-            });
-          }
+          this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
-            this._removeSnapLayer(layer);
-            const properties = layer.feature.properties;
-            properties.snapLayerIds = this._addThanhCaiSnapLayer(layer);
+            this.removeSnapLayer(layer);
+            this.addSnapLayer(layer);
           });
         },
         style: (feature: any) => {
@@ -207,8 +174,10 @@ export class DiagramService {
       })
       .addTo(this._map);
     this._thanhCaiLayers.on('click', (e: any) => {
+      const layerSelectNew = e.layer;
+      this._disableDragSelectCur(layerSelectNew);
       this.layerSelect.next({
-        layer: e.layer,
+        layer: layerSelectNew,
       });
     });
   }
@@ -219,28 +188,11 @@ export class DiagramService {
         draggable: true,
         onEachFeature: (feature: any, layer: any) => {
           layer.dragging.disable();
-          const properties = layer.feature.properties;
-          properties.snapLayerIds = this._addRoleSnapLayer(layer);
-          if (properties.isEdit !== undefined && properties.isEdit) {
-            // Kiểm tra layerEdit hiện tại với layerEdit mới.
-            // Nếu khác nhau tắt tính năng drag trên layerEdit hiện tại.
-            const layerEditCur = this.layerEdit.getValue()?.layer;
-            if (
-              layerEditCur &&
-              layerEditCur.feature.properties.id !== properties.id
-            ) {
-              layerEditCur.dragging.disable();
-            }
-            // Publish Layer Edit
-            this.layerEdit.next({
-              layer: layer,
-            });
-          }
+          this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
-            this._removeSnapLayer(layer);
-            const properties = layer.feature.properties;
-            properties.snapLayerIds = this._addRoleSnapLayer(layer);
+            this.removeSnapLayer(layer);
+            this.addSnapLayer(layer);
           });
         },
         style: (feature: any) => {
@@ -252,8 +204,10 @@ export class DiagramService {
       })
       .addTo(this._map);
     this._roleLayers.on('click', (e: any) => {
+      const layerSelectNew = e.layer;
+      this._disableDragSelectCur(layerSelectNew);
       this.layerSelect.next({
-        layer: e.layer,
+        layer: layerSelectNew,
       });
     });
   }
@@ -262,15 +216,7 @@ export class DiagramService {
     this._duongDayLayers = this._L
       .geoJSON(undefined, {
         draggable: false,
-        onEachFeature: (feature: any, layer: any) => {
-          // layer.dragging.disable();
-          // const properties = layer.feature.properties;
-          // if (properties.isEdit !== undefined && properties.isEdit) {
-          //   this.layerEdit.next({
-          //     layer: layer,
-          //   });
-          // }
-        },
+        onEachFeature: (feature: any, layer: any) => {},
         style: (feature: any) => {
           const color = feature.properties?.color || '#0000ff';
           return { color: color };
@@ -279,11 +225,6 @@ export class DiagramService {
         weight: 5,
       })
       .addTo(this._map);
-    // this._duongDayLayers.on('click', (e: any) => {
-    //   this.layerSelect.next({
-    //     layer: e.layer,
-    //   });
-    // });
   }
 
   private _drawEvents() {
@@ -331,7 +272,44 @@ export class DiagramService {
     });
   }
 
-  private _removeSnapLayer(layer: any): void {
+  private _disableDragSelectCur(layer: any): void {
+    const layerSelectCur = this.layerSelect.getValue()?.layer;
+    if (layerSelectCur && layerSelectCur._leaflet_id !== layer._leaflet_id) {
+      layerSelectCur.dragging.disable();
+    }
+  }
+
+  public rotate(layer: any, angleA: number, angleB: number): void {
+    const properties = layer.feature.properties;
+    switch (properties.deviceTypeName) {
+      case 'role':
+        layer.setLatLngs(
+          this._tranformDevice.rotateRole(layer, angleA).getLatLngs()
+        );
+        layer.setLatLngs(
+          this._tranformDevice.rotateRole(layer, angleB).getLatLngs()
+        );
+        break;
+      case 'thanhCai':
+        layer.setLatLngs(
+          this._tranformDevice.rotateThanhCai(layer, angleA).getLatLngs()
+        );
+        layer.setLatLngs(
+          this._tranformDevice.rotateThanhCai(layer, angleB).getLatLngs()
+        );
+        break;
+      case 'mayBienAp':
+        layer.setLatLngs(
+          this._tranformDevice.rotateMayBienAp(layer, angleA).getLatLngs()
+        );
+        layer.setLatLngs(
+          this._tranformDevice.rotateMayBienAp(layer, angleB).getLatLngs()
+        );
+        break;
+    }
+  }
+
+  public removeSnapLayer(layer: any): void {
     const properties = layer.feature.properties;
     // Remove
     for (var i = 0; i < properties.snapLayerIds?.length; i++) {
@@ -340,10 +318,26 @@ export class DiagramService {
     properties.snapLayerIds = [];
   }
 
-  private _addRoleSnapLayer(layer: any): number[] {
+  public addSnapLayer(layer: any): void {
+    const properties = layer.feature.properties;
+    switch (properties.deviceTypeName) {
+      case 'role':
+        this._addRoleSnapLayer(layer);
+        break;
+      case 'thanhCai':
+        this._addThanhCaiSnapLayer(layer);
+        break;
+      case 'mayBienAp':
+        this._addMayBienApSnapLayer(layer);
+        break;
+    }
+  }
+
+  private _addRoleSnapLayer(layer: any): void {
     // Add
+    const properties = layer.feature.properties;
     const pMs = this._drawExtUtil.getSnapPoints(layer);
-    const rotate = parseInt(layer.feature.properties.rotate);
+    const rotate = parseInt(properties.rotate);
 
     let markerM1 = null;
     let markerM2 = null;
@@ -364,21 +358,25 @@ export class DiagramService {
     }
     this._snapLayers.addLayer(markerM1);
     this._snapLayers.addLayer(markerM2);
-    return [markerM1._leaflet_id, markerM2._leaflet_id];
+    // Set Leaflet Id
+    properties.snapLayerIds = [markerM1._leaflet_id, markerM2._leaflet_id];
   }
 
-  private _addThanhCaiSnapLayer(layer: any): number[] {
+  private _addThanhCaiSnapLayer(layer: any): void {
+    const properties = layer.feature.properties;
     const snapLayer = this._L.polyline(layer.getLatLngs(), {
       opacity: this._opacity,
     });
     this._snapLayers.addLayer(snapLayer);
-    return [snapLayer._leaflet_id];
+    // Set Leaflet Id
+    properties.snapLayerIds = [snapLayer._leaflet_id];
   }
 
-  private _addMayBienApSnapLayer(layer: any): number[] {
+  private _addMayBienApSnapLayer(layer: any): void {
+    const properties = layer.feature.properties;
     // Tạo 2 điểm bắt snap cho Rơle
     const pMs = this._drawExtUtil.getSnapPoints(layer);
-    const rotate = parseInt(layer.feature.properties.rotate);
+    const rotate = parseInt(properties.rotate);
     let markerM1 = null;
     let markerM2 = null;
     if (rotate === 0 || rotate === 180) {
@@ -398,6 +396,7 @@ export class DiagramService {
     }
     this._snapLayers.addLayer(markerM1);
     this._snapLayers.addLayer(markerM2);
-    return [markerM1._leaflet_id, markerM2._leaflet_id];
+    // Set Leaflet Id
+    properties.snapLayerIds = [markerM1._leaflet_id, markerM2._leaflet_id];
   }
 }

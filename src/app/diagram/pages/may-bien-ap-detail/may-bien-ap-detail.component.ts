@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { DiagramService } from 'src/app/core';
-import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-may-bien-ap-detail',
@@ -13,131 +12,74 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
     color: [''],
     rotate: [''],
   });
-  // Layer Group Máy Biến Áp.
-  private _mayBienApLayers: any;
   // Máy Biến Áp Layer đang chỉnh sửa.
   private _mayBienApLayer: any;
-  // Snap Layers
-  private _snapLayers: any;
-  // Máy Biến Áp Properties đang chỉnh sửa.
-  private _fProperties: any = null;
+  // Máy Biến Áp Properties Id đang chỉnh sửa.
+  private _fPropertieId: any = null;
 
-  private _L: any;
-  private _drawExtUtil: any;
-  private _tranformDevice: any;
-
-  private _layerEditSubcribe: any;
   private _layerSelectSubcribe: any;
   private _formValueChangeSubcribe: any;
 
   constructor(
     private _diagramService: DiagramService,
     private _fb: FormBuilder
-  ) {
-    this._mayBienApLayers = _diagramService.mayBienApLayers;
-    this._snapLayers = _diagramService.snapLayers;
-    this._drawExtUtil = _diagramService.drawExtUtil;
-    this._tranformDevice = _diagramService.tranformDevice;
-  }
+  ) {}
 
   ngOnDestroy(): void {
-    this._layerEditSubcribe.unsubscribe();
     this._layerSelectSubcribe.unsubscribe();
     this._formValueChangeSubcribe.unsubscribe();
-    this._layerEditSubcribe = null;
     this._layerSelectSubcribe = null;
     this._formValueChangeSubcribe = null;
   }
 
   ngOnInit(): void {
-    this._layerEditSubcribe = this._diagramService.layerEdit.subscribe(
-      (res) => {
-        if (res === null) return;
-        this._mayBienApLayer = res.layer;
-        // Bật tính năng drag cho layerEdit
-        this._mayBienApLayer.dragging.enable();
-      }
-    );
-
     this._layerSelectSubcribe = this._diagramService.layerSelect.subscribe(
       (res) => {
-        // Dữ liệu nhận được khác null hoặc id nhận được === id hiện tại
         if (
           res === null ||
-          (this._fProperties !== null &&
-            res.layer.feature.properties.id === this._fProperties.id)
+          (this._fPropertieId !== null &&
+            res.layer.feature.properties.id === this._fPropertieId)
         ) {
           return;
         }
-        // Reference
         this._mayBienApLayer = res.layer;
-        this._fProperties = { ...this._mayBienApLayer.feature.properties };
-
-        // Remove Máy Biến Áp Layer Selected
-        this._removeLayer();
-
-        // Clone Máy Biến Áp Layer
-        let fTmp = this._L.polyline(this._mayBienApLayer._latlngs).toGeoJSON();
-
-        // this.fProperties.color = '#ff0000';
-        this._fProperties.isEdit = true;
-
-        fTmp.properties = this._fProperties;
-
-        // Add Clone Máy Biến Áp Layer
-        this._mayBienApLayers.addData(fTmp);
+        // Bật tính năng drag cho layerEdit
+        this._mayBienApLayer.dragging.enable();
+        const properties = this._mayBienApLayer.feature.properties;
+        this._fPropertieId = properties.id;
 
         // Fill Data To Form Máy Biến Áp Detail
         this.mayBienApForm.patchValue({
-          rotate: this._fProperties.rotate,
-          color: this._fProperties.color,
+          rotate: properties.rotate,
+          color: properties.color,
         });
       }
     );
 
     this._formValueChangeSubcribe = this.mayBienApForm.valueChanges.subscribe(
       (res) => {
-        // Remove Máy Biến Áp Layer Selected
-        this._removeLayer();
-
-        this._fProperties.id = uuidv4();
-        if (this._fProperties.color !== res.color) {
-          this._fProperties.color = res.color;
+        const properties = this._mayBienApLayer.feature.properties;
+        if (properties.color !== res.color) {
+          // Cập nhật thuộc tính
+          properties.color = res.color;
+          // Cập nhật view
+          this._mayBienApLayer.setStyle({
+            color: properties.color,
+          });
         }
-        if (this._fProperties.rotate !== res.rotate) {
-          const centerPoint = this._drawExtUtil.getCenterPoint(
-            this._mayBienApLayer
-          );
-          let angle = -parseInt(this._fProperties.rotate);
-          // Xoay ngược lại trả về góc 0°
-          this._mayBienApLayer = this._tranformDevice.rotateMayBienAp(
-            this._mayBienApLayer._latlngs,
-            centerPoint,
-            angle
-          );
-          // Xoay góc
-          this._fProperties.rotate = res.rotate;
-          angle = parseInt(this._fProperties.rotate);
-          this._mayBienApLayer = this._tranformDevice.rotateMayBienAp(
-            this._mayBienApLayer._latlngs,
-            centerPoint,
-            angle
-          );
+        let changeLatLng = false;
+        if (properties.rotate !== res.rotate) {
+          const angleA = -parseInt(properties.rotate);
+          properties.rotate = res.rotate;
+          const angleB = parseInt(properties.rotate);
+          this._diagramService.rotate(this._mayBienApLayer, angleA, angleB);
+          changeLatLng = true;
         }
-        let fTmp = this._L.polyline(this._mayBienApLayer._latlngs).toGeoJSON();
-        fTmp.properties = this._fProperties;
-        this._mayBienApLayers.addData(fTmp);
+        if (changeLatLng) {
+          this._diagramService.removeSnapLayer(this._mayBienApLayer);
+          this._diagramService.addSnapLayer(this._mayBienApLayer);
+        }
       }
     );
-  }
-
-  private _removeLayer(): void {
-    // Remove Snap LayerId
-    const properties = this._mayBienApLayer.feature.properties;
-    for (var i = 0; i < properties.snapLayerIds.length; i++) {
-      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
-    }
-    // Remove Máy Biến Áp Layer Selected
-    this._mayBienApLayers.removeLayer(this._mayBienApLayer);
   }
 }
