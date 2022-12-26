@@ -6,26 +6,24 @@
       <div class="select-input">
         <mat-form-field>
           <mat-label>Loại thiết bị</mat-label>
-          <mat-select formControlName="LOAITBKHAC">
+          <mat-select formControlName="LOAITBKHAC" [errorStateMatcher]="matcher" (selectionChange)="changeLoaiTB($event)">
             <mat-option value="MBA">Máy biến áp</mat-option>
             <mat-option value="RL">Rơ le </mat-option>
           </mat-select>
-          <!-- <div *ngIf="LOAITBKHAC.errors" class="invalid-feedback">
-            <div *ngIf="LOAITBKHAC.errors.required">
-              Tên đối tượng quan sát không được bỏ trống
-            </div>
-            <div *ngIf="LOAITBKHAC.errors.errorServer">
-              {{ LOAITBKHAC.errors.message }}
-            </div>
-          </div> -->
+          <mat-error>
+            Vui lòng chọn loại thiết bị
+          </mat-error>
         </mat-form-field>
       </div>
       <div class="select-input">
         <mat-form-field>
           <mat-label>Tên thiết bị</mat-label>
           <mat-select formControlName="MATBKHAC">
-            <mat-option value="MBA">Máy biến áp</mat-option>
+            <mat-option *ngFor="let item of dataCombo" [value]="item.MATHIETBI">{{ item.TENTHIETBI }}</mat-option>
           </mat-select>
+          <mat-error>
+            Vui lòng chọn thiết bị
+          </mat-error>
         </mat-form-field>
       </div>
     </div>

@@ -28,4 +28,8 @@ export class HeaderComponent {
   openTC() {
     this._router.navigate(['/admin/thanh-cai-list']);
   }
+
+  openDiagram() {
+    this._router.navigate(['/diagram/view']);
+  }
 }

@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { RoLeList } from 'src/app/core/models/ro-le';
 import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
+import { RoLeService } from 'src/app/core/services/ro-le.service';
 
 @Component({
   selector: 'app-ro-le-list',
@@ -22,20 +23,29 @@ export class RoLeListComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(
-    private _router: Router,
-    private getDataTestService: GetDataTestService
-  ) {}
+  constructor(private _router: Router, private _roLeService: RoLeService) {}
 
   ngOnInit() {
-    this.getDataTestService.listRL().subscribe((client) => {
+    this._roLeService.getDSRoLe().subscribe((client) => {
       if (client.length < 5) {
         for (var i = 0; i < client.length; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new RoLeList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENROLE = client[i].tenrole;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       } else {
         for (var i = 0; i < 5; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new RoLeList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENROLE = client[i].tenrole;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;
@@ -44,13 +54,19 @@ export class RoLeListComponent implements OnInit {
   }
 
   changePagination(event: any) {
-    this.getDataTestService.listRL().subscribe((client) => {
+    this._roLeService.getDSRoLe().subscribe((client) => {
       this.ELEMENT_DATA = [];
       var start = event.pageIndex * event.pageSize;
       var limit = start + event.pageSize;
       for (var i = start; i < limit; i++) {
-        if(i<client.length){
-          this.ELEMENT_DATA.push(client[i]);
+        if (i < client.length) {
+          var cusObj = new RoLeList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENROLE = client[i].tenrole;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;

@@ -4,3 +4,8 @@ export interface ThietBiLienQuan {
   LOAITBKHAC: string;
   TENTHIETBI: string;
 }
+
+export class ComboThietBiLienQuan {
+  MATHIETBI!: string;
+  TENTHIETBI!: string;
+}

@@ -4,12 +4,15 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
+import { ThanhCaiDetail } from 'src/app/core/models/thanh-cai';
 import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
+import { ThanhCaiService } from 'src/app/core/services/thanh-cai.service';
+import { ToastService } from 'src/app/core/services/toast.service';
 
 @Component({
   selector: 'app-thanh-cai-detail',
   templateUrl: './thanh-cai-detail.component.html',
-  styleUrls: ['./thanh-cai-detail.component.css']
+  styleUrls: ['./thanh-cai-detail.component.css'],
 })
 export class ThanhCaiDetailComponent implements OnInit {
   thanhCaiDetailForm = new FormGroup({
@@ -47,7 +50,8 @@ export class ThanhCaiDetailComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
-    private getDataTestService: GetDataTestService
+    private _thanhCaiService: ThanhCaiService,
+    private _toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -56,82 +60,78 @@ export class ThanhCaiDetailComponent implements OnInit {
       if (id == 'add') {
         this.formType = false;
       } else {
-        this.getDataTestService.listTC().subscribe((client) => {
-          client.forEach((element) => {
-            if (element.MAPMIS == id) {
-              this.formType = true;
-              this.thanhCaiDetailForm.patchValue({
-                MAPMIS: element.MAPMIS,
-                TENTHANHCAI: element.TENTHANHCAI,
-                MADVQL: element.MADVQL,
-                TENCONGTY: element.TENCONGTY,
-                TRUYENTAIDIEN: element.TRUYENTAIDIEN,
-                CAPDA: element.CAPDA,
-                SOHIEU: element.SOHIEU,
-                SOHUU: element.SOHUU,
-                NGAYLAPDAT: new Date(element.NGAYLAPDAT),
-                NGAYVH: new Date(element.NGAYVH),
-                THUOCTRAM: element.THUOCTRAM,
-                TENTRAM: element.TENTRAM,
-                SOHIEUBANVE: element.SOHIEUBANVE,
-                SODODANHSO: element.SODODANHSO,
-                COTTENHIENTHI: element.COTTENHIENTHI,
-                DAHIENTHITRENSD: element.DAHIENTHITRENSD == 'Y' ? true : false,
-                HIENTHITEN: element.HIENTHITEN == 'Y' ? true : false,
-                HOATDONG: element.HOATDONG == 'Y' ? true : false,
-                TTHIENTAI: element.TTHIENTAI,
-                JSONGEO: element.JSONGEO,
-                MAUDONG: element.MAUDONG,
-                MAUCAT: element.MAUCAT,
-                GHICHU: element.GHICHU,
-              });
-              this.getDataTestService.listFDK().subscribe((client) => {
-                client.forEach(element => {
-                  if (element.MADT == id && element.MALOAITHIETBI == "TC") {
-                    if (client.length < 5) {
-                      for (var i = 0; i < client.length; i++) {
-                        this.ELEMENT_DATA.push(client[i]);
-                      }
-                    } else {
-                      for (var i = 0; i < 5; i++) {
-                        this.ELEMENT_DATA.push(client[i]);
-                      }
-                    }
-                    this.paginator.length = client.length;
-                    this.dataSource = new MatTableDataSource<FileDinhKem>(this.ELEMENT_DATA);
-                  }
-                });
-              });
-            }
-            // this.duongDayDetailForm.controls['MAPMIS'].disable();
+        this._thanhCaiService.getDetailThanhCai(id).subscribe((client) => {
+          this.formType = true;
+          this.thanhCaiDetailForm.patchValue({
+            MAPMIS: client.mapmis,
+            TENTHANHCAI: client.tenthanhcai,
+            MADVQL: client.madvql,
+            TENCONGTY: client.tencongty,
+            TRUYENTAIDIEN: client.truyentaidien,
+            CAPDA: client.capda,
+            SOHIEU: client.sohieu,
+            SOHUU: client.sohuu,
+            NGAYLAPDAT: new Date(client.ngaylapdat),
+            NGAYVH: new Date(client.ngayvh),
+            THUOCTRAM: client.thuoctram,
+            TENTRAM: client.tentram,
+            SOHIEUBANVE: client.sohieubanve,
+            SODODANHSO: client.sododanhso,
+            COTTENHIENTHI: client.cottenhienthi,
+            DAHIENTHITRENSD: client.dahienthitrensd == 'Y' ? true : false,
+            HIENTHITEN: client.hienthiten == 'Y' ? true : false,
+            HOATDONG: client.hoatdong == 'Y' ? true : false,
+            TTHIENTAI: client.tthientai,
+            JSONGEO: client.jsongeo,
+            MAUDONG: client.maudong,
+            MAUCAT: client.maucat,
+            GHICHU: client.ghichu,
           });
+          // this.getDataTestService.listFDK().subscribe((client) => {
+          //   client.forEach(element => {
+          //     if (element.MADT == id && element.MALOAITHIETBI == "TC") {
+          //       if (client.length < 5) {
+          //         for (var i = 0; i < client.length; i++) {
+          //           this.ELEMENT_DATA.push(client[i]);
+          //         }
+          //       } else {
+          //         for (var i = 0; i < 5; i++) {
+          //           this.ELEMENT_DATA.push(client[i]);
+          //         }
+          //       }
+          //       this.paginator.length = client.length;
+          //       this.dataSource = new MatTableDataSource<FileDinhKem>(this.ELEMENT_DATA);
+          //     }
+          //   });
+          // });
+          this.thanhCaiDetailForm.controls['MAPMIS'].disable();
         });
       }
     });
   }
 
   changePagination(event: any) {
-    this._route.paramMap.subscribe((params) => {
-      var id = params.get('id')!;
-      this.getDataTestService.listFDK().subscribe((client) => {
-        client.forEach((element) => {
-          if (element.MADT == id && element.MALOAITHIETBI == "TC") {
-            this.ELEMENT_DATA = [];
-            var start = event.pageIndex * event.pageSize;
-            var limit = start + event.pageSize;
-            for (var i = start; i < limit; i++) {
-              if (i < client.length) {
-                this.ELEMENT_DATA.push(client[i]);
-              }
-            }
-            this.paginator.length = client.length;
-            this.dataSource = new MatTableDataSource<FileDinhKem>(
-              this.ELEMENT_DATA
-            );
-          }
-        });
-      });
-    });
+    // this._route.paramMap.subscribe((params) => {
+    //   var id = params.get('id')!;
+    //   this.getDataTestService.listFDK().subscribe((client) => {
+    //     client.forEach((element) => {
+    //       if (element.MADT == id && element.MALOAITHIETBI == "TC") {
+    //         this.ELEMENT_DATA = [];
+    //         var start = event.pageIndex * event.pageSize;
+    //         var limit = start + event.pageSize;
+    //         for (var i = start; i < limit; i++) {
+    //           if (i < client.length) {
+    //             this.ELEMENT_DATA.push(client[i]);
+    //           }
+    //         }
+    //         this.paginator.length = client.length;
+    //         this.dataSource = new MatTableDataSource<FileDinhKem>(
+    //           this.ELEMENT_DATA
+    //         );
+    //       }
+    //     });
+    //   });
+    // });
   }
 
   onClickDetail(event: any) {
@@ -145,14 +145,114 @@ export class ThanhCaiDetailComponent implements OnInit {
   onClickAddOrUpdate() {
     if (this.formType == false) {
       console.log('Add');
-      console.log(this.thanhCaiDetailForm.getRawValue());
+      var item = this.thanhCaiDetailForm.getRawValue();
+      var itemAdd: ThanhCaiDetail = new ThanhCaiDetail();
+      itemAdd.Mapmis = item.MAPMIS;
+      itemAdd.Tenthanhcai = item.TENTHANHCAI;
+      itemAdd.Madvql = item.MADVQL;
+      itemAdd.Tencongty = item.TENCONGTY;
+      itemAdd.Truyentaidien = item.TRUYENTAIDIEN;
+      itemAdd.Capda = item.CAPDA;
+      itemAdd.Sohieu = item.SOHIEU;
+      itemAdd.Sohuu = item.SOHUU;
+      itemAdd.Ngaylapdat = item.NGAYLAPDAT;
+      itemAdd.Ngayvh = item.NGAYVH;
+      itemAdd.Thuoctram = item.THUOCTRAM;
+      itemAdd.Tentram = item.TENTRAM;
+      itemAdd.Sohieubanve = item.SOHIEUBANVE;
+      itemAdd.Sododanhso = item.SODODANHSO;
+      itemAdd.Cottenhienthi = item.COTTENHIENTHI;
+      itemAdd.Dahienthitrensd = item.DAHIENTHITRENSD == true ? 'Y' : 'N';
+      itemAdd.Hienthiten = item.HIENTHITEN == true ? 'Y' : 'N';
+      itemAdd.Hoatdong = item.HOATDONG == true ? 'Y' : 'N';
+      itemAdd.Tthientai = item.TTHIENTAI;
+      itemAdd.Jsongeo = item.JSONGEO;
+      itemAdd.Maudong = item.MAUDONG;
+      itemAdd.Maucat = item.MAUCAT;
+      itemAdd.Ghichu = item.GHICHU;
+      this._thanhCaiService.addThanhCai(itemAdd).subscribe(
+        (result) => {
+          if (result.fail) {
+            this._toastService.show(result.message, {
+              classname: 'bg-danger text-light',
+              delay: 5000,
+              header: 'Xảy ra lỗi',
+            });
+          } else {
+            this._toastService.show(result.message, {
+              classname: 'bg-success text-light',
+              delay: 5000,
+              header: 'Thông báo',
+            });
+          }
+        },
+        (err) => {
+          this._toastService.show(err, {
+            classname: 'bg-danger text-light',
+            delay: 5000,
+            header: 'Xảy ra lỗi',
+          });
+        }
+      );
     } else {
       console.log('Update');
-      console.log(this.thanhCaiDetailForm.getRawValue());
+      var item = this.thanhCaiDetailForm.getRawValue();
+      var itemAdd: ThanhCaiDetail = new ThanhCaiDetail();
+      itemAdd.Mapmis = item.MAPMIS;
+      itemAdd.Tenthanhcai = item.TENTHANHCAI;
+      itemAdd.Madvql = item.MADVQL;
+      itemAdd.Tencongty = item.TENCONGTY;
+      itemAdd.Truyentaidien = item.TRUYENTAIDIEN;
+      itemAdd.Capda = item.CAPDA;
+      itemAdd.Sohieu = item.SOHIEU;
+      itemAdd.Sohuu = item.SOHUU;
+      itemAdd.Ngaylapdat = item.NGAYLAPDAT;
+      itemAdd.Ngayvh = item.NGAYVH;
+      itemAdd.Thuoctram = item.THUOCTRAM;
+      itemAdd.Tentram = item.TENTRAM;
+      itemAdd.Sohieubanve = item.SOHIEUBANVE;
+      itemAdd.Sododanhso = item.SODODANHSO;
+      itemAdd.Cottenhienthi = item.COTTENHIENTHI;
+      itemAdd.Dahienthitrensd = item.DAHIENTHITRENSD == true ? 'Y' : 'N';
+      itemAdd.Hienthiten = item.HIENTHITEN == true ? 'Y' : 'N';
+      itemAdd.Hoatdong = item.HOATDONG == true ? 'Y' : 'N';
+      itemAdd.Tthientai = item.TTHIENTAI;
+      itemAdd.Jsongeo = item.JSONGEO;
+      itemAdd.Maudong = item.MAUDONG;
+      itemAdd.Maucat = item.MAUCAT;
+      itemAdd.Ghichu = item.GHICHU;
+      this._thanhCaiService.updateThanhCai(itemAdd).subscribe(
+        (result) => {
+          if (result.fail) {
+            this._toastService.show(result.message, {
+              classname: 'bg-danger text-light',
+              delay: 5000,
+              header: 'Xảy ra lỗi',
+            });
+          } else {
+            this._toastService.show(result.message, {
+              classname: 'bg-success text-light',
+              delay: 5000,
+              header: 'Thông báo',
+            });
+          }
+        },
+        (err) => {
+          this._toastService.show(err, {
+            classname: 'bg-danger text-light',
+            delay: 5000,
+            header: 'Xảy ra lỗi',
+          });
+        }
+      );
     }
   }
 
   onClickGoBack() {
     this._router.navigate(['/admin/thanh-cai-list']);
+  }
+
+  openDiagram() {
+    this._router.navigate(['/diagram/view']);
   }
 }

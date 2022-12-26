@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { MayBienApList } from 'src/app/core/models/may-bien-ap';
 import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
+import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
 
 @Component({
   selector: 'app-may-bien-ap-list',
@@ -24,37 +25,59 @@ export class MayBienApListComponent implements OnInit {
 
   constructor(
     private _router: Router,
-    private getDataTestService: GetDataTestService
+    private _mayBienApService: MayBienApService
   ) {}
 
   ngOnInit() {
-    this.getDataTestService.listMBA().subscribe((client) => {
+    this._mayBienApService.getDSMayBienAp().subscribe((client) => {
       if (client.length < 5) {
         for (var i = 0; i < client.length; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new MayBienApList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENMBA = client[i].tenmba;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       } else {
         for (var i = 0; i < 5; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new MayBienApList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENMBA = client[i].tenmba;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;
-      this.dataSource = new MatTableDataSource<MayBienApList>(this.ELEMENT_DATA);
+      this.dataSource = new MatTableDataSource<MayBienApList>(
+        this.ELEMENT_DATA
+      );
     });
   }
 
   changePagination(event: any) {
-    this.getDataTestService.listMBA().subscribe((client) => {
+    this._mayBienApService.getDSMayBienAp().subscribe((client) => {
       this.ELEMENT_DATA = [];
       var start = event.pageIndex * event.pageSize;
       var limit = start + event.pageSize;
       for (var i = start; i < limit; i++) {
-        if(i<client.length){
-          this.ELEMENT_DATA.push(client[i]);
+        if (i < client.length) {
+          var cusObj = new MayBienApList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENMBA = client[i].tenmba;
+          cusObj.TENTRAM = client[i].tentram;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;
-      this.dataSource = new MatTableDataSource<MayBienApList>(this.ELEMENT_DATA);
+      this.dataSource = new MatTableDataSource<MayBienApList>(
+        this.ELEMENT_DATA
+      );
     });
   }
 

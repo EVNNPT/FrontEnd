@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ThanhCaiList } from 'src/app/core/models/thanh-cai';
 import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
+import { ThanhCaiService } from 'src/app/core/services/thanh-cai.service';
 
 @Component({
   selector: 'app-thanh-cai-list',
@@ -25,18 +26,32 @@ export class ThanhCaiListComponent implements OnInit {
 
   constructor(
     private _router: Router,
-    private getDataTestService: GetDataTestService
+    private _thanhCaiService: ThanhCaiService
   ) {}
 
   ngOnInit() {
-    this.getDataTestService.listTC().subscribe((client) => {
+    this._thanhCaiService.getDSThanhCai().subscribe((client) => {
       if (client.length < 5) {
         for (var i = 0; i < client.length; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new ThanhCaiList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENTHANHCAI = client[i].tenthanhcai;
+          cusObj.TENTRAM = client[i].tentram;
+          cusObj.CAPDA = client[i].capda;
+          this.ELEMENT_DATA.push(cusObj);
         }
       } else {
         for (var i = 0; i < 5; i++) {
-          this.ELEMENT_DATA.push(client[i]);
+          var cusObj = new ThanhCaiList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENTHANHCAI = client[i].tenthanhcai;
+          cusObj.TENTRAM = client[i].tentram;
+          cusObj.CAPDA = client[i].capda;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;
@@ -45,13 +60,20 @@ export class ThanhCaiListComponent implements OnInit {
   }
 
   changePagination(event: any) {
-    this.getDataTestService.listTC().subscribe((client) => {
+    this._thanhCaiService.getDSThanhCai().subscribe((client) => {
       this.ELEMENT_DATA = [];
       var start = event.pageIndex * event.pageSize;
       var limit = start + event.pageSize;
       for (var i = start; i < limit; i++) {
-        if(i<client.length){
-          this.ELEMENT_DATA.push(client[i]);
+        if (i < client.length) {
+          var cusObj = new ThanhCaiList();
+          cusObj.MAPMIS = client[i].mapmis;
+          cusObj.TENCONGTY = client[i].tencongty;
+          cusObj.TRUYENTAIDIEN = client[i].truyentaidien;
+          cusObj.TENTHANHCAI = client[i].tenthanhcai;
+          cusObj.TENTRAM = client[i].tentram;
+          cusObj.CAPDA = client[i].capda;
+          this.ELEMENT_DATA.push(cusObj);
         }
       }
       this.paginator.length = client.length;

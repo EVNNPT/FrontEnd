@@ -126,6 +126,20 @@
           <input matInput formControlName="MACH" />
         </mat-form-field>
       </mat-grid-tile>
+
+      <mat-grid-tile>
+        <mat-form-field class="custom-width">
+          <mat-label>Thiết bị bảo vệ</mat-label>
+          <input matInput formControlName="TBBAOVE" />
+        </mat-form-field>
+      </mat-grid-tile>
+
+      <mat-grid-tile>
+        <mat-form-field class="custom-width">
+          <mat-label>Tủ bảo vệ</mat-label>
+          <input matInput formControlName="TUBV" />
+        </mat-form-field>
+      </mat-grid-tile>
   
       <mat-grid-tile>
         <mat-form-field class="custom-width">
@@ -211,7 +225,7 @@
       <button mat-raised-button color="primary" (click)="onClickAddOrUpdate()">
         <mat-icon>update</mat-icon>Cập nhật
       </button>
-      <button mat-raised-button color="primary">
+      <button mat-raised-button color="primary" (click)="openDiagram()">
         <mat-icon>pageview</mat-icon>Xem trên sơ đồ
       </button>
     </div>
