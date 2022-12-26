@@ -1,5 +1,5 @@
 /*
- Leaflet.draw 1.0.4+b37bd96, a plugin that adds drawing and editing tools to Leaflet powered maps.
+ Leaflet.draw 1.0.4+dae5711, a plugin that adds drawing and editing tools to Leaflet powered maps.
  (c) 2012-2017, Jacob Toye, Jon West, Smartrak, Leaflet
 
  https://github.com/Leaflet/Leaflet.draw
@@ -4189,7 +4189,6 @@ L.LatLngUtil = {
 
 
 (function () {
-
 	var defaultPrecision = {
 		km: 2,
 		ha: 2,
@@ -4198,9 +4197,8 @@ L.LatLngUtil = {
 		ac: 2,
 		yd: 0,
 		ft: 0,
-		nm: 2
+		nm: 2,
 	};
-
 
 	/**
 	 * @class L.GeometryUtil
@@ -4214,16 +4212,19 @@ L.LatLngUtil = {
 			var pointsCount = latLngs.length,
 				area = 0.0,
 				d2r = Math.PI / 180,
-				p1, p2;
+				p1,
+				p2;
 
 			if (pointsCount > 2) {
 				for (var i = 0; i < pointsCount; i++) {
 					p1 = latLngs[i];
 					p2 = latLngs[(i + 1) % pointsCount];
-					area += ((p2.lng - p1.lng) * d2r) *
+					area +=
+						(p2.lng - p1.lng) *
+						d2r *
 						(2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
 				}
-				area = area * 6378137.0 * 6378137.0 / 2.0;
+				area = (area * 6378137.0 * 6378137.0) / 2.0;
 			}
 
 			return Math.abs(area);
@@ -4239,9 +4240,11 @@ L.LatLngUtil = {
 				decimal = delimiters && delimiters.decimal;
 
 			if (thousands || decimal) {
-				var splitValue = formatted.split('.');
-				formatted = thousands ? splitValue[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + thousands) : splitValue[0];
-				decimal = decimal || '.';
+				var splitValue = formatted.split(".");
+				formatted = thousands
+					? splitValue[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1" + thousands)
+					: splitValue[0];
+				decimal = decimal || ".";
 				if (splitValue.length > 1) {
 					formatted = formatted + decimal + splitValue[1];
 				}
@@ -4259,30 +4262,42 @@ L.LatLngUtil = {
 				precision = L.Util.extend({}, defaultPrecision, precision);
 
 			if (isMetric) {
-				units = ['ha', 'm'];
+				units = ["ha", "m"];
 				type = typeof isMetric;
-				if (type === 'string') {
+				if (type === "string") {
 					units = [isMetric];
-				} else if (type !== 'boolean') {
+				} else if (type !== "boolean") {
 					units = isMetric;
 				}
 
-				if (area >= 1000000 && units.indexOf('km') !== -1) {
-					areaStr = L.GeometryUtil.formattedNumber(area * 0.000001, precision['km']) + ' km²';
-				} else if (area >= 10000 && units.indexOf('ha') !== -1) {
-					areaStr = L.GeometryUtil.formattedNumber(area * 0.0001, precision['ha']) + ' ha';
+				if (area >= 1000000 && units.indexOf("km") !== -1) {
+					areaStr =
+						L.GeometryUtil.formattedNumber(area * 0.000001, precision["km"]) +
+						" km²";
+				} else if (area >= 10000 && units.indexOf("ha") !== -1) {
+					areaStr =
+						L.GeometryUtil.formattedNumber(area * 0.0001, precision["ha"]) +
+						" ha";
 				} else {
-					areaStr = L.GeometryUtil.formattedNumber(area, precision['m']) + ' m²';
+					areaStr =
+						L.GeometryUtil.formattedNumber(area, precision["m"]) + " m²";
 				}
 			} else {
 				area /= 0.836127; // Square yards in 1 meter
 
-				if (area >= 3097600) { //3097600 square yards in 1 square mile
-					areaStr = L.GeometryUtil.formattedNumber(area / 3097600, precision['mi']) + ' mi²';
-				} else if (area >= 4840) { //4840 square yards in 1 acre
-					areaStr = L.GeometryUtil.formattedNumber(area / 4840, precision['ac']) + ' acres';
+				if (area >= 3097600) {
+					//3097600 square yards in 1 square mile
+					areaStr =
+						L.GeometryUtil.formattedNumber(area / 3097600, precision["mi"]) +
+						" mi²";
+				} else if (area >= 4840) {
+					//4840 square yards in 1 acre
+					areaStr =
+						L.GeometryUtil.formattedNumber(area / 4840, precision["ac"]) +
+						" acres";
 				} else {
-					areaStr = L.GeometryUtil.formattedNumber(area, precision['yd']) + ' yd²';
+					areaStr =
+						L.GeometryUtil.formattedNumber(area, precision["yd"]) + " yd²";
 				}
 			}
 
@@ -4296,47 +4311,62 @@ L.LatLngUtil = {
 		// @method readableDistance(distance, isMetric, useFeet, isNauticalMile, precision): string
 		// Converts metric distance to distance string.
 		// The value will be rounded as defined by the precision option object.
-		readableDistance: function (distance, isMetric, isFeet, isNauticalMile, precision) {
+		readableDistance: function (
+			distance,
+			isMetric,
+			isFeet,
+			isNauticalMile,
+			precision
+		) {
 			var distanceStr,
 				units,
 				precision = L.Util.extend({}, defaultPrecision, precision);
 
 			if (isMetric) {
-				units = typeof isMetric == 'string' ? isMetric : 'metric';
+				units = typeof isMetric == "string" ? isMetric : "metric";
 			} else if (isFeet) {
-				units = 'feet';
+				units = "feet";
 			} else if (isNauticalMile) {
-				units = 'nauticalMile';
+				units = "nauticalMile";
 			} else {
-				units = 'yards';
+				units = "yards";
 			}
 
 			switch (units) {
-				case 'metric':
+				case "metric":
 					// show metres when distance is < 1km, then show km
 					if (distance > 1000) {
-						distanceStr = L.GeometryUtil.formattedNumber(distance / 1000, precision['km']) + ' km';
+						distanceStr =
+							L.GeometryUtil.formattedNumber(distance / 1000, precision["km"]) +
+							" km";
 					} else {
-						distanceStr = L.GeometryUtil.formattedNumber(distance, precision['m']) + ' m';
+						distanceStr =
+							L.GeometryUtil.formattedNumber(distance, precision["m"]) + " m";
 					}
 					break;
-				case 'feet':
+				case "feet":
 					distance *= 1.09361 * 3;
-					distanceStr = L.GeometryUtil.formattedNumber(distance, precision['ft']) + ' ft';
+					distanceStr =
+						L.GeometryUtil.formattedNumber(distance, precision["ft"]) + " ft";
 
 					break;
-				case 'nauticalMile':
+				case "nauticalMile":
 					distance *= 0.53996;
-					distanceStr = L.GeometryUtil.formattedNumber(distance / 1000, precision['nm']) + ' nm';
+					distanceStr =
+						L.GeometryUtil.formattedNumber(distance / 1000, precision["nm"]) +
+						" nm";
 					break;
-				case 'yards':
+				case "yards":
 				default:
 					distance *= 1.09361;
 
 					if (distance > 1760) {
-						distanceStr = L.GeometryUtil.formattedNumber(distance / 1760, precision['mi']) + ' miles';
+						distanceStr =
+							L.GeometryUtil.formattedNumber(distance / 1760, precision["mi"]) +
+							" miles";
 					} else {
-						distanceStr = L.GeometryUtil.formattedNumber(distance, precision['yd']) + ' yd';
+						distanceStr =
+							L.GeometryUtil.formattedNumber(distance, precision["yd"]) + " yd";
 					}
 					break;
 			}
@@ -4346,12 +4376,11 @@ L.LatLngUtil = {
 		// @method isVersion07x(): boolean
 		// Returns true if the Leaflet version is 0.7.x, false otherwise.
 		isVersion07x: function () {
-			var version = L.version.split('.');
+			var version = L.version.split(".");
 			//If Version is == 0.7.*
 			return parseInt(version[0], 10) === 0 && parseInt(version[1], 10) === 7;
 		},
 	});
-
 })();
 
 

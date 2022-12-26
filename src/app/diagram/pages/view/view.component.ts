@@ -109,6 +109,8 @@ export class ViewComponent implements AfterViewInit {
         this.drawer.close();
       }
     });
+
+    this._diagramService.getDiagram('1');
   }
 
   constructor(
