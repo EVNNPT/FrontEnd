@@ -3,7 +3,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ThanhCaiList } from 'src/app/core/models/thanh-cai';
-import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
 import { ThanhCaiService } from 'src/app/core/services/thanh-cai.service';
 
 @Component({

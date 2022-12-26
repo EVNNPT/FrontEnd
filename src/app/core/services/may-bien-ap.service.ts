@@ -34,4 +34,12 @@ export class MayBienApService {
   updateMayBienAp(param: MayBienApDetail): Observable<any> {
     return this._httpClient.post<any>(`${this.apiURL}/update-mba`, param);
   }
+
+  getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-mba?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
+      map((result) => {
+        return result;
+      })
+    );
+  }
 }

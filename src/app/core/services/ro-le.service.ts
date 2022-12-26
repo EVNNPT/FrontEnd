@@ -34,4 +34,12 @@ export class RoLeService {
   updateRoLe(param: RoLeDetail): Observable<any> {
     return this._httpClient.post<any>(`${this.apiURL}/update-rl`, param);
   }
+
+  getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-rl?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
+      map((result) => {
+        return result;
+      })
+    );
+  }
 }

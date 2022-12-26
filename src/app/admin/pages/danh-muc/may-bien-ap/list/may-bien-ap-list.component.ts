@@ -3,7 +3,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { MayBienApList } from 'src/app/core/models/may-bien-ap';
-import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
 import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
 
 @Component({

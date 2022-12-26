@@ -34,4 +34,12 @@ export class ThanhCaiService {
   updateThanhCai(param: ThanhCaiDetail): Observable<any> {
     return this._httpClient.post<any>(`${this.apiURL}/update-tc`, param);
   }
+
+  getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-tc?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
+      map((result) => {
+        return result;
+      })
+    );
+  }
 }

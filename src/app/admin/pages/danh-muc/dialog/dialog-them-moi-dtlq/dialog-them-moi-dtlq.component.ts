@@ -10,9 +10,11 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   ComboThietBiLienQuan,
-  ThietBiLienQuan,
+  ThietBiLienQuanAdd,
 } from 'src/app/core/models/thiet-bi-lq';
-import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
+import { DuongDayService } from 'src/app/core/services/duong-day.service';
+import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
+import { RoLeService } from 'src/app/core/services/ro-le.service';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
@@ -45,30 +47,32 @@ export class DialogThemMoiDtlqComponent {
 
   constructor(
     private dialogRef: MatDialogRef<DialogThemMoiDtlqComponent>,
-    private getDataTestService: GetDataTestService,
+    private _duongDayService: DuongDayService,
+    private _mayBienApService: MayBienApService,
+    private _roLeService: RoLeService,
     @Inject(MAT_DIALOG_DATA) public data: { id: string }
   ) {}
 
   changeLoaiTB(event: any) {
     this.dataCombo = [];
     if (event.value == 'MBA') {
-      this.getDataTestService.listMBA().subscribe((client) => {
-        client.forEach(element => {
+      this._mayBienApService.getDSMayBienAp().subscribe((client) => {
+        for(var i = 0; i < client.length; i++){
           var customObj = new ComboThietBiLienQuan();
-          customObj.MATHIETBI = element.MAPMIS;
-          customObj.TENTHIETBI = element.TENMBA;
+          customObj.MATHIETBI = client[i].mapmis;
+          customObj.TENTHIETBI = client[i].tenmba;
           this.dataCombo.push(customObj);
-        });
+        };
         this.dialogAddDTLQ.controls['MATBKHAC'].enable();
       });
-    } else if (event.value == 'RL') {
-      this.getDataTestService.listRL().subscribe((client) => {
-        client.forEach(element => {
+    } else if (event.value == 'ROLE') {
+      this._roLeService.getDSRoLe().subscribe((client) => {
+        for(var i = 0; i < client.length; i++){
           var customObj = new ComboThietBiLienQuan();
-          customObj.MATHIETBI = element.MAPMIS;
-          customObj.TENTHIETBI = element.TENROLE;
+          customObj.MATHIETBI = client[i].mapmis;
+          customObj.TENTHIETBI = client[i].tenrole;
           this.dataCombo.push(customObj);
-        });
+        };
         this.dialogAddDTLQ.controls['MATBKHAC'].enable();
       });
     } else{
@@ -81,7 +85,25 @@ export class DialogThemMoiDtlqComponent {
     var b = this.dialogAddDTLQ.getRawValue().LOAITBKHAC;
     var c = this.dialogAddDTLQ.getRawValue().MATBKHAC;
     if (a != '' && b != '' && c != '') {
-      this.dialogRef.close();
+      var item = this.dialogAddDTLQ.getRawValue();
+      var itemAdd: ThietBiLienQuanAdd = new ThietBiLienQuanAdd();
+      itemAdd.Loaitbkhac = item.LOAITBKHAC;
+      itemAdd.Maduongday = item.MADUONGDAY;
+      itemAdd.Matbkhac = item.MATBKHAC;
+      console.log(itemAdd)
+      this._duongDayService.addDTLienQuan(itemAdd).subscribe(
+        (result) => {
+          if (result.fail) {
+            console.log(result.message);
+          } else {
+            console.log(result.message);
+            this.dialogRef.close();
+          }
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
     }
   }
 }

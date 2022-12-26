@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,7 +8,6 @@ import { DuongDayDetail } from 'src/app/core/models/duong-day';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
 import { ThietBiLienQuan } from 'src/app/core/models/thiet-bi-lq';
 import { DuongDayService } from 'src/app/core/services/duong-day.service';
-import { ToastService } from 'src/app/core/services/toast.service';
 import { DialogThemMoiDtlqComponent } from '../../dialog/dialog-them-moi-dtlq/dialog-them-moi-dtlq.component';
 
 @Component({
@@ -63,7 +62,6 @@ export class DuongDayDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _duongDayService: DuongDayService,
-    private _toastService: ToastService,
     public dialog: MatDialog
   ) {}
 
@@ -106,44 +104,58 @@ export class DuongDayDetailComponent implements OnInit {
             DAUNOICUOI: client.daunoicuoi,
             GHICHU: client.ghichu,
           });
-          // this.getDataTestService.listFDK().subscribe((client) => {
-          //   client.forEach((element) => {
-          //     if (element.MADT == id && element.MALOAITHIETBI == "DUONGDAY") {
-          //       if (client.length < 5) {
-          //         for (var i = 0; i < client.length; i++) {
-          //           this.ELEMENT_DATA.push(client[i]);
-          //         }
-          //       } else {
-          //         for (var i = 0; i < 5; i++) {
-          //           this.ELEMENT_DATA.push(client[i]);
-          //         }
-          //       }
-          //       this.paginator.length = client.length;
-          //       this.dataSource = new MatTableDataSource<FileDinhKem>(
-          //         this.ELEMENT_DATA
-          //       );
-          //     }
-          //   });
-          // });
-          // this.getDataTestService.listTBLQ().subscribe((client) => {
-          //   client.forEach((element) => {
-          //     if (element.MADUONGDAY == id) {
-          //       if (client.length < 5) {
-          //         for (var i = 0; i < client.length; i++) {
-          //           this.ELEMENT_DATA_TBLQ.push(client[i]);
-          //         }
-          //       } else {
-          //         for (var i = 0; i < 5; i++) {
-          //           this.ELEMENT_DATA_TBLQ.push(client[i]);
-          //         }
-          //       }
-          //       this.paginator_TBLQ.length = client.length;
-          //       this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
-          //         this.ELEMENT_DATA_TBLQ
-          //       );
-          //     }
-          //   });
-          // })
+          this._duongDayService
+            .getFileDinhKem('DDAY', id)
+            .subscribe((client) => {
+              if (client.length < 5) {
+                for (var i = 0; i < client.length; i++) {
+                  var cusObj = new FileDinhKem();
+                  cusObj.MADT = client[i].madt;
+                  cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+                  cusObj.TENFILE = client[i].tenfile;
+                  cusObj.DUONGDAN = client[i].duongdan;
+                  this.ELEMENT_DATA.push(cusObj);
+                }
+              } else {
+                for (var i = 0; i < 5; i++) {
+                  var cusObj = new FileDinhKem();
+                  cusObj.MADT = client[i].madt;
+                  cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+                  cusObj.TENFILE = client[i].tenfile;
+                  cusObj.DUONGDAN = client[i].duongdan;
+                  this.ELEMENT_DATA.push(cusObj);
+                }
+              }
+              this.paginator.length = client.length;
+              this.dataSource = new MatTableDataSource<FileDinhKem>(
+                this.ELEMENT_DATA
+              );
+            });
+          this._duongDayService.getDTLienQuan(id).subscribe((client) => {
+            if (client.length < 5) {
+              for (var i = 0; i < client.length; i++) {
+                var cusObj = new ThietBiLienQuan();
+                cusObj.LOAITBKHAC = client[i].loaitbkhac;
+                cusObj.MADUONGDAY = client[i].maduongday;
+                cusObj.MATBKHAC = client[i].matbkhac;
+                cusObj.TENTHIETBI = client[i].tenthietbi;
+                this.ELEMENT_DATA_TBLQ.push(cusObj);
+              }
+            } else {
+              for (var i = 0; i < 5; i++) {
+                var cusObj = new ThietBiLienQuan();
+                cusObj.LOAITBKHAC = client[i].loaitbkhac;
+                cusObj.MADUONGDAY = client[i].maduongday;
+                cusObj.MATBKHAC = client[i].matbkhac;
+                cusObj.TENTHIETBI = client[i].tenthietbi;
+                this.ELEMENT_DATA_TBLQ.push(cusObj);
+              }
+            }
+            this.paginator_TBLQ.length = client.length;
+            this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
+              this.ELEMENT_DATA_TBLQ
+            );
+          });
           this.duongDayDetailForm.controls['MAPMIS'].disable();
         });
       }
@@ -151,51 +163,53 @@ export class DuongDayDetailComponent implements OnInit {
   }
 
   changePagination(event: any) {
-    // this._route.paramMap.subscribe((params) => {
-    //   var id = params.get('id')!;
-    //   this.getDataTestService.listFDK().subscribe((client) => {
-    //     client.forEach((element) => {
-    //       if (element.MADT == id && element.MALOAITHIETBI == "DUONGDAY") {
-    //         this.ELEMENT_DATA = [];
-    //         var start = event.pageIndex * event.pageSize;
-    //         var limit = start + event.pageSize;
-    //         for (var i = start; i < limit; i++) {
-    //           if (i < client.length) {
-    //             this.ELEMENT_DATA.push(client[i]);
-    //           }
-    //         }
-    //         this.paginator.length = client.length;
-    //         this.dataSource = new MatTableDataSource<FileDinhKem>(
-    //           this.ELEMENT_DATA
-    //         );
-    //       }
-    //     });
-    //   });
-    // });
+    this.ELEMENT_DATA = [];
+    this._route.paramMap.subscribe((params) => {
+      var id = params.get('id')!;
+      this._duongDayService.getFileDinhKem('DDAY', id).subscribe((client) => {
+        var start = event.pageIndex * event.pageSize;
+        var limit = start + event.pageSize;
+        for (var i = start; i < limit; i++) {
+          if (i < client.length) {
+            var cusObj = new FileDinhKem();
+            cusObj.MADT = client[i].madt;
+            cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+            cusObj.TENFILE = client[i].tenfile;
+            cusObj.DUONGDAN = client[i].duongdan;
+            this.ELEMENT_DATA.push(cusObj);
+          }
+        }
+        this.paginator.length = client.length;
+        this.dataSource = new MatTableDataSource<FileDinhKem>(
+          this.ELEMENT_DATA
+        );
+      });
+    });
   }
 
   changePagination_TBLQ(event: any) {
-    // this._route.paramMap.subscribe((params) => {
-    //   var id = params.get('id')!;
-    //   this.getDataTestService.listTBLQ().subscribe((client) => {
-    //     client.forEach((element) => {
-    //       if (element.MADUONGDAY == id) {
-    //         this.ELEMENT_DATA_TBLQ = [];
-    //         var start = event.pageIndex * event.pageSize;
-    //         var limit = start + event.pageSize;
-    //         for (var i = start; i < limit; i++) {
-    //           if (i < client.length) {
-    //             this.ELEMENT_DATA_TBLQ.push(client[i]);
-    //           }
-    //         }
-    //         this.paginator_TBLQ.length = client.length;
-    //         this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
-    //           this.ELEMENT_DATA_TBLQ
-    //         );
-    //       }
-    //     });
-    //   });
-    // });
+    this.ELEMENT_DATA_TBLQ = [];
+    this._route.paramMap.subscribe((params) => {
+      var id = params.get('id')!;
+      this._duongDayService.getDTLienQuan(id).subscribe((client) => {
+        var start = event.pageIndex * event.pageSize;
+        var limit = start + event.pageSize;
+        for (var i = start; i < limit; i++) {
+          if (i < client.length) {
+            var cusObj = new ThietBiLienQuan();
+            cusObj.LOAITBKHAC = client[i].loaitbkhac;
+            cusObj.MADUONGDAY = client[i].maduongday;
+            cusObj.MATBKHAC = client[i].matbkhac;
+            cusObj.TENTHIETBI = client[i].tenthietbi;
+            this.ELEMENT_DATA_TBLQ.push(cusObj);
+          }
+        }
+        this.paginator_TBLQ.length = client.length;
+        this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
+          this.ELEMENT_DATA_TBLQ
+        );
+      });
+    });
   }
 
   onClickDetail(event: any) {
@@ -241,25 +255,13 @@ export class DuongDayDetailComponent implements OnInit {
       this._duongDayService.addDuongDay(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            this._toastService.show(result.message, {
-              classname: 'bg-danger text-light',
-              delay: 5000,
-              header: 'Xảy ra lỗi',
-            });
+            console.log(result.message);
           } else {
-            this._toastService.show(result.message, {
-              classname: 'bg-success text-light',
-              delay: 5000,
-              header: 'Thông báo',
-            });
+            console.log(result.message);
           }
         },
         (err) => {
-          this._toastService.show(err, {
-            classname: 'bg-danger text-light',
-            delay: 5000,
-            header: 'Xảy ra lỗi',
-          });
+          console.log(err);
         }
       );
     } else {
@@ -296,25 +298,13 @@ export class DuongDayDetailComponent implements OnInit {
       this._duongDayService.updateDuongDay(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            this._toastService.show(result.message, {
-              classname: 'bg-danger text-light',
-              delay: 5000,
-              header: 'Xảy ra lỗi',
-            });
+            console.log(result.message);
           } else {
-            this._toastService.show(result.message, {
-              classname: 'bg-success text-light',
-              delay: 5000,
-              header: 'Thông báo',
-            });
+            console.log(result.message);
           }
         },
         (err) => {
-          this._toastService.show(err, {
-            classname: 'bg-danger text-light',
-            delay: 5000,
-            header: 'Xảy ra lỗi',
-          });
+          console.log(err);
         }
       );
     }
@@ -325,29 +315,37 @@ export class DuongDayDetailComponent implements OnInit {
   }
 
   openDialog() {
-    // const dialogRef = this.dialog.open(DialogThemMoiDtlqComponent, {data: { id: this.id },});
-    // dialogRef.afterClosed().subscribe(result => {
-    //   this.ELEMENT_DATA_TBLQ = [];
-    //   this.getDataTestService.listTBLQ().subscribe((client) => {
-    //     client.forEach((element) => {
-    //       if (element.MADUONGDAY == this.id) {
-    //         if (client.length < 5) {
-    //           for (var i = 0; i < client.length; i++) {
-    //             this.ELEMENT_DATA_TBLQ.push(client[i]);
-    //           }
-    //         } else {
-    //           for (var i = 0; i < 5; i++) {
-    //             this.ELEMENT_DATA_TBLQ.push(client[i]);
-    //           }
-    //         }
-    //         this.paginator_TBLQ.length = client.length;
-    //         this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
-    //           this.ELEMENT_DATA_TBLQ
-    //         );
-    //       }
-    //     });
-    //   })
-    // });
+    const dialogRef = this.dialog.open(DialogThemMoiDtlqComponent, {
+      data: { id: this.id },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      this.ELEMENT_DATA_TBLQ = [];
+      this._duongDayService.getDTLienQuan(this.id).subscribe((client) => {
+        if (client.length < 5) {
+          for (var i = 0; i < client.length; i++) {
+            var cusObj = new ThietBiLienQuan();
+            cusObj.LOAITBKHAC = client[i].loaitbkhac;
+            cusObj.MADUONGDAY = client[i].maduongday;
+            cusObj.MATBKHAC = client[i].matbkhac;
+            cusObj.TENTHIETBI = client[i].tenthietbi;
+            this.ELEMENT_DATA_TBLQ.push(cusObj);
+          }
+        } else {
+          for (var i = 0; i < 5; i++) {
+            var cusObj = new ThietBiLienQuan();
+            cusObj.LOAITBKHAC = client[i].loaitbkhac;
+            cusObj.MADUONGDAY = client[i].maduongday;
+            cusObj.MATBKHAC = client[i].matbkhac;
+            cusObj.TENTHIETBI = client[i].tenthietbi;
+            this.ELEMENT_DATA_TBLQ.push(cusObj);
+          }
+        }
+        this.paginator_TBLQ.length = client.length;
+        this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
+          this.ELEMENT_DATA_TBLQ
+        );
+      });
+    });
   }
 
   openDiagram() {

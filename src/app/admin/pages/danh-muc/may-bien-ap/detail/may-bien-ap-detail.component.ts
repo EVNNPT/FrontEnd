@@ -5,9 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
 import { MayBienApDetail } from 'src/app/core/models/may-bien-ap';
-import { GetDataTestService } from 'src/app/core/services/get-data-test.service';
 import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
-import { ToastService } from 'src/app/core/services/toast.service';
 
 @Component({
   selector: 'app-may-bien-ap-detail',
@@ -54,7 +52,6 @@ export class MayBienApDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _mayBienApService: MayBienApService,
-    private _toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -93,23 +90,33 @@ export class MayBienApDetailComponent implements OnInit {
             DAUNOI: client.daunoi,
             GHICHU: client.ghichu,
           });
-          // this.getDataTestService.listFDK().subscribe((client) => {
-          //   client.forEach(element => {
-          //     if (element.MADT == id && element.MALOAITHIETBI == "MBA") {
-          //       if (client.length < 5) {
-          //         for (var i = 0; i < client.length; i++) {
-          //           this.ELEMENT_DATA.push(client[i]);
-          //         }
-          //       } else {
-          //         for (var i = 0; i < 5; i++) {
-          //           this.ELEMENT_DATA.push(client[i]);
-          //         }
-          //       }
-          //       this.paginator.length = client.length;
-          //       this.dataSource = new MatTableDataSource<FileDinhKem>(this.ELEMENT_DATA);
-          //     }
-          //   });
-          // });
+          this._mayBienApService
+            .getFileDinhKem('MBA', id)
+            .subscribe((client) => {
+              if (client.length < 5) {
+                for (var i = 0; i < client.length; i++) {
+                  var cusObj = new FileDinhKem();
+                  cusObj.MADT = client[i].madt;
+                  cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+                  cusObj.TENFILE = client[i].tenfile;
+                  cusObj.DUONGDAN = client[i].duongdan;
+                  this.ELEMENT_DATA.push(cusObj);
+                }
+              } else {
+                for (var i = 0; i < 5; i++) {
+                  var cusObj = new FileDinhKem();
+                  cusObj.MADT = client[i].madt;
+                  cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+                  cusObj.TENFILE = client[i].tenfile;
+                  cusObj.DUONGDAN = client[i].duongdan;
+                  this.ELEMENT_DATA.push(cusObj);
+                }
+              }
+              this.paginator.length = client.length;
+              this.dataSource = new MatTableDataSource<FileDinhKem>(
+                this.ELEMENT_DATA
+              );
+            });
 
           this.mayBienApDetailForm.controls['MAPMIS'].disable();
         });
@@ -118,27 +125,28 @@ export class MayBienApDetailComponent implements OnInit {
   }
 
   changePagination(event: any) {
-    // this._route.paramMap.subscribe((params) => {
-    //   var id = params.get('id')!;
-    //   this.getDataTestService.listFDK().subscribe((client) => {
-    //     client.forEach((element) => {
-    //       if (element.MADT == id && element.MALOAITHIETBI == 'MBA') {
-    //         this.ELEMENT_DATA = [];
-    //         var start = event.pageIndex * event.pageSize;
-    //         var limit = start + event.pageSize;
-    //         for (var i = start; i < limit; i++) {
-    //           if (i < client.length) {
-    //             this.ELEMENT_DATA.push(client[i]);
-    //           }
-    //         }
-    //         this.paginator.length = client.length;
-    //         this.dataSource = new MatTableDataSource<FileDinhKem>(
-    //           this.ELEMENT_DATA
-    //         );
-    //       }
-    //     });
-    //   });
-    // });
+    this.ELEMENT_DATA = [];
+    this._route.paramMap.subscribe((params) => {
+      var id = params.get('id')!;
+      this._mayBienApService.getFileDinhKem('MBA', id).subscribe((client) => {
+        var start = event.pageIndex * event.pageSize;
+        var limit = start + event.pageSize;
+        for (var i = start; i < limit; i++) {
+          if (i < client.length) {
+            var cusObj = new FileDinhKem();
+            cusObj.MADT = client[i].madt;
+            cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+            cusObj.TENFILE = client[i].tenfile;
+            cusObj.DUONGDAN = client[i].duongdan;
+            this.ELEMENT_DATA.push(cusObj);
+          }
+        }
+        this.paginator.length = client.length;
+        this.dataSource = new MatTableDataSource<FileDinhKem>(
+          this.ELEMENT_DATA
+        );
+      });
+    });
   }
 
   onClickDetail(event: any) {
@@ -183,25 +191,13 @@ export class MayBienApDetailComponent implements OnInit {
       this._mayBienApService.addMayBienAp(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            this._toastService.show(result.message, {
-              classname: 'bg-danger text-light',
-              delay: 5000,
-              header: 'Xảy ra lỗi',
-            });
+            console.log(result.message);
           } else {
-            this._toastService.show(result.message, {
-              classname: 'bg-success text-light',
-              delay: 5000,
-              header: 'Thông báo',
-            });
+            console.log(result.message);
           }
         },
         (err) => {
-          this._toastService.show(err, {
-            classname: 'bg-danger text-light',
-            delay: 5000,
-            header: 'Xảy ra lỗi',
-          });
+          console.log(err);
         }
       );
     } else {
@@ -237,25 +233,13 @@ export class MayBienApDetailComponent implements OnInit {
       this._mayBienApService.updateMayBienAp(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            this._toastService.show(result.message, {
-              classname: 'bg-danger text-light',
-              delay: 5000,
-              header: 'Xảy ra lỗi',
-            });
+            console.log(result.message);
           } else {
-            this._toastService.show(result.message, {
-              classname: 'bg-success text-light',
-              delay: 5000,
-              header: 'Thông báo',
-            });
+            console.log(result.message);
           }
         },
         (err) => {
-          this._toastService.show(err, {
-            classname: 'bg-danger text-light',
-            delay: 5000,
-            header: 'Xảy ra lỗi',
-          });
+          console.log(err);
         }
       );
     }

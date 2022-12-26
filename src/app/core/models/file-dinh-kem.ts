@@ -1,6 +1,6 @@
-export interface FileDinhKem {
-  MALOAITHIETBI: string;
-  MADT: string;
-  TENFILE: string;
-  DUONGDAN: string;
+export class FileDinhKem {
+  MALOAITHIETBI: string = '';
+  MADT: string = '';
+  TENFILE: string = '';
+  DUONGDAN: string = '';
 }
