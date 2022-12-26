@@ -26,6 +26,11 @@
       for (var i = 0; i < latlngs[1].length; i++) {
         prjI2s.push(map.project(latlngs[1][i], zoom));
       }
+      // Cung tròn I3;
+      var prjI3s = [];
+      for (var i = 0; i < latlngs[2].length; i++) {
+        prjI3s.push(map.project(latlngs[2][i], zoom));
+      }
       // Center Point
       const prjCenterPoint = map.project(centerPoint, zoom);
 
@@ -40,6 +45,11 @@
       for (var i = 0; i < prjI2s.length; i++) {
         rI2s.push(this._rotatePoint(prjI2s[i], prjCenterPoint, angle));
       }
+      // Cung tròn I3
+      var rI3s = [];
+      for (var i = 0; i < prjI3s.length; i++) {
+        rI3s.push(this._rotatePoint(prjI3s[i], prjCenterPoint, angle));
+      }
 
       // Chiếu lấy tọa độ latLng
       // Vòng tròn I1
@@ -52,8 +62,13 @@
       for (var i = 0; i < rI2s.length; i++) {
         uPrjI2s.push(map.unproject(rI2s[i], zoom));
       }
+      // Cung tròn I3
+      var uPrjI3s = [];
+      for (var i = 0; i < rI3s.length; i++) {
+        uPrjI3s.push(map.unproject(rI3s[i], zoom));
+      }
 
-      return L.polyline([uPrjI1s, uPrjI2s]);
+      return L.polyline([uPrjI1s, uPrjI2s, uPrjI3s]);
     },
 
     // @method rotateThanhCai(layer, angle): latlngs
@@ -277,9 +292,14 @@
       const pI1 = L.point(pG.x - dGI1, pG.y);
       const pI2 = L.point(pG.x + dGI2, pG.y);
 
+      const pI3 = L.point(pI1.x, pI1.y + rI1);
+      const rI3 = 2 * rI1;
+      const angleI3 = (9 * Math.PI) / 12;
+
       return L.polyline([
-        this._genPointOfCircle(pI1, rI1),
-        this._genPointOfCircle(pI2, rI2),
+        this._genPointOfCircle(pI1, rI1, Math.PI, true),
+        this._genPointOfCircle(pI2, rI2, Math.PI, true),
+        this._genPointOfCircle(pI3, rI3, angleI3, false, (7 * Math.PI) / 6),
       ]);
     },
 
@@ -296,15 +316,18 @@
     },
 
     // @method _genPointOfCircle
-    _genPointOfCircle: function (pI, r) {
+    _genPointOfCircle: function (pI, r, angle, lastEqFirst, a) {
       var points = [];
       const zoom = this.map.getZoom();
-      for (var a = 0; a <= 2 * Math.PI; a += 0.1) {
+      a = a || 0;
+      for (; a <= 2 * angle; a += 0.1) {
         const x = pI.x + r * Math.cos(a);
         const y = pI.y + r * Math.sin(a);
         points.push(this.map.unproject(L.point(x, y), zoom));
       }
-      points.push(points[0]);
+      if (lastEqFirst === true) {
+        points.push(points[0]);
+      }
       return points;
     },
   });

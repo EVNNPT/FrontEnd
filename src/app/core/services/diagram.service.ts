@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class DiagramService {
   private readonly baseURL: string = '/assets/data';
   private readonly roleGeoJSON: string = 'roleGeoJSON.json';
+  private readonly apiURL: string = 'https://localhost:7224';
 
   private _map: any;
   private _L: any;
@@ -23,12 +24,13 @@ export class DiagramService {
   private _opacity: number = 0;
   private _drawExtUtil: any;
   private _tranformDevice: any;
+  private _drawDevice: any;
 
   //#region "Observable"
   public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   //#endregion
 
-  constructor(private http: HttpClient) {}
+  constructor(private _http: HttpClient) {}
 
   //#region "Get"
   public get map() {
@@ -67,12 +69,17 @@ export class DiagramService {
     return this._tranformDevice;
   }
 
+  public get drawDevice() {
+    return this._drawDevice;
+  }
+
   //#endregion
 
   setMap(L: any, map: any) {
     this._L = L;
     this._map = map;
     this._drawExtUtil = new this._L.DrawExtUtil(this._map);
+    this._drawDevice = new this._L.DrawDevice(this._map);
     this._tranformDevice = new this._L.TransfromDevice(
       this._map,
       this._drawExtUtil
@@ -89,7 +96,53 @@ export class DiagramService {
   }
 
   getRoleData(id: string): Observable<any> {
-    return this.http.get<any>(`${this.baseURL}/${this.roleGeoJSON}`);
+    return this._http.get<any>(`${this.baseURL}/${this.roleGeoJSON}`);
+  }
+
+  public getDiagram(id: string): void {
+    this._http.get<any>(`${this.apiURL}/diagram/${id}`).subscribe((ret) => {
+      const roles = ret.roles;
+      this._addDataRoles(roles);
+      const thanhCais = ret.thanhCais;
+      this._addDataThanhCais(thanhCais);
+      const mayBienAps = ret.mayBienAps;
+      this._addDataMayBienAps(mayBienAps);
+      const duongDays = ret.duongDays;
+      duongDays.forEach((element: any) => {
+        this._duongDayLayers.addData(element);
+      });
+    });
+  }
+
+  private _addDataRoles(roles: any): void {
+    roles.forEach((role: any) => {
+      const properties = role.properties;
+      const f = this._drawDevice.drawRole(properties.centerPoint).toGeoJSON();
+      f.properties = properties;
+      this._roleLayers.addData(f);
+    });
+  }
+
+  private _addDataThanhCais(thanhCais: any): void {
+    thanhCais.forEach((thanhCai: any) => {
+      const properties = thanhCai.properties;
+      const f = this._drawDevice
+        .drawThanhCai(properties.centerPoint)
+        .toGeoJSON();
+      f.properties = properties;
+      this._thanhCaiLayers.addData(f);
+    });
+  }
+
+  private _addDataMayBienAps(mayBienAps: any): void {
+    mayBienAps.forEach((mayBienAp: any) => {
+      const properties = mayBienAp.properties;
+      const f = this._drawDevice
+        .drawMayBienAp(properties.centerPoint)
+        .toGeoJSON();
+      f.properties = properties;
+      this._mayBienApLayers.addData(f);
+    });
   }
 
   private _initDrawControl() {
@@ -231,6 +284,7 @@ export class DiagramService {
     const L = this._L;
     this._map.on(this._L.Draw.Event.CREATED, (e: any) => {
       const layer = e.layer;
+      // console.log(this._drawExtUtil.getCenterPoint(layer));
       // this._drawnItems.addLayer(layer);
       if (e.layerType === 'role') {
         const role = new L.polyline(layer._latlngs);
@@ -259,6 +313,7 @@ export class DiagramService {
         fMayBienAp.properties.color = '#0000ff';
         fMayBienAp.properties.rotate = '0';
         this._mayBienApLayers.addData(fMayBienAp);
+        console.log(fMayBienAp);
       } else if (e.layerType === 'duongDay') {
         const line = new L.polyline(layer._latlngs);
         let fLine = line.toGeoJSON();
@@ -268,6 +323,7 @@ export class DiagramService {
         fLine.properties.color = '#0000ff';
         fLine.properties.rotate = '0';
         this._duongDayLayers.addData(fLine);
+        console.log(fLine);
       }
     });
   }
