@@ -64,7 +64,7 @@ export class MayBienApDetailComponent implements OnInit {
           this.formType = true;
           this.mayBienApDetailForm.patchValue({
             MAPMIS: client.mapmis,
-            MADVQL: client.mdvql,
+            MADVQL: client.madvql,
             TENCONGTY: client.tencongty,
             TRUYENTAIDIEN: client.truyentaidien,
             TENMBA: client.tenmba,
@@ -159,7 +159,6 @@ export class MayBienApDetailComponent implements OnInit {
 
   onClickAddOrUpdate() {
     if (this.formType == false) {
-      console.log('Add');
       var item = this.mayBienApDetailForm.getRawValue();
       var itemAdd: MayBienApDetail = new MayBienApDetail();
       itemAdd.Mapmis = item.MAPMIS;
@@ -201,7 +200,6 @@ export class MayBienApDetailComponent implements OnInit {
         }
       );
     } else {
-      console.log('Update');
       var item = this.mayBienApDetailForm.getRawValue();
       var itemAdd: MayBienApDetail = new MayBienApDetail();
       itemAdd.Mapmis = item.MAPMIS;

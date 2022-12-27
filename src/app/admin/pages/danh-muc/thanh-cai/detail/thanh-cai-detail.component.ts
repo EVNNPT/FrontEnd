@@ -152,7 +152,6 @@ export class ThanhCaiDetailComponent implements OnInit {
 
   onClickAddOrUpdate() {
     if (this.formType == false) {
-      console.log('Add');
       var item = this.thanhCaiDetailForm.getRawValue();
       var itemAdd: ThanhCaiDetail = new ThanhCaiDetail();
       itemAdd.Mapmis = item.MAPMIS;
@@ -191,7 +190,6 @@ export class ThanhCaiDetailComponent implements OnInit {
         }
       );
     } else {
-      console.log('Update');
       var item = this.thanhCaiDetailForm.getRawValue();
       var itemAdd: ThanhCaiDetail = new ThanhCaiDetail();
       itemAdd.Mapmis = item.MAPMIS;

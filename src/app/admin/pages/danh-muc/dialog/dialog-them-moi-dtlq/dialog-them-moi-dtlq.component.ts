@@ -41,7 +41,7 @@ export class DialogThemMoiDtlqComponent {
   dialogAddDTLQ = new FormGroup({
     MADUONGDAY: new FormControl(this.data.id, [Validators.required]),
     MATBKHAC: new FormControl({value: '', disabled: true}, [Validators.required]),
-    LOAITBKHAC: new FormControl('', [Validators.required,]),
+    LOAITBKHAC: new FormControl('', [Validators.required]),
   });
   matcher = new MyErrorStateMatcher();
 
@@ -55,7 +55,7 @@ export class DialogThemMoiDtlqComponent {
 
   changeLoaiTB(event: any) {
     this.dataCombo = [];
-    if (event.value == 'MBA') {
+    if (event.value == 'MayBienAp') {
       this._mayBienApService.getDSMayBienAp().subscribe((client) => {
         for(var i = 0; i < client.length; i++){
           var customObj = new ComboThietBiLienQuan();
@@ -65,7 +65,7 @@ export class DialogThemMoiDtlqComponent {
         };
         this.dialogAddDTLQ.controls['MATBKHAC'].enable();
       });
-    } else if (event.value == 'ROLE') {
+    } else if (event.value == 'RoLe') {
       this._roLeService.getDSRoLe().subscribe((client) => {
         for(var i = 0; i < client.length; i++){
           var customObj = new ComboThietBiLienQuan();
@@ -90,7 +90,6 @@ export class DialogThemMoiDtlqComponent {
       itemAdd.Loaitbkhac = item.LOAITBKHAC;
       itemAdd.Maduongday = item.MADUONGDAY;
       itemAdd.Matbkhac = item.MATBKHAC;
-      console.log(itemAdd)
       this._duongDayService.addDTLienQuan(itemAdd).subscribe(
         (result) => {
           if (result.fail) {

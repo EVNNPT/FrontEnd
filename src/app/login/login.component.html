@@ -1,0 +1,57 @@
+<div id="brandingWrapper" class="float">
+  <div id="branding" class="illustrationClass"></div>
+</div>
+
+<div id="contentWrapper" class="float">
+  <div id="content">
+    <div id="header">
+      <img
+        class="logoImage"
+        id="companyLogo"
+        src="../../../assets/images/login-01.png"
+        alt="NPT Login"
+      />
+    </div>
+    <div class="card-body login-card-body">
+      <div class="login-body-title">
+        <b>eNPT Map</b>
+      </div>
+      <form [formGroup]="loginForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Tài khoản</mat-label>
+          <input matInput placeholder="Tài khoản" formControlName="TENTK" />
+          <mat-icon matSuffix>account_circle</mat-icon>
+          <mat-error> Vui lòng nhập tên tài khoản </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Mật khẩu</mat-label>
+          <input
+            type="password"
+            matInput
+            placeholder="Mật khẩu"
+            formControlName="MATKHAU"
+          />
+          <mat-icon matSuffix>lock</mat-icon>
+          <mat-error> Vui lòng nhập mật khẩu </mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-raised-button color="primary" (click)="onClickLogin()">
+            Đăng nhập
+          </button>
+        </div>
+        
+      </form>
+      <div class="row" style="padding-top: 45px;">
+        <div class="col-6">
+          <span style="font-size: x-small; display: block"
+            >Phiên bản 1.0 (bản dịch 20221215)</span
+          >
+          <span style="font-size: x-small; display: block"
+            >@{{ yearStr }} EVNNPT</span
+          >
+        </div>
+        <div class="col-6"></div>
+      </div>
+    </div>
+  </div>
+</div>
