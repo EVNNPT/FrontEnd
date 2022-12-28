@@ -275,7 +275,7 @@
       <div class="mat-elevation-z8 list-item">
         <div>
           <div class="grpbtn">
-            <button mat-raised-button color="primary" (click)="openDialog()">
+            <button mat-raised-button color="primary" (click)="openDialogAdd()">
               <mat-icon>add</mat-icon>Thêm mới
             </button>
           </div>
@@ -297,7 +297,7 @@
           <ng-container matColumnDef="DELETE">
             <th mat-header-cell *matHeaderCellDef>Xóa</th>
             <td mat-cell *matCellDef="let element" title="Xóa">
-              <button mat-icon-button color="primary">
+              <button mat-icon-button color="primary" (click)="openDialogDelete(element)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>

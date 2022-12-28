@@ -6,9 +6,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DuongDayDetail } from 'src/app/core/models/duong-day';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
-import { ThietBiLienQuan } from 'src/app/core/models/thiet-bi-lq';
+import { ThietBiLienQuan, ThietBiLienQuanAdd } from 'src/app/core/models/thiet-bi-lq';
 import { DuongDayService } from 'src/app/core/services/duong-day.service';
 import { DialogThemMoiDtlqComponent } from '../../dialog/dialog-them-moi-dtlq/dialog-them-moi-dtlq.component';
+import { DialogXoaDtlqComponent } from '../../dialog/dialog-xoa-dtlq/dialog-xoa-dtlq.component';
 
 @Component({
   selector: 'app-duong-day-detail',
@@ -57,6 +58,7 @@ export class DuongDayDetailComponent implements OnInit {
 
   @ViewChild('MatPaginator') paginator!: MatPaginator;
   @ViewChild('MatPaginator_TBLQ') paginator_TBLQ!: MatPaginator;
+$element: any;
 
   constructor(
     private _route: ActivatedRoute,
@@ -312,9 +314,47 @@ export class DuongDayDetailComponent implements OnInit {
     this._router.navigate(['/admin/duong-day-list']);
   }
 
-  openDialog() {
+  openDialogAdd() {
     const dialogRef = this.dialog.open(DialogThemMoiDtlqComponent, {
       data: { id: this.id },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      this.ELEMENT_DATA_TBLQ = [];
+      this._duongDayService.getDTLienQuan(this.id).subscribe((client) => {
+        if (client.length < 5) {
+          for (var i = 0; i < client.length; i++) {
+            var cusObj = new ThietBiLienQuan();
+            cusObj.LOAITBKHAC = client[i].loaitbkhac;
+            cusObj.MADUONGDAY = client[i].maduongday;
+            cusObj.MATBKHAC = client[i].matbkhac;
+            cusObj.TENTHIETBI = client[i].tenthietbi;
+            this.ELEMENT_DATA_TBLQ.push(cusObj);
+          }
+        } else {
+          for (var i = 0; i < 5; i++) {
+            var cusObj = new ThietBiLienQuan();
+            cusObj.LOAITBKHAC = client[i].loaitbkhac;
+            cusObj.MADUONGDAY = client[i].maduongday;
+            cusObj.MATBKHAC = client[i].matbkhac;
+            cusObj.TENTHIETBI = client[i].tenthietbi;
+            this.ELEMENT_DATA_TBLQ.push(cusObj);
+          }
+        }
+        this.paginator_TBLQ.length = client.length;
+        this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
+          this.ELEMENT_DATA_TBLQ
+        );
+      });
+    });
+  }
+
+  openDialogDelete(event:any) {
+    var item = new ThietBiLienQuanAdd();
+    item.Loaitbkhac = event.LOAITBKHAC;
+    item.Maduongday = event.MADUONGDAY;
+    item.Matbkhac = event.MATBKHAC;
+    const dialogRef = this.dialog.open(DialogXoaDtlqComponent, {
+      data: { item: item },
     });
     dialogRef.afterClosed().subscribe((result) => {
       this.ELEMENT_DATA_TBLQ = [];

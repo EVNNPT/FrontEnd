@@ -32,6 +32,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DialogThemMoiDtlqComponent } from './pages/danh-muc/dialog/dialog-them-moi-dtlq/dialog-them-moi-dtlq.component';
+import { DialogXoaDtlqComponent } from './pages/danh-muc/dialog/dialog-xoa-dtlq/dialog-xoa-dtlq.component';
 
 export const MY_DATE_FORMAT = {
   parse: {
@@ -60,6 +61,7 @@ export const MY_DATE_FORMAT = {
     ThanhCaiListComponent,
     ThanhCaiDetailComponent,
     DialogThemMoiDtlqComponent,
+    DialogXoaDtlqComponent,
   ],
   imports: [
     AdminRoutingModule,

@@ -63,4 +63,8 @@ export class DuongDayService {
   addDTLienQuan(param: ThietBiLienQuanAdd): Observable<any> {
     return this._httpClient.post<any>(`${this.apiURL}/add-dt-lien-quan`, param);
   }
+
+  deleteDTLienQuan(param: ThietBiLienQuanAdd): Observable<any> {
+    return this._httpClient.post<any>(`${this.apiURL}/delete-dt-lien-quan`, param);
+  }
 }
