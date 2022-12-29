@@ -50,7 +50,7 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
         // Fill Data To Form Máy Biến Áp Detail
         this.roleForm.patchValue({
-          rotate: properties.rotate,
+          rotate: properties.rotate.toString(),
           color: properties.color,
         });
       }
@@ -68,18 +68,24 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
           });
         }
         let changeLatLng = false;
-        if (properties.rotate !== res.rotate) {
-          const angleA = -parseInt(properties.rotate);
-          properties.rotate = res.rotate;
-          const angleB = parseInt(properties.rotate);
+        const nR = parseInt(res.rotate!);
+        if (properties.rotate !== nR) {
+          const angleA = -properties.rotate;
+          properties.rotate = nR;
+          const angleB = properties.rotate;
           this._diagramService.rotate(this._roleLayer, angleA, angleB);
           changeLatLng = true;
         }
         if (changeLatLng) {
+          this._diagramService.addOrUpdateGeoRole(this._roleLayer).subscribe();
           this._diagramService.removeSnapLayer(this._roleLayer);
           this._diagramService.addSnapLayer(this._roleLayer);
         }
       }
     );
+  }
+
+  openAttributeForm() {
+    window.open(`/admin/ro-le-detail/${this._roleLayer.feature.properties.id}`);
   }
 }
