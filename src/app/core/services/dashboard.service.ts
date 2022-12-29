@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class DashboardService {
-  private apiURL = `${environment.apiURL}/DuongDay`;
+  private apiURL = `${environment.apiURL}/Dashboard`;
   constructor(private _httpClient: HttpClient) {}
 
   getSoLuongTB(): Observable<any> {
