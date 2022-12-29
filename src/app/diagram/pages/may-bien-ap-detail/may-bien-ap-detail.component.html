@@ -14,14 +14,14 @@
                     <mat-option value="270">270°</mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="fill">
+            <!-- <mat-form-field appearance="fill">
                 <mat-label>Color</mat-label>
                 <input formControlName="color" type="color" matInput>
-            </mat-form-field>
-            <!-- <div class="button">
-                <button mat-raised-button color="primary">Submit</button>
-                <button mat-raised-button>Close</button>
-            </div> -->
+            </mat-form-field> -->
+            <div class="button">
+                <button mat-raised-button color="primary" (click)="openAttributeForm()">Attribute</button>
+                <!-- <button mat-raised-button>Close</button> -->
+            </div>
         </form>
     </mat-card-content>
 </mat-card>
