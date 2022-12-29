@@ -58,7 +58,6 @@ export class DuongDayDetailComponent implements OnInit {
 
   @ViewChild('MatPaginator') paginator!: MatPaginator;
   @ViewChild('MatPaginator_TBLQ') paginator_TBLQ!: MatPaginator;
-$element: any;
 
   constructor(
     private _route: ActivatedRoute,
@@ -73,6 +72,7 @@ $element: any;
       this.id = id;
       if (id == 'add') {
         this.formType = false;
+        this.duongDayDetailForm.controls['TTHIENTAI'].disable();
       } else {
         this._duongDayService.getDetailDuongDay(id).subscribe((client) => {
           this.formType = true;
@@ -159,6 +159,7 @@ $element: any;
             );
           });
           this.duongDayDetailForm.controls['MAPMIS'].disable();
+          this.duongDayDetailForm.controls['TTHIENTAI'].disable();
         });
       }
     });

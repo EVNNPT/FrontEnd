@@ -15,6 +15,7 @@ import {
 import { DuongDayService } from 'src/app/core/services/duong-day.service';
 import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
 import { RoLeService } from 'src/app/core/services/ro-le.service';
+import { ThanhCaiService } from 'src/app/core/services/thanh-cai.service';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
@@ -40,7 +41,9 @@ export class DialogThemMoiDtlqComponent {
 
   dialogAddDTLQ = new FormGroup({
     MADUONGDAY: new FormControl(this.data.id, [Validators.required]),
-    MATBKHAC: new FormControl({value: '', disabled: true}, [Validators.required]),
+    MATBKHAC: new FormControl({ value: '', disabled: true }, [
+      Validators.required,
+    ]),
     LOAITBKHAC: new FormControl('', [Validators.required]),
   });
   matcher = new MyErrorStateMatcher();
@@ -50,6 +53,7 @@ export class DialogThemMoiDtlqComponent {
     private _duongDayService: DuongDayService,
     private _mayBienApService: MayBienApService,
     private _roLeService: RoLeService,
+    private _thanhCaiService: ThanhCaiService,
     @Inject(MAT_DIALOG_DATA) public data: { id: string }
   ) {}
 
@@ -57,25 +61,35 @@ export class DialogThemMoiDtlqComponent {
     this.dataCombo = [];
     if (event.value == 'MayBienAp') {
       this._mayBienApService.getDSMayBienAp().subscribe((client) => {
-        for(var i = 0; i < client.length; i++){
+        for (var i = 0; i < client.length; i++) {
           var customObj = new ComboThietBiLienQuan();
           customObj.MATHIETBI = client[i].mapmis;
           customObj.TENTHIETBI = client[i].tenmba;
           this.dataCombo.push(customObj);
-        };
+        }
         this.dialogAddDTLQ.controls['MATBKHAC'].enable();
       });
     } else if (event.value == 'RoLe') {
       this._roLeService.getDSRoLe().subscribe((client) => {
-        for(var i = 0; i < client.length; i++){
+        for (var i = 0; i < client.length; i++) {
           var customObj = new ComboThietBiLienQuan();
           customObj.MATHIETBI = client[i].mapmis;
           customObj.TENTHIETBI = client[i].tenrole;
           this.dataCombo.push(customObj);
-        };
+        }
         this.dialogAddDTLQ.controls['MATBKHAC'].enable();
       });
-    } else{
+    } else if (event.value == 'ThanhCai') {
+      this._thanhCaiService.getDSThanhCai().subscribe((client) => {
+        for (var i = 0; i < client.length; i++) {
+          var customObj = new ComboThietBiLienQuan();
+          customObj.MATHIETBI = client[i].mapmis;
+          customObj.TENTHIETBI = client[i].tenthanhcai;
+          this.dataCombo.push(customObj);
+        }
+        this.dialogAddDTLQ.controls['MATBKHAC'].enable();
+      });
+    } else {
       this.dialogAddDTLQ.controls['MATBKHAC'].disable();
     }
   }

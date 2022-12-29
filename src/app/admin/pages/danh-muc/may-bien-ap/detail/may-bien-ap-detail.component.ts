@@ -59,6 +59,7 @@ export class MayBienApDetailComponent implements OnInit {
       var id = params.get('id')!;
       if (id == 'add') {
         this.formType = false;
+        this.mayBienApDetailForm.controls['TTHIENTAI'].disable();
       } else {
         this._mayBienApService.getDetailMayBienAp(id).subscribe((client) => {
           this.formType = true;
@@ -119,6 +120,7 @@ export class MayBienApDetailComponent implements OnInit {
             });
 
           this.mayBienApDetailForm.controls['MAPMIS'].disable();
+          this.mayBienApDetailForm.controls['TTHIENTAI'].disable();
         });
       }
     });

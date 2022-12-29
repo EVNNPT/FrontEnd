@@ -56,6 +56,7 @@ export class ThanhCaiDetailComponent implements OnInit {
       var id = params.get('id')!;
       if (id == 'add') {
         this.formType = false;
+        this.thanhCaiDetailForm.controls['TTHIENTAI'].disable();
       } else {
         this._thanhCaiService.getDetailThanhCai(id).subscribe((client) => {
           this.formType = true;
@@ -112,6 +113,7 @@ export class ThanhCaiDetailComponent implements OnInit {
               );
             });
           this.thanhCaiDetailForm.controls['MAPMIS'].disable();
+          this.thanhCaiDetailForm.controls['TTHIENTAI'].disable();
         });
       }
     });
