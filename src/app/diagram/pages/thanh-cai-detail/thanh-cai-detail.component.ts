@@ -51,7 +51,7 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
 
         // Fill Data To Form Thanh Cái Detail
         this.thanhCaiForm.patchValue({
-          rotate: properties.rotate,
+          rotate: properties.rotate.toString(),
           color: properties.color,
         });
       }
@@ -69,18 +69,28 @@ export class ThanhCaiDetailComponent implements OnInit, OnDestroy {
           });
         }
         let changeLatLng = false;
-        if (properties.rotate !== res.rotate) {
+        const nR = parseInt(res.rotate!);
+        if (properties.rotate !== nR) {
           const angleA = -parseInt(properties.rotate);
-          properties.rotate = res.rotate;
+          properties.rotate = nR;
           const angleB = parseInt(properties.rotate);
           this._diagramService.rotate(this._thanhCaiLayer, angleA, angleB);
           changeLatLng = true;
         }
         if (changeLatLng) {
+          this._diagramService
+            .addOrUpdateGeoThanhCai(this._thanhCaiLayer)
+            .subscribe();
           this._diagramService.removeSnapLayer(this._thanhCaiLayer);
           this._diagramService.addSnapLayer(this._thanhCaiLayer);
         }
       }
+    );
+  }
+
+  openAttributeForm() {
+    window.open(
+      `/admin/thanh-cai-detail/${this._thanhCaiLayer.feature.properties.id}`
     );
   }
 }

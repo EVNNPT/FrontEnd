@@ -50,7 +50,7 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
 
         // Fill Data To Form Máy Biến Áp Detail
         this.mayBienApForm.patchValue({
-          rotate: properties.rotate,
+          rotate: properties.rotate.toString(),
           color: properties.color,
         });
       }
@@ -68,18 +68,28 @@ export class MayBienApDetailComponent implements OnInit, OnDestroy {
           });
         }
         let changeLatLng = false;
-        if (properties.rotate !== res.rotate) {
+        const nR = parseInt(res.rotate!);
+        if (properties.rotate !== nR) {
           const angleA = -parseInt(properties.rotate);
-          properties.rotate = res.rotate;
+          properties.rotate = nR;
           const angleB = parseInt(properties.rotate);
           this._diagramService.rotate(this._mayBienApLayer, angleA, angleB);
           changeLatLng = true;
         }
         if (changeLatLng) {
+          this._diagramService
+            .addOrUpdateGeoMayBienAp(this._mayBienApLayer)
+            .subscribe();
           this._diagramService.removeSnapLayer(this._mayBienApLayer);
           this._diagramService.addSnapLayer(this._mayBienApLayer);
         }
       }
+    );
+  }
+
+  openAttributeForm() {
+    window.open(
+      `/admin/may-bien-ap-detail/${this._mayBienApLayer.feature.properties.id}`
     );
   }
 }

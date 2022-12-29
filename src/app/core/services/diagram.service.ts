@@ -13,11 +13,8 @@ export class DiagramService {
   private readonly _apiURL: string = environment.apiURL;
   private readonly _diagramCtrl: string = 'diagram';
   private readonly _addOrRoleURL: string = 'add-or-update-role';
-  private readonly _updateRoleURL: string = 'update-role';
-  private readonly _addThanhCaiURL: string = 'add-thanh-cai';
-  private readonly _updateThanhCaiURL: string = 'update-thanh-cai';
-  private readonly _addMayBienApURL: string = 'add-may-bien-ap';
-  private readonly _updateMayBienApURL: string = 'update-may-bien-ap';
+  private readonly _addOrThanhCaiURL: string = 'add-or-update-thanh-cai';
+  private readonly _addOrMayBienApURL: string = 'add-or-update-may-bien-ap';
 
   private _map: any;
   private _L: any;
@@ -198,6 +195,7 @@ export class DiagramService {
           this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
+            this.addOrUpdateGeoMayBienAp(layer).subscribe();
             this.removeSnapLayer(layer);
             this.addSnapLayer(layer);
           });
@@ -228,6 +226,7 @@ export class DiagramService {
           this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
+            this.addOrUpdateGeoThanhCai(layer).subscribe();
             this.removeSnapLayer(layer);
             this.addSnapLayer(layer);
           });
@@ -319,6 +318,9 @@ export class DiagramService {
         fThanhCai.properties.color = '#0000ff';
         fThanhCai.properties.rotate = '0';
         this._thanhCaiLayers.addData(fThanhCai);
+        this.addOrUpdateGeoThanhCai(thanhCai).subscribe((res) => {
+          fThanhCai.properties.id = res.id;
+        });
       } else if (e.layerType === 'mayBienAp') {
         const mayBienAp = new L.polyline(layer._latlngs);
         let fMayBienAp = mayBienAp.toGeoJSON();
@@ -328,7 +330,9 @@ export class DiagramService {
         fMayBienAp.properties.color = '#0000ff';
         fMayBienAp.properties.rotate = '0';
         this._mayBienApLayers.addData(fMayBienAp);
-        console.log(fMayBienAp);
+        this.addOrUpdateGeoThanhCai(mayBienAp).subscribe((res) => {
+          fMayBienAp.properties.id = res.id;
+        });
       } else if (e.layerType === 'duongDay') {
         const line = new L.polyline(layer._latlngs);
         let fLine = line.toGeoJSON();
@@ -478,8 +482,29 @@ export class DiagramService {
       id: layer.feature?.properties?.id || '',
       rotate: layer.feature?.properties?.rotate || 0,
     };
-    console.log(data);
     const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrRoleURL}`;
+    return this._http.post<any>(uri, data);
+  }
+
+  public addOrUpdateGeoThanhCai(layer: any): Observable<any> {
+    const data = {
+      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      featureType: 1,
+      id: layer.feature?.properties?.id || '',
+      rotate: layer.feature?.properties?.rotate || 0,
+    };
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrThanhCaiURL}`;
+    return this._http.post<any>(uri, data);
+  }
+
+  public addOrUpdateGeoMayBienAp(layer: any): Observable<any> {
+    const data = {
+      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      featureType: 2,
+      id: layer.feature?.properties?.id || '',
+      rotate: layer.feature?.properties?.rotate || 0,
+    };
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrMayBienApURL}`;
     return this._http.post<any>(uri, data);
   }
 }
