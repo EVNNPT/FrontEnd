@@ -242,7 +242,12 @@
       </button>
     </div>
     
-    <div class="header-table"><b>Danh sách tài liệu đính kèm</b></div>
+    <mat-tab-group backgroundColor="primary">
+  <mat-tab label="Máy cắt bảo vệ"></mat-tab>
+  <mat-tab label="Lịch sử vận hành"></mat-tab>
+  <mat-tab label="Phân quyền đơn vị"></mat-tab>
+  <mat-tab label="Phiếu chỉnh định"></mat-tab>
+  <mat-tab label="Tài liệu đính kèm">
     <div class="mat-elevation-z8 list-item">
       <table mat-table [dataSource]="dataSource">
         <ng-container matColumnDef="TENFILE">
@@ -290,5 +295,7 @@
       >
       </mat-paginator>
     </div>
+  </mat-tab>
+  </mat-tab-group>
   </form>
   

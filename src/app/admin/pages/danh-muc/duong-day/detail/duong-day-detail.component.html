@@ -227,7 +227,63 @@
   </div>
 
   <mat-tab-group backgroundColor="primary">
-    <mat-tab label="Danh sách tài liệu đính kèm">
+    <mat-tab label="Danh sách đối tượng liên quan">
+      <div class="mat-elevation-z8 list-item">
+        <div>
+          <div class="grpbtn">
+            <button mat-raised-button color="primary" (click)="openDialogAdd()">
+              <mat-icon>add</mat-icon>Thêm mới
+            </button>
+          </div>
+        </div>
+
+        <table mat-table [dataSource]="dataSourceTBLQ">
+          <ng-container matColumnDef="LOAITBKHAC">
+            <th mat-header-cell *matHeaderCellDef>Loại thiết bị</th>
+            <td mat-cell *matCellDef="let element" [title]="element.LOAITBKHAC">
+              {{ element.LOAITBKHAC }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="TENTHIETBI">
+            <th mat-header-cell *matHeaderCellDef>Tên thiết bị</th>
+            <td mat-cell *matCellDef="let element" [title]="element.TENTHIETBI">
+              {{ element.TENTHIETBI }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="DELETE">
+            <th mat-header-cell *matHeaderCellDef>Xóa</th>
+            <td mat-cell *matCellDef="let element" title="Xóa">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openDialogDelete(element)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsTBLQ"></tr>
+          <tr
+            class="rowDetail"
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsTBLQ"
+          ></tr>
+        </table>
+
+        <mat-paginator
+          #MatPaginator_TBLQ
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons
+          aria-label="Select page of periodic elements"
+          (page)="changePagination_TBLQ($event)"
+        >
+        </mat-paginator>
+      </div>
+    </mat-tab>
+    <mat-tab label="Lịch sử vận hành"></mat-tab>
+    <mat-tab label="Phân quyền đơn vị"></mat-tab>
+    <mat-tab label="Tài liệu đính kèm">
       <div class="mat-elevation-z8 list-item">
         <table mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="TENFILE">
@@ -245,7 +301,11 @@
           <ng-container matColumnDef="DOWNLOAD">
             <th mat-header-cell *matHeaderCellDef>Tải xuống</th>
             <td mat-cell *matCellDef="let element" title="Tải xuống">
-              <button mat-icon-button color="primary" (click)="onClickDetail(element)">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="onClickDetail(element)"
+              >
                 <mat-icon>cloud_download</mat-icon>
               </button>
             </td>
@@ -273,56 +333,6 @@
           showFirstLastButtons
           aria-label="Select page of periodic elements"
           (page)="changePagination($event)"
-        >
-        </mat-paginator>
-      </div>
-    </mat-tab>
-    <mat-tab label="Danh sách đối tượng liên quan">
-      <div class="mat-elevation-z8 list-item">
-        <div>
-          <div class="grpbtn">
-            <button mat-raised-button color="primary" (click)="openDialogAdd()">
-              <mat-icon>add</mat-icon>Thêm mới
-            </button>
-          </div>
-        </div>
-
-        <table mat-table [dataSource]="dataSourceTBLQ">
-          <ng-container matColumnDef="LOAITBKHAC">
-            <th mat-header-cell *matHeaderCellDef>Loại thiết bị</th>
-            <td mat-cell *matCellDef="let element" [title]="element.LOAITBKHAC">
-              {{ element.LOAITBKHAC }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="TENTHIETBI">
-            <th mat-header-cell *matHeaderCellDef>Tên thiết bị</th>
-            <td mat-cell *matCellDef="let element" [title]="element.TENTHIETBI">
-              {{ element.TENTHIETBI }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="DELETE">
-            <th mat-header-cell *matHeaderCellDef>Xóa</th>
-            <td mat-cell *matCellDef="let element" title="Xóa">
-              <button mat-icon-button color="primary" (click)="openDialogDelete(element)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsTBLQ"></tr>
-          <tr
-            class="rowDetail"
-            mat-row
-            *matRowDef="let row; columns: displayedColumnsTBLQ"
-          ></tr>
-        </table>
-
-        <mat-paginator
-          #MatPaginator_TBLQ
-          [pageSizeOptions]="[5, 10, 20]"
-          showFirstLastButtons
-          aria-label="Select page of periodic elements"
-          (page)="changePagination_TBLQ($event)"
         >
         </mat-paginator>
       </div>

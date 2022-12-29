@@ -32,4 +32,8 @@ export class HeaderComponent {
   openDiagram() {
     this._router.navigate(['/diagram/view']);
   }
+
+  logoutWeb() {
+    this._router.navigate(['/login']);
+  }
 }

@@ -6,21 +6,46 @@
 
     <button mat-button (click)="openDashboard()" title="Dashboard">Dashboard</button>
 
-    <button mat-button [matMenuTriggerFor]="belowMenu" title="Danh mục">Danh mục</button>
-    <mat-menu #belowMenu="matMenu" yPosition="below">
-        <button mat-menu-item (click)="openMBA()" title="Máy biến áp">Máy biến áp</button>
-        <button mat-menu-item (click)="openRL()" title="Rơ le">Rơ le</button>
-        <button mat-menu-item (click)="openDD()" title="Đường dây">Đường dây</button>
-        <button mat-menu-item (click)="openTC()" title="Thanh cái">Thanh cái</button>
+    <button mat-button [matMenuTriggerFor]="menuChucNang" title="Chức năng">Chức năng</button>
+    <mat-menu #menuChucNang="matMenu" yPosition="below">
+        <button mat-menu-item title="Phiếu đề nghị">Phiếu đề nghị</button>
+        <button mat-menu-item title="Phiếu chỉnh định">Phiếu chỉnh định</button>
+        <button mat-menu-item title="Đăng ký cắt điện">Đăng ký cắt điện</button>
     </mat-menu>
 
-    <button mat-button (click)="openDiagram()" title="Diagram">Diagram</button>
+    <button mat-button [matMenuTriggerFor]="menuDanhMuc" title="Danh mục">Danh mục</button>
+    <mat-menu #menuDanhMuc="matMenu" yPosition="below">
+        <button mat-menu-item (click)="openDD()" title="Đường dây">Đường dây</button>
+        <!-- <button mat-menu-item title="Kháng bù ngang">Kháng bù ngang</button>
+        <button mat-menu-item title="Kháng giảm dòng">Kháng giảm dòng</button> -->
+        <button mat-menu-item (click)="openMBA()" title="Máy biến áp">Máy biến áp</button>
+        <!-- <button mat-menu-item title="Máy biến áp tự dùng">Máy biến áp tự dùng</button> -->
+        <button mat-menu-item title="Máy cắt">Máy cắt</button>
+        <!-- <button mat-menu-item title="Máy phát điện">Máy phát điện</button> -->
+        <button mat-menu-item (click)="openRL()" title="Rơ le">Rơ le</button> 
+        <button mat-menu-item (click)="openTC()" title="Thanh cái">Thanh cái</button>
+        <!-- <button mat-menu-item title="Thiết bị bù tĩnh">Thiết bị bù tĩnh</button>
+        <button mat-menu-item title="Máy phát điện">Trạm phát điện</button>
+        <button mat-menu-item title="Tụ bù dọc">Tụ bù dọc</button>
+        <button mat-menu-item title="Tụ bù ngang">Tụ bù ngang</button> -->
+    </mat-menu>
 
-    <!-- <span class="example-spacer"></span>
-    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+    <button mat-button [matMenuTriggerFor]="menuGiamSat" title="Giám sát">Giám sát</button>
+    <mat-menu #menuGiamSat="matMenu" yPosition="below">
+        <button mat-menu-item (click)="openDiagram()" title="Xem sơ đồ">Xem sơ đồ</button>
+        <button mat-menu-item (click)="openDiagram()" title="Biên tập sơ đồ">Biên tập sơ đồ</button>
+    </mat-menu>
+
+    <button mat-button title="Cài đặt & cấu hình">Cài đặt & cấu hình</button>
+
+    <button mat-button title="Hướng dẫn">Hướng dẫn</button>
+
+    <span class="example-spacer"></span>
+    <!-- <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
         <mat-icon>favorite</mat-icon>
     </button>
     <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
         <mat-icon>share</mat-icon>
     </button> -->
+    <button mat-icon-button class="example-icon" (click)="logoutWeb()" title="Đăng xuất"><mat-icon>exit_to_app</mat-icon></button>
 </mat-toolbar>
