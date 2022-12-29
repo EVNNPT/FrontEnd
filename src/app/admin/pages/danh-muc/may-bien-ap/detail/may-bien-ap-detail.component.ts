@@ -20,7 +20,7 @@ export class MayBienApDetailComponent implements OnInit {
     TRUYENTAIDIEN: new FormControl(''),
     TENMBA: new FormControl(''),
     SOHIEU: new FormControl(''),
-    SOHUU: new FormControl(''),
+    SOHUU: new FormControl('NPT'),
     NGAYLAPDAT: new FormControl(new Date()),
     NGAYVH: new FormControl(new Date()),
     THUOCTRAM: new FormControl(''),
@@ -34,7 +34,7 @@ export class MayBienApDetailComponent implements OnInit {
     DAHIENTHITRENSD: new FormControl(false),
     HIENTHITEN: new FormControl(false),
     HOATDONG: new FormControl(false),
-    TTHIENTAI: new FormControl(''),
+    TTHIENTAI: new FormControl('Đóng'),
     JSONGEO: new FormControl(''),
     MAUDONG: new FormControl(''),
     MAUCAT: new FormControl(''),
@@ -59,6 +59,7 @@ export class MayBienApDetailComponent implements OnInit {
       var id = params.get('id')!;
       if (id == 'add') {
         this.formType = false;
+        this.mayBienApDetailForm.controls['TTHIENTAI'].disable();
       } else {
         this._mayBienApService.getDetailMayBienAp(id).subscribe((client) => {
           this.formType = true;
@@ -119,6 +120,7 @@ export class MayBienApDetailComponent implements OnInit {
             });
 
           this.mayBienApDetailForm.controls['MAPMIS'].disable();
+          this.mayBienApDetailForm.controls['TTHIENTAI'].disable();
         });
       }
     });

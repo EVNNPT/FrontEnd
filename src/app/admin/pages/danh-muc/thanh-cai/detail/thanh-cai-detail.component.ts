@@ -21,7 +21,7 @@ export class ThanhCaiDetailComponent implements OnInit {
     TRUYENTAIDIEN: new FormControl(''),
     CAPDA: new FormControl(''),
     SOHIEU: new FormControl(''),
-    SOHUU: new FormControl(''),
+    SOHUU: new FormControl('NPT'),
     NGAYLAPDAT: new FormControl(new Date()),
     NGAYVH: new FormControl(new Date()),
     THUOCTRAM: new FormControl(''),
@@ -32,7 +32,7 @@ export class ThanhCaiDetailComponent implements OnInit {
     DAHIENTHITRENSD: new FormControl(false),
     HIENTHITEN: new FormControl(false),
     HOATDONG: new FormControl(false),
-    TTHIENTAI: new FormControl(''),
+    TTHIENTAI: new FormControl('Đóng'),
     JSONGEO: new FormControl(''),
     MAUDONG: new FormControl(''),
     MAUCAT: new FormControl(''),
@@ -56,6 +56,7 @@ export class ThanhCaiDetailComponent implements OnInit {
       var id = params.get('id')!;
       if (id == 'add') {
         this.formType = false;
+        this.thanhCaiDetailForm.controls['TTHIENTAI'].disable();
       } else {
         this._thanhCaiService.getDetailThanhCai(id).subscribe((client) => {
           this.formType = true;
@@ -112,6 +113,7 @@ export class ThanhCaiDetailComponent implements OnInit {
               );
             });
           this.thanhCaiDetailForm.controls['MAPMIS'].disable();
+          this.thanhCaiDetailForm.controls['TTHIENTAI'].disable();
         });
       }
     });
