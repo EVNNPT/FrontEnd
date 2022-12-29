@@ -1,6 +1,10 @@
-<mat-grid-list cols="2">
-  <mat-grid-tile> </mat-grid-tile>
-  <mat-grid-tile> </mat-grid-tile>
-  <mat-grid-tile> </mat-grid-tile>
-  <mat-grid-tile> </mat-grid-tile>
-</mat-grid-list>
+<div style="width: 50%;">
+      <canvas
+        baseChart
+        [data]="barChartData_SLTB"
+        [options]="barChartOptions_SLTB"
+        [plugins]="barChartPlugins_SLTB"
+        [type]="barChartType_SLTB"
+      >
+      </canvas>
+    </div>
