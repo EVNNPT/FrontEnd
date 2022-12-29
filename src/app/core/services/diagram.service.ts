@@ -2,14 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Observer, Subject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DiagramService {
-  private readonly baseURL: string = '/assets/data';
+  private readonly _baseURL: string = '/assets/data';
   private readonly roleGeoJSON: string = 'roleGeoJSON.json';
-  private readonly apiURL: string = 'https://localhost:7224';
+  private readonly _apiURL: string = environment.apiURL;
+  private readonly _diagramCtrl: string = 'diagram';
+  private readonly _addOrRoleURL: string = 'add-or-update-role';
+  private readonly _updateRoleURL: string = 'update-role';
+  private readonly _addThanhCaiURL: string = 'add-thanh-cai';
+  private readonly _updateThanhCaiURL: string = 'update-thanh-cai';
+  private readonly _addMayBienApURL: string = 'add-may-bien-ap';
+  private readonly _updateMayBienApURL: string = 'update-may-bien-ap';
 
   private _map: any;
   private _L: any;
@@ -96,11 +104,11 @@ export class DiagramService {
   }
 
   getRoleData(id: string): Observable<any> {
-    return this._http.get<any>(`${this.baseURL}/${this.roleGeoJSON}`);
+    return this._http.get<any>(`${this._baseURL}/${this.roleGeoJSON}`);
   }
 
   public getDiagram(id: string): void {
-    this._http.get<any>(`${this.apiURL}/diagram/${id}`).subscribe((ret) => {
+    this._http.get<any>(`${this._apiURL}/diagram/${id}`).subscribe((ret) => {
       const roles = ret.roles;
       this._addDataRoles(roles);
       const thanhCais = ret.thanhCais;
@@ -117,7 +125,13 @@ export class DiagramService {
   private _addDataRoles(roles: any): void {
     roles.forEach((role: any) => {
       const properties = role.properties;
-      const f = this._drawDevice.drawRole(properties.centerPoint).toGeoJSON();
+      const layer = this._drawDevice.drawRole(properties.centerPoint);
+      if (properties.rotate != 0) {
+        layer.setLatLngs(
+          this._tranformDevice.rotateRole(layer, properties.rotate).getLatLngs()
+        );
+      }
+      const f = layer.toGeoJSON();
       f.properties = properties;
       this._roleLayers.addData(f);
     });
@@ -192,7 +206,7 @@ export class DiagramService {
           const color = feature.properties?.color || '#0000ff';
           return { color: color };
         },
-        weight: 5,
+        weight: 8,
         lineCap: 'square',
       })
       .addTo(this._map);
@@ -222,7 +236,7 @@ export class DiagramService {
           const color = feature.properties?.color || '#0000ff';
           return { color: color };
         },
-        weight: 9,
+        weight: 10,
         lineCap: 'square',
       })
       .addTo(this._map);
@@ -244,6 +258,7 @@ export class DiagramService {
           this.addSnapLayer(layer);
           layer.on('dragend', (event: any) => {
             const layer = event.target;
+            this.addOrUpdateGeoRole(layer).subscribe();
             this.removeSnapLayer(layer);
             this.addSnapLayer(layer);
           });
@@ -253,7 +268,7 @@ export class DiagramService {
           return { color: color };
         },
         lineCap: 'square',
-        weight: 5,
+        weight: 8,
       })
       .addTo(this._map);
     this._roleLayers.on('click', (e: any) => {
@@ -275,7 +290,7 @@ export class DiagramService {
           return { color: color };
         },
         lineCap: 'square',
-        weight: 5,
+        weight: 6,
       })
       .addTo(this._map);
   }
@@ -289,12 +304,12 @@ export class DiagramService {
       if (e.layerType === 'role') {
         const role = new L.polyline(layer._latlngs);
         let fRole = role.toGeoJSON();
-        fRole.properties.id = uuidv4();
         fRole.properties.deviceTypeName = 'role';
-        fRole.properties.name = '';
-        fRole.properties.color = '#0000ff';
-        fRole.properties.rotate = '0';
+        fRole.properties.rotate = 0;
         this._roleLayers.addData(fRole);
+        this.addOrUpdateGeoRole(role).subscribe((res) => {
+          fRole.properties.id = res.id;
+        });
       } else if (e.layerType === 'thanhCai') {
         const thanhCai = new L.polyline(layer._latlngs);
         let fThanhCai = thanhCai.toGeoJSON();
@@ -454,5 +469,17 @@ export class DiagramService {
     this._snapLayers.addLayer(markerM2);
     // Set Leaflet Id
     properties.snapLayerIds = [markerM1._leaflet_id, markerM2._leaflet_id];
+  }
+
+  public addOrUpdateGeoRole(layer: any): Observable<any> {
+    const data = {
+      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      featureType: 0,
+      id: layer.feature?.properties?.id || '',
+      rotate: layer.feature?.properties?.rotate || 0,
+    };
+    console.log(data);
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrRoleURL}`;
+    return this._http.post<any>(uri, data);
   }
 }
