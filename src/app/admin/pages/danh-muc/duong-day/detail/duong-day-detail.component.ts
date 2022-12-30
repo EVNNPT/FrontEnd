@@ -342,6 +342,7 @@ export class DuongDayDetailComponent implements OnInit {
           }
         }
         this.paginator_TBLQ.length = client.length;
+        this.paginator_TBLQ.pageIndex = 0;
         this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
           this.ELEMENT_DATA_TBLQ
         );
@@ -380,6 +381,7 @@ export class DuongDayDetailComponent implements OnInit {
           }
         }
         this.paginator_TBLQ.length = client.length;
+        this.paginator_TBLQ.pageIndex = 0;
         this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
           this.ELEMENT_DATA_TBLQ
         );

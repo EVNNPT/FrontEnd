@@ -35,6 +35,10 @@ export class ThanhCaiService {
     return this._httpClient.post<any>(`${this.apiURL}/update-tc`, param);
   }
 
+  deleteThanhCai(param: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/delete-tc?id=${param}`);
+  }
+
   getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
     return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-tc?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
       map((result) => {

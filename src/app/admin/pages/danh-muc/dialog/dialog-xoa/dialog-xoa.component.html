@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Xác nhận xóa dữ liệu</h1>
+<mat-dialog-content class="mat-typography">
+  Dữ liệu sẽ bị xóa và không thể khôi phục lại?
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button cdkFocusInitial (click)="deleteClick()">Ok</button>
+</mat-dialog-actions>

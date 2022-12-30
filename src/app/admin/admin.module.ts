@@ -34,6 +34,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { DialogThemMoiDtlqComponent } from './pages/danh-muc/dialog/dialog-them-moi-dtlq/dialog-them-moi-dtlq.component';
 import { DialogXoaDtlqComponent } from './pages/danh-muc/dialog/dialog-xoa-dtlq/dialog-xoa-dtlq.component';
 import { NgChartsModule } from 'ng2-charts';
+import { DialogXoaComponent } from './pages/danh-muc/dialog/dialog-xoa/dialog-xoa.component';
 
 export const MY_DATE_FORMAT = {
   parse: {
@@ -63,6 +64,7 @@ export const MY_DATE_FORMAT = {
     ThanhCaiDetailComponent,
     DialogThemMoiDtlqComponent,
     DialogXoaDtlqComponent,
+    DialogXoaComponent,
   ],
   imports: [
     AdminRoutingModule,

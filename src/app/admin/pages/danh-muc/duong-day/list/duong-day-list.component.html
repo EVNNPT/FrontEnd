@@ -7,7 +7,7 @@
       <table mat-table [dataSource]="dataSource">
         <ng-container matColumnDef="TENCONGTY">
           <th mat-header-cell *matHeaderCellDef>Tên công ty</th>
-          <td mat-cell *matCellDef="let element" [title]="element.TENCONGTY">
+          <td mat-cell *matCellDef="let element" [title]="element.TENCONGTY" (click)="onClickDetail(element)">
             {{ element.TENCONGTY }}
           </td>
         </ng-container>
@@ -16,21 +16,33 @@
           <td
             mat-cell
             *matCellDef="let element"
-            [title]="element.TRUYENTAIDIEN"
+            [title]="element.TRUYENTAIDIEN" (click)="onClickDetail(element)"
           >
             {{ element.TRUYENTAIDIEN }}
           </td>
         </ng-container>
         <ng-container matColumnDef="TENDUONGDAY">
           <th mat-header-cell *matHeaderCellDef>Tên đường dây</th>
-          <td mat-cell *matCellDef="let element" [title]="element.TENDUONGDAY">
+          <td mat-cell *matCellDef="let element" [title]="element.TENDUONGDAY" (click)="onClickDetail(element)">
             {{ element.TENDUONGDAY }}
           </td>
         </ng-container>
         <ng-container matColumnDef="CAPDA">
           <th mat-header-cell *matHeaderCellDef>Cấp điện áp</th>
-          <td mat-cell *matCellDef="let element" [title]="element.CAPDA">
+          <td mat-cell *matCellDef="let element" [title]="element.CAPDA" (click)="onClickDetail(element)">
             {{ element.CAPDA }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="DELETE">
+          <th mat-header-cell *matHeaderCellDef>Xóa</th>
+          <td mat-cell *matCellDef="let element" title="Xóa">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="openDialogDelete(element)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </ng-container>
 
@@ -39,7 +51,6 @@
           class="rowDetail"
           mat-row
           *matRowDef="let row; columns: displayedColumns"
-          (click)="onClickDetail(row)"
         ></tr>
       </table>
 

@@ -35,6 +35,10 @@ export class MayBienApService {
     return this._httpClient.post<any>(`${this.apiURL}/update-mba`, param);
   }
 
+  deleteMayBienAp(param: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/delete-mba?id=${param}`);
+  }
+
   getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
     return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-mba?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
       map((result) => {

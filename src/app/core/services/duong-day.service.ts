@@ -38,6 +38,10 @@ export class DuongDayService {
     return this._httpClient.post<any>(`${this.apiURL}/update-dd`, param);
   }
 
+  deleteDuongDay(param: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/delete-dd?id=${param}`);
+  }
+
   getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
     return this._httpClient
       .get<any>(

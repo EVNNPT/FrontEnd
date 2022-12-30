@@ -35,6 +35,10 @@ export class RoLeService {
     return this._httpClient.post<any>(`${this.apiURL}/update-rl`, param);
   }
 
+  deleteRoLe(param: string): Observable<any> {
+    return this._httpClient.get<any>(`${this.apiURL}/delete-rl?id=${param}`);
+  }
+
   getFileDinhKem(MaLoaiThietBi: string, MaDT: string): Observable<any> {
     return this._httpClient.get<any>(`${this.apiURL}/get-file-dinh-kem-rl?MaLoaiThietBi=${MaLoaiThietBi}&MaDT=${MaDT}`).pipe(
       map((result) => {
