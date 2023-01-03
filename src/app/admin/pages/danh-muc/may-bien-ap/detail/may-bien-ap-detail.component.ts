@@ -1,11 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
 import { MayBienApDetail } from 'src/app/core/models/may-bien-ap';
 import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
+import { SnackbarErrorComponent } from '../../snackbar/snackbar-error/snackbar-error.component';
+import { SnackbarOkComponent } from '../../snackbar/snackbar-ok/snackbar-ok.component';
 
 @Component({
   selector: 'app-may-bien-ap-detail',
@@ -52,6 +55,7 @@ export class MayBienApDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _mayBienApService: MayBienApService,
+    public snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -192,13 +196,19 @@ export class MayBienApDetailComponent implements OnInit {
       this._mayBienApService.addMayBienAp(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     } else {
@@ -233,13 +243,19 @@ export class MayBienApDetailComponent implements OnInit {
       this._mayBienApService.updateMayBienAp(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     }

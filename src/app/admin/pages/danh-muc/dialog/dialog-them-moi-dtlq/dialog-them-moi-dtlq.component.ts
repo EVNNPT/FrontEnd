@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   ComboThietBiLienQuan,
   ThietBiLienQuanAdd,
@@ -16,6 +17,8 @@ import { DuongDayService } from 'src/app/core/services/duong-day.service';
 import { MayBienApService } from 'src/app/core/services/may-bien-ap.service';
 import { RoLeService } from 'src/app/core/services/ro-le.service';
 import { ThanhCaiService } from 'src/app/core/services/thanh-cai.service';
+import { SnackbarErrorComponent } from '../../snackbar/snackbar-error/snackbar-error.component';
+import { SnackbarOkComponent } from '../../snackbar/snackbar-ok/snackbar-ok.component';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
@@ -54,6 +57,7 @@ export class DialogThemMoiDtlqComponent {
     private _mayBienApService: MayBienApService,
     private _roLeService: RoLeService,
     private _thanhCaiService: ThanhCaiService,
+    public snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: { id: string }
   ) {}
 
@@ -107,14 +111,20 @@ export class DialogThemMoiDtlqComponent {
       this._duongDayService.addDTLienQuan(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
             this.dialogRef.close();
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     }

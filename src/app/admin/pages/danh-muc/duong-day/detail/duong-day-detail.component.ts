@@ -2,14 +2,20 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DuongDayDetail } from 'src/app/core/models/duong-day';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
-import { ThietBiLienQuan, ThietBiLienQuanAdd } from 'src/app/core/models/thiet-bi-lq';
+import {
+  ThietBiLienQuan,
+  ThietBiLienQuanAdd,
+} from 'src/app/core/models/thiet-bi-lq';
 import { DuongDayService } from 'src/app/core/services/duong-day.service';
 import { DialogThemMoiDtlqComponent } from '../../dialog/dialog-them-moi-dtlq/dialog-them-moi-dtlq.component';
 import { DialogXoaDtlqComponent } from '../../dialog/dialog-xoa-dtlq/dialog-xoa-dtlq.component';
+import { SnackbarErrorComponent } from '../../snackbar/snackbar-error/snackbar-error.component';
+import { SnackbarOkComponent } from '../../snackbar/snackbar-ok/snackbar-ok.component';
 
 @Component({
   selector: 'app-duong-day-detail',
@@ -63,7 +69,8 @@ export class DuongDayDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _duongDayService: DuongDayService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -257,13 +264,19 @@ export class DuongDayDetailComponent implements OnInit {
       this._duongDayService.addDuongDay(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     } else {
@@ -299,13 +312,19 @@ export class DuongDayDetailComponent implements OnInit {
       this._duongDayService.updateDuongDay(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     }
@@ -350,7 +369,7 @@ export class DuongDayDetailComponent implements OnInit {
     });
   }
 
-  openDialogDelete(event:any) {
+  openDialogDelete(event: any) {
     var item = new ThietBiLienQuanAdd();
     item.Loaitbkhac = event.LOAITBKHAC;
     item.Maduongday = event.MADUONGDAY;

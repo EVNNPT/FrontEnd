@@ -1,11 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileDinhKem } from 'src/app/core/models/file-dinh-kem';
 import { RoLeDetail } from 'src/app/core/models/ro-le';
 import { RoLeService } from 'src/app/core/services/ro-le.service';
+import { SnackbarErrorComponent } from '../../snackbar/snackbar-error/snackbar-error.component';
+import { SnackbarOkComponent } from '../../snackbar/snackbar-ok/snackbar-ok.component';
 
 @Component({
   selector: 'app-ro-le-detail',
@@ -55,6 +58,7 @@ export class RoLeDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _roLeService: RoLeService,
+    public snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -194,13 +198,19 @@ export class RoLeDetailComponent implements OnInit {
       this._roLeService.addRoLe(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     } else {
@@ -238,13 +248,19 @@ export class RoLeDetailComponent implements OnInit {
       this._roLeService.updateRoLe(itemAdd).subscribe(
         (result) => {
           if (result.fail) {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarErrorComponent, {
+              data: { message: result.message },
+            });
           } else {
-            console.log(result.message);
+            this.snackBar.openFromComponent(SnackbarOkComponent, {
+              data: { message: result.message },
+            });
           }
         },
         (err) => {
-          console.log(err);
+          this.snackBar.openFromComponent(SnackbarErrorComponent, {
+            data: { message: err },
+          });
         }
       );
     }

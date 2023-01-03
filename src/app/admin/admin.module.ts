@@ -35,6 +35,9 @@ import { DialogThemMoiDtlqComponent } from './pages/danh-muc/dialog/dialog-them-
 import { DialogXoaDtlqComponent } from './pages/danh-muc/dialog/dialog-xoa-dtlq/dialog-xoa-dtlq.component';
 import { NgChartsModule } from 'ng2-charts';
 import { DialogXoaComponent } from './pages/danh-muc/dialog/dialog-xoa/dialog-xoa.component';
+import { SnackbarOkComponent } from './pages/danh-muc/snackbar/snackbar-ok/snackbar-ok.component';
+import { SnackbarErrorComponent } from './pages/danh-muc/snackbar/snackbar-error/snackbar-error.component';
+import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from '@angular/material/snack-bar';
 
 export const MY_DATE_FORMAT = {
   parse: {
@@ -46,6 +49,12 @@ export const MY_DATE_FORMAT = {
     dateA11yLabel: 'LL',
     monthYearA11yLabel: 'MMMM YYYY',
   },
+};
+
+export const matSnackbarDefaultConfig = {
+  verticalPosition: 'top',
+  horizontalPosition: 'right',
+  duration: 3000,
 };
 
 @NgModule({
@@ -65,6 +74,8 @@ export const MY_DATE_FORMAT = {
     DialogThemMoiDtlqComponent,
     DialogXoaDtlqComponent,
     DialogXoaComponent,
+    SnackbarOkComponent,
+    SnackbarErrorComponent,
   ],
   imports: [
     AdminRoutingModule,
@@ -86,9 +97,14 @@ export const MY_DATE_FORMAT = {
     MatTabsModule,
     MatDialogModule,
     NgChartsModule,
+    MatSnackBarModule,
   ],
   providers: [
-    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: matSnackbarDefaultConfig,
+    }
   ],
 })
 export class AdminModule {}
