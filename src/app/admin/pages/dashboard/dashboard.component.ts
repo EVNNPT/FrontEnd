@@ -18,12 +18,12 @@ export class DashboardComponent {
     plugins: {
       legend: {
         display: false,
-        position: 'top',
+        position: 'right',
       },
       datalabels: {
-        display: false,
-        anchor: 'end',
-        align: 'end',
+        display: true,
+        anchor: 'center',
+        align: 'center',
       },
     },
     scales: {
@@ -52,12 +52,12 @@ export class DashboardComponent {
     plugins: {
       legend: {
         display: false,
-        position: 'top',
+        position: 'right',
       },
       datalabels: {
-        display: false,
-        anchor: 'end',
-        align: 'end',
+        display: true,
+        anchor: 'center',
+        align: 'center',
       },
     },
     scales: {
@@ -106,6 +106,10 @@ export class DashboardComponent {
               res[3].soluong,
             ],
             label: '',
+            backgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            hoverBackgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            hoverBorderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            borderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff']
           },
         ],
       };
@@ -131,6 +135,11 @@ export class DashboardComponent {
               res[3].soluongdong,
             ],
             label: 'Đóng',
+            backgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            hoverBackgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            hoverBorderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            borderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
+            stack: 'Stack 0',
           },
           {
             data: [
@@ -140,7 +149,12 @@ export class DashboardComponent {
               res[3].soluongcat,
             ],
             label: 'Cắt',
-          }
+            backgroundColor: ['#ffff00', '#00e600', '#ff8000', '#66a3ff'],
+            hoverBackgroundColor: ['#ffff00', '#00e600', '#ff8000', '#66a3ff'],
+            hoverBorderColor: ['#ffff00', '#00e600', '#ff8000', '#66a3ff'],
+            borderColor: ['#ffff00', '#00e600', '#ff8000', '#66a3ff'],
+            stack: 'Stack 0',
+          },
         ],
       };
       this.chart_SLTBDC?.update();

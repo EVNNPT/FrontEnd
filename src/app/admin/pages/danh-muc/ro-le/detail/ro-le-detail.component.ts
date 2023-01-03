@@ -205,6 +205,35 @@ export class RoLeDetailComponent implements OnInit {
             this.snackBar.openFromComponent(SnackbarOkComponent, {
               data: { message: result.message },
             });
+            this.roLeDetailForm.patchValue({
+              MAPMIS: '',
+              MADVQL: '',
+              TENCONGTY: '',
+              TRUYENTAIDIEN: '',
+              TENROLE: '',
+              SOHIEU: '',
+              SOHUU: 'NPT',
+              NGAYLAPDAT: new Date(),
+              NGAYVH: new Date(),
+              THUOCTRAM: '',
+              TENTRAM: '',
+              HANGSX: '',
+              SOSERIAL: '',
+              SOHIEUBANVE: '',
+              SODODANHSO: '',
+              MACH: '',
+              COTTENHIENTHI: '',
+              DAHIENTHITRENSD: false,
+              HIENTHITEN: false,
+              HOATDONG: false,
+              TTHIENTAI: 'Đóng',
+              JSONGEO: '',
+              MAUDONG: '',
+              MAUCAT: '',
+              DAUNOIDAU: '',
+              DAUNOICUOI: '',
+              GHICHU: '',
+            });
           }
         },
         (err) => {

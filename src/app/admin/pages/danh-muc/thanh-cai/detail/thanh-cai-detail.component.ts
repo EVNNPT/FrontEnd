@@ -193,6 +193,31 @@ export class ThanhCaiDetailComponent implements OnInit {
             this.snackBar.openFromComponent(SnackbarOkComponent, {
               data: { message: result.message },
             });
+            this.thanhCaiDetailForm.patchValue({
+              MAPMIS: '',
+              TENTHANHCAI: '',
+              MADVQL: '',
+              TENCONGTY: '',
+              TRUYENTAIDIEN: '',
+              CAPDA: '',
+              SOHIEU: '',
+              SOHUU: 'NPT',
+              NGAYLAPDAT: new Date(),
+              NGAYVH: new Date(),
+              THUOCTRAM: '',
+              TENTRAM: '',
+              SOHIEUBANVE: '',
+              SODODANHSO: '',
+              COTTENHIENTHI: '',
+              DAHIENTHITRENSD: false,
+              HIENTHITEN: false,
+              HOATDONG: false,
+              TTHIENTAI: 'Đóng',
+              JSONGEO: '',
+              MAUDONG: '',
+              MAUCAT: '',
+              GHICHU: '',
+            });
           }
         },
         (err) => {

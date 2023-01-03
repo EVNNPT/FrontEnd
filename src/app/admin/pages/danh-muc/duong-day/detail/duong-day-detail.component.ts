@@ -271,6 +271,36 @@ export class DuongDayDetailComponent implements OnInit {
             this.snackBar.openFromComponent(SnackbarOkComponent, {
               data: { message: result.message },
             });
+            this.duongDayDetailForm.patchValue({
+              MAPMIS: '',
+              TENDUONGDAY: '',
+              MADVQL: '',
+              TENCONGTY: '',
+              TRUYENTAIDIEN: '',
+              CAPDA: '',
+              SOHIEU: '',
+              SOHUU: 'NPT',
+              NGAYLAPDAT: new Date(),
+              NGAYVH: new Date(),
+              TUTRAM: '',
+              TENTUTRAM: '',
+              DENTRAM: '',
+              TENDENTRAM: '',
+              SOHIEUBANVE: '',
+              SODODANHSO: '',
+              MACH: '',
+              COTTENHIENTHI: '',
+              DAHIENTHITRENSD: false,
+              HIENTHITEN: false,
+              HOATDONG: false,
+              TTHIENTAI: 'Đóng',
+              JSONGEO: '',
+              MAUDONG: '',
+              MAUCAT: '',
+              DAUNOIDAU: '',
+              DAUNOICUOI: '',
+              GHICHU: ''
+            });
           }
         },
         (err) => {
@@ -335,6 +365,9 @@ export class DuongDayDetailComponent implements OnInit {
   }
 
   openDialogAdd() {
+    if(this.id == 'add'){
+      return;
+    }
     const dialogRef = this.dialog.open(DialogThemMoiDtlqComponent, {
       data: { id: this.id },
     });
