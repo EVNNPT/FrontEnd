@@ -17,6 +17,10 @@ export class DashboardComponent {
 
   @ViewChild(BaseChartDirective) chart_SLTB: BaseChartDirective | undefined;
   @ViewChild(BaseChartDirective) chart_SLTBDC: BaseChartDirective | undefined;
+  @ViewChild(BaseChartDirective) chart_DDDC: BaseChartDirective | undefined;
+  @ViewChild(BaseChartDirective) chart_RLDC: BaseChartDirective | undefined;
+  @ViewChild(BaseChartDirective) chart_MBADC: BaseChartDirective | undefined;
+  @ViewChild(BaseChartDirective) chart_TCDC: BaseChartDirective | undefined;
 
   public barChartOptions_SLTB: ChartConfiguration['options'] = {
     responsive: true,
@@ -86,12 +90,92 @@ export class DashboardComponent {
   public barChartPlugins_SLTBDC = [DataLabelsPlugin];
   public barChartData_SLTBDC!: ChartData<'bar'>;
 
+  public pieChartOptions_DDDC: ChartConfiguration['options'] = {
+    responsive: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: true,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+  };
+  public pieChartType_DDDC: ChartType = 'pie';
+  public pieChartPlugins_DDDC = [DataLabelsPlugin];
+  public pieChartData_DDDC!: ChartData<'pie'>;
+
+  public pieChartOptions_RLDC: ChartConfiguration['options'] = {
+    responsive: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: true,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+  };
+  public pieChartType_RLDC: ChartType = 'pie';
+  public pieChartPlugins_RLDC = [DataLabelsPlugin];
+  public pieChartData_RLDC!: ChartData<'pie'>;
+
+  public pieChartOptions_MBADC: ChartConfiguration['options'] = {
+    responsive: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: true,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+  };
+  public pieChartType_MBADC: ChartType = 'pie';
+  public pieChartPlugins_MBADC = [DataLabelsPlugin];
+  public pieChartData_MBADC!: ChartData<'pie'>;
+
+  public pieChartOptions_TCDC: ChartConfiguration['options'] = {
+    responsive: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: true,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+  };
+  public pieChartType_TCDC: ChartType = 'pie';
+  public pieChartPlugins_TCDC = [DataLabelsPlugin];
+  public pieChartData_TCDC!: ChartData<'pie'>;
+
   constructor(private _dashboardService: DashboardService) {}
 
   ngOnInit(): void {
     this.countItem();
     this.chartSLTB();
     this.chartSTLBDC();
+    this.pieDDDC();
+    this.pieRLDC();
+    this.pieMBADC();
+    this.pieTCDC();
   }
 
   async countItem() {
@@ -173,6 +257,78 @@ export class DashboardComponent {
         ],
       };
       this.chart_SLTBDC?.update();
+    });
+  }
+
+  async pieDDDC() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.pieChartData_DDDC = {
+        labels: ['Đóng', 'Cắt'],
+        datasets: [
+          {
+            data: [res[0].soluongdong, res[0].soluongcat],
+            backgroundColor: ['#4dffdb', '#ffff4d'],
+            hoverBackgroundColor: ['#4dffdb', '#ffff4d'],
+            hoverBorderColor: ['#4dffdb', '#ffff4d'],
+            borderColor: ['#4dffdb', '#ffff4d'],
+          },
+        ],
+      };
+      this.chart_DDDC?.update();
+    });
+  }
+
+  async pieRLDC() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.pieChartData_RLDC = {
+        labels: ['Đóng', 'Cắt'],
+        datasets: [
+          {
+            data: [res[1].soluongdong, res[1].soluongcat],
+            backgroundColor: ['#b3b3ff', '#ffb3b3'],
+            hoverBackgroundColor: ['#b3b3ff', '#ffb3b3'],
+            hoverBorderColor: ['#b3b3ff', '#ffb3b3'],
+            borderColor: ['#b3b3ff', '#ffb3b3'],
+          },
+        ],
+      };
+      this.chart_RLDC?.update();
+    });
+  }
+
+  async pieMBADC() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.pieChartData_MBADC = {
+        labels: ['Đóng', 'Cắt'],
+        datasets: [
+          {
+            data: [res[2].soluongdong, res[2].soluongcat],
+            backgroundColor: ['#ff704d', '#e6e600'],
+            hoverBackgroundColor: ['#ff704d', '#e6e600'],
+            hoverBorderColor: ['#ff704d', '#e6e600'],
+            borderColor: ['#ff704d', '#e6e600'],
+          },
+        ],
+      };
+      this.chart_MBADC?.update();
+    });
+  }
+
+  async pieTCDC() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.pieChartData_TCDC = {
+        labels: ['Đóng', 'Cắt'],
+        datasets: [
+          {
+            data: [res[3].soluongdong, res[3].soluongcat],
+            backgroundColor: ['#ffb84d', '#80ff80'],
+            hoverBackgroundColor: ['#ffb84d', '#80ff80'],
+            hoverBorderColor: ['#ffb84d', '#80ff80'],
+            borderColor: ['#ffb84d', '#80ff80'],
+          },
+        ],
+      };
+      this.chart_TCDC?.update();
     });
   }
 }

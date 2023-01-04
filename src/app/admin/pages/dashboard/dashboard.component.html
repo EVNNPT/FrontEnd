@@ -1,115 +1,250 @@
 <div class="container">
   <div style="height: 10px"></div>
-  <table>
-    <tr>
-      <td style="width: 1%"></td>
-      <td style="width: 23%">
-        <div class="chart-block" style="display: flex">
-          <div style="width: 68%">
-            <div><p>Đường dây</p></div>
-            <div><p>{{ countDuongDay | json }}</p></div>
+  <div>
+    <table>
+      <tr>
+        <td style="width: 1%"></td>
+        <td style="width: 23%">
+          <div class="chart-block" style="display: flex">
+            <div style="width: 68%">
+              <div><p>Đường dây</p></div>
+              <div>
+                <p>{{ countDuongDay | json }}</p>
+              </div>
+            </div>
+            <div style="width: 30%">
+              <img
+                class="center"
+                src="../../../assets/images/duong-day-icon.jpg"
+                width="95"
+                height="85"
+              />
+            </div>
           </div>
-          <div style="width: 30%">
-            <img
-              class="center"
-              src="../../../assets/images/duong-day-icon.jpg"
-              width="95"
-              height="85"
-            />
+        </td>
+        <td style="width: 2%"></td>
+        <td style="width: 23%">
+          <div class="chart-block" style="display: flex">
+            <div style="width: 68%">
+              <div><p>Rơ le</p></div>
+              <div>
+                <p>{{ countRole | json }}</p>
+              </div>
+            </div>
+            <div style="width: 30%">
+              <img
+                class="center"
+                src="../../../assets/images/ro-le-icon.png"
+                width="95"
+                height="85"
+              />
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="width: 2%"></td>
-      <td style="width: 23%">
-        <div class="chart-block" style="display: flex">
-          <div style="width: 68%">
-            <div><p>Rơ le</p></div>
-            <div><p>{{ countRole | json }}</p></div>
+        </td>
+        <td style="width: 2%"></td>
+        <td style="width: 23%">
+          <div class="chart-block" style="display: flex">
+            <div style="width: 68%">
+              <div><p>Máy biến áp</p></div>
+              <div>
+                <p>{{ countMBA | json }}</p>
+              </div>
+            </div>
+            <div style="width: 30%">
+              <img
+                class="center"
+                src="../../../assets/images/may-bien-ap-icon.jpg"
+                width="95"
+                height="85"
+              />
+            </div>
           </div>
-          <div style="width: 30%">
-            <img
-              class="center"
-              src="../../../assets/images/ro-le-icon.png"
-              width="95"
-              height="85"
-            />
+        </td>
+        <td style="width: 2%"></td>
+        <td style="width: 23%">
+          <div class="chart-block" style="display: flex">
+            <div style="width: 68%">
+              <div><p>Thanh cái</p></div>
+              <div>
+                <p>{{ countThanhCai | json }}</p>
+              </div>
+            </div>
+            <div style="width: 30%">
+              <img
+                class="center"
+                src="../../../assets/images/thanh-cai-icon.png"
+                width="95"
+                height="85"
+              />
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="width: 2%"></td>
-      <td style="width: 23%">
-        <div class="chart-block" style="display: flex">
-          <div style="width: 68%">
-            <div><p>Máy biến áp</p></div>
-            <div><p>{{ countMBA | json }}</p></div>
-          </div>
-          <div style="width: 30%">
-            <img
-              class="center"
-              src="../../../assets/images/may-bien-ap-icon.jpg"
-              width="95"
-              height="85"
-            />
-          </div>
-        </div>
-      </td>
-      <td style="width: 2%"></td>
-      <td style="width: 23%">
-        <div class="chart-block" style="display: flex">
-          <div style="width: 68%">
-            <div><p>Thanh cái</p></div>
-            <div><p>{{ countThanhCai | json }}</p></div>
-          </div>
-          <div style="width: 30%">
-            <img
-              class="center"
-              src="../../../assets/images/thanh-cai-icon.png"
-              width="95"
-              height="85"
-            />
-          </div>
-        </div>
-      </td>
-      <td style="width: 1%"></td>
-    </tr>
-  </table>
+        </td>
+        <td style="width: 1%"></td>
+      </tr>
+    </table>
+  </div>
   <div style="height: 10px"></div>
-  <table>
-    <tr>
-      <td style="width: 1%"></td>
-      <td style="width: 48%">
-        <div class="chart-block">
-          <p>Số lượng thiết bị - Theo loại</p>
-          <div>
-            <canvas
-              baseChart
-              [data]="barChartData_SLTB"
-              [options]="barChartOptions_SLTB"
-              [plugins]="barChartPlugins_SLTB"
-              [type]="barChartType_SLTB"
-            >
-            </canvas>
+  <div>
+    <table>
+      <tr>
+        <td style="width: 1%"></td>
+        <td style="width: 48%">
+          <div class="chart-block">
+            <p>Số lượng thiết bị - Theo loại</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="barChartData_SLTB"
+                [options]="barChartOptions_SLTB"
+                [plugins]="barChartPlugins_SLTB"
+                [type]="barChartType_SLTB"
+              >
+              </canvas>
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="width: 2%"></td>
-      <td style="width: 48%">
-        <div class="chart-block">
-          <p>Số lượng thiết bị - Theo trạng thái đóng/cắt</p>
-          <div>
-            <canvas
-              baseChart
-              [data]="barChartData_SLTBDC"
-              [options]="barChartOptions_SLTBDC"
-              [plugins]="barChartPlugins_SLTBDC"
-              [type]="barChartType_SLTBDC"
-            >
-            </canvas>
+        </td>
+        <td style="width: 2%"></td>
+        <td style="width: 48%">
+          <div class="chart-block">
+            <p>Số lượng thiết bị - Theo trạng thái đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="barChartData_SLTBDC"
+                [options]="barChartOptions_SLTBDC"
+                [plugins]="barChartPlugins_SLTBDC"
+                [type]="barChartType_SLTBDC"
+              >
+              </canvas>
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="width: 1%"></td>
-    </tr>
-    <tr></tr>
-  </table>
+        </td>
+        <td style="width: 1%"></td>
+      </tr>
+    </table>
+  </div>
+  <div style="height: 10px"></div>
+  <div>
+    <table>
+      <tr>
+        <td style="width: 1%"></td>
+        <td>
+          <div class="chart-block">
+            <p>Đường dây - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_DDDC"
+                [options]="pieChartOptions_DDDC"
+                [plugins]="pieChartPlugins_DDDC"
+                [type]="pieChartType_DDDC"
+                style="margin-left: auto; margin-right: auto"
+                height="220"
+                width="220"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 2%"></td>
+        <td>
+          <div class="chart-block">
+            <p>Rơ le - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_RLDC"
+                [options]="pieChartOptions_RLDC"
+                [plugins]="pieChartPlugins_RLDC"
+                [type]="pieChartType_RLDC"
+                style="margin-left: auto; margin-right: auto"
+                height="220"
+                width="220"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 2%"></td>
+        <td>
+          <div class="chart-block">
+            <p>Máy biến áp - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_MBADC"
+                [options]="pieChartOptions_MBADC"
+                [plugins]="pieChartPlugins_MBADC"
+                [type]="pieChartType_MBADC"
+                style="margin-left: auto; margin-right: auto"
+                height="220"
+                width="220"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 2%"></td>
+        <td>
+          <div class="chart-block">
+            <p>Thanh cái - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_TCDC"
+                [options]="pieChartOptions_TCDC"
+                [plugins]="pieChartPlugins_TCDC"
+                [type]="pieChartType_TCDC"
+                style="margin-left: auto; margin-right: auto"
+                height="220"
+                width="220"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 1%"></td>
+      </tr>
+    </table>
+  </div>
+  <div style="height: 10px"></div>
+  <!-- <div>
+    <table>
+      <tr>
+        <td style="width: 1%"></td>
+        <td style="width: 48%">
+          <div class="chart-block">
+            <p>Máy biến áp - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_MBADC"
+                [options]="pieChartOptions_MBADC"
+                [plugins]="pieChartPlugins_MBADC"
+                [type]="pieChartType_MBADC"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 2%"></td>
+        <td style="width: 48%">
+          <div class="chart-block">
+            <p>Thanh cái - Đóng/cắt</p>
+            <div>
+              <canvas
+                baseChart
+                [data]="pieChartData_TCDC"
+                [options]="pieChartOptions_TCDC"
+                [plugins]="pieChartPlugins_TCDC"
+                [type]="pieChartType_TCDC"
+              >
+              </canvas>
+            </div>
+          </div>
+        </td>
+        <td style="width: 1%"></td>
+      </tr>
+    </table>
+  </div> -->
 </div>
