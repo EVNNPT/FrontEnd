@@ -1,9 +1,84 @@
 <div class="container">
+  <div style="height: 10px"></div>
+  <table>
+    <tr>
+      <td style="width: 1%"></td>
+      <td style="width: 23%">
+        <div class="chart-block" style="display: flex">
+          <div style="width: 68%">
+            <div><p>Đường dây</p></div>
+            <div><p>{{ countDuongDay | json }}</p></div>
+          </div>
+          <div style="width: 30%">
+            <img
+              class="center"
+              src="../../../assets/images/duong-day-icon.jpg"
+              width="95"
+              height="85"
+            />
+          </div>
+        </div>
+      </td>
+      <td style="width: 2%"></td>
+      <td style="width: 23%">
+        <div class="chart-block" style="display: flex">
+          <div style="width: 68%">
+            <div><p>Rơ le</p></div>
+            <div><p>{{ countRole | json }}</p></div>
+          </div>
+          <div style="width: 30%">
+            <img
+              class="center"
+              src="../../../assets/images/ro-le-icon.png"
+              width="95"
+              height="85"
+            />
+          </div>
+        </div>
+      </td>
+      <td style="width: 2%"></td>
+      <td style="width: 23%">
+        <div class="chart-block" style="display: flex">
+          <div style="width: 68%">
+            <div><p>Máy biến áp</p></div>
+            <div><p>{{ countMBA | json }}</p></div>
+          </div>
+          <div style="width: 30%">
+            <img
+              class="center"
+              src="../../../assets/images/may-bien-ap-icon.jpg"
+              width="95"
+              height="85"
+            />
+          </div>
+        </div>
+      </td>
+      <td style="width: 2%"></td>
+      <td style="width: 23%">
+        <div class="chart-block" style="display: flex">
+          <div style="width: 68%">
+            <div><p>Thanh cái</p></div>
+            <div><p>{{ countThanhCai | json }}</p></div>
+          </div>
+          <div style="width: 30%">
+            <img
+              class="center"
+              src="../../../assets/images/thanh-cai-icon.png"
+              width="95"
+              height="85"
+            />
+          </div>
+        </div>
+      </td>
+      <td style="width: 1%"></td>
+    </tr>
+  </table>
+  <div style="height: 10px"></div>
   <table>
     <tr>
       <td style="width: 1%"></td>
       <td style="width: 48%">
-        <div class="chart-sl">
+        <div class="chart-block">
           <p>Số lượng thiết bị - Theo loại</p>
           <div>
             <canvas
@@ -19,7 +94,7 @@
       </td>
       <td style="width: 2%"></td>
       <td style="width: 48%">
-        <div class="chart-sldc">
+        <div class="chart-block">
           <p>Số lượng thiết bị - Theo trạng thái đóng/cắt</p>
           <div>
             <canvas
@@ -35,5 +110,6 @@
       </td>
       <td style="width: 1%"></td>
     </tr>
+    <tr></tr>
   </table>
 </div>

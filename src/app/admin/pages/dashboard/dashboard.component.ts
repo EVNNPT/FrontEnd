@@ -10,6 +10,11 @@ import { BaseChartDirective } from 'ng2-charts';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent {
+  countDuongDay: number = 0;
+  countRole: number = 0;
+  countMBA: number = 0;
+  countThanhCai: number = 0;
+
   @ViewChild(BaseChartDirective) chart_SLTB: BaseChartDirective | undefined;
   @ViewChild(BaseChartDirective) chart_SLTBDC: BaseChartDirective | undefined;
 
@@ -84,8 +89,18 @@ export class DashboardComponent {
   constructor(private _dashboardService: DashboardService) {}
 
   ngOnInit(): void {
+    this.countItem();
     this.chartSLTB();
     this.chartSTLBDC();
+  }
+
+  async countItem() {
+    this._dashboardService.getSoLuongTB().subscribe(async (res) => {
+      this.countDuongDay = res[0].soluong;
+      this.countRole = res[1].soluong;
+      this.countMBA = res[2].soluong;
+      this.countThanhCai = res[3].soluong;
+    });
   }
 
   async chartSLTB() {
@@ -109,7 +124,7 @@ export class DashboardComponent {
             backgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBackgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBorderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
-            borderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff']
+            borderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
           },
         ],
       };
