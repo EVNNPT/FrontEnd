@@ -83,12 +83,12 @@ export class DiagramService {
   setMap(L: any, map: any) {
     this._L = L;
     this._map = map;
-    this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-    this._drawDevice = new this._L.DrawDevice(this._map);
-    this._tranformDevice = new this._L.TransfromDevice(
-      this._map,
-      this._drawExtUtil
-    );
+    // this._drawExtUtil = new this._L.DrawExtUtil(this._map);
+    // this._drawDevice = new this._L.DrawDevice(this._map);
+    // this._tranformDevice = new this._L.TransfromDevice(
+    //   this._map,
+    //   this._drawExtUtil
+    // );
   }
 
   mapAddControlAndLayers() {
@@ -157,32 +157,54 @@ export class DiagramService {
   }
 
   private _initDrawControl() {
-    this._drawnItems = new this._L.FeatureGroup();
-    this._map.addLayer(this._drawnItems);
+    this._drawnItems = this._L.featureGroup().addTo(this._map);
+    this._drawnItems.on('click', function (e: any) {
+      console.log(e);
+    });
     const drawControl = new this._L.Control.Draw({
       edit: {
         featureGroup: this._drawnItems,
-        edit: false,
-        remove: false,
+        poly: {
+          allowIntersection: false,
+        },
+        edit: {
+          selectedPathOptions: {
+            dashArray: '10, 10',
+            fill: false,
+            fillColor: '#fe57a1',
+            fillOpacity: 0.1,
+            // Whether to user the existing layers color
+            maintainColor: false,
+          },
+        },
+        remove: true,
       },
       draw: {
-        duongDay: true,
-        polyline: false,
-        polygon: false,
-        marker: false,
-        circle: false,
-        rectangle: false,
-        circlemarker: false,
-        role: true,
-        thanhCai: true,
-        mayBienAp: true,
+        role: {
+          gocXoay: 0,
+          chieuDai: 50,
+          chieuRong: 25,
+          weight: 7,
+          lineCap: 'square',
+          lineJoin: 'square',
+        },
+        thanhCai: {
+          gocXoay: 90,
+          chieuDai: 300,
+          weight: 9,
+          lineCap: 'square',
+        },
+        mayBienAp: {
+          gocXoay: 0,
+          chieuDai: 200,
+          weight: 7,
+        },
       },
     });
-    this._snapLayers = this._L.layerGroup([]).addTo(this._map);
-    const guideLayers = [this._snapLayers];
-    drawControl.setDrawingOptions({
-      duongDay: { guideLayers: guideLayers },
-    });
+    // this._snapLayers = this._L.layerGroup([]).addTo(this._map);
+    // drawControl.setDrawingOptions({
+    //   duongDay: { guideLayers: [this._snapLayers] },
+    // });
     this._map.addControl(drawControl);
   }
 
@@ -301,38 +323,38 @@ export class DiagramService {
       // console.log(this._drawExtUtil.getCenterPoint(layer));
       // this._drawnItems.addLayer(layer);
       if (e.layerType === 'role') {
-        const role = new L.polyline(layer._latlngs);
-        let fRole = role.toGeoJSON();
-        fRole.properties.deviceTypeName = 'role';
-        fRole.properties.rotate = 0;
-        this._roleLayers.addData(fRole);
-        this.addOrUpdateGeoRole(role).subscribe((res) => {
-          fRole.properties.id = res.id;
-        });
+        // const role = new L.polyline(layer._latlngs);
+        // let fRole = role.toGeoJSON();
+        // fRole.properties.deviceTypeName = 'role';
+        // fRole.properties.rotate = 0;
+        // this._roleLayers.addData(fRole);
+        // this.addOrUpdateGeoRole(role).subscribe((res) => {
+        //   fRole.properties.id = res.id;
+        // });
       } else if (e.layerType === 'thanhCai') {
-        const thanhCai = new L.polyline(layer._latlngs);
-        let fThanhCai = thanhCai.toGeoJSON();
-        fThanhCai.properties.id = uuidv4();
-        fThanhCai.properties.deviceTypeName = 'thanhCai';
-        fThanhCai.properties.name = '';
-        fThanhCai.properties.color = '#0000ff';
-        fThanhCai.properties.rotate = '0';
-        this._thanhCaiLayers.addData(fThanhCai);
-        this.addOrUpdateGeoThanhCai(thanhCai).subscribe((res) => {
-          fThanhCai.properties.id = res.id;
-        });
+        // const thanhCai = new L.polyline(layer._latlngs);
+        // let fThanhCai = thanhCai.toGeoJSON();
+        // fThanhCai.properties.id = uuidv4();
+        // fThanhCai.properties.deviceTypeName = 'thanhCai';
+        // fThanhCai.properties.name = '';
+        // fThanhCai.properties.color = '#0000ff';
+        // fThanhCai.properties.rotate = '0';
+        // this._thanhCaiLayers.addData(fThanhCai);
+        // this.addOrUpdateGeoThanhCai(thanhCai).subscribe((res) => {
+        //   fThanhCai.properties.id = res.id;
+        // });
       } else if (e.layerType === 'mayBienAp') {
-        const mayBienAp = new L.polyline(layer._latlngs);
-        let fMayBienAp = mayBienAp.toGeoJSON();
-        fMayBienAp.properties.id = uuidv4();
-        fMayBienAp.properties.deviceTypeName = 'mayBienAp';
-        fMayBienAp.properties.name = '';
-        fMayBienAp.properties.color = '#0000ff';
-        fMayBienAp.properties.rotate = '0';
-        this._mayBienApLayers.addData(fMayBienAp);
-        this.addOrUpdateGeoThanhCai(mayBienAp).subscribe((res) => {
-          fMayBienAp.properties.id = res.id;
-        });
+        // const mayBienAp = new L.polyline(layer._latlngs);
+        // let fMayBienAp = mayBienAp.toGeoJSON();
+        // fMayBienAp.properties.id = uuidv4();
+        // fMayBienAp.properties.deviceTypeName = 'mayBienAp';
+        // fMayBienAp.properties.name = '';
+        // fMayBienAp.properties.color = '#0000ff';
+        // fMayBienAp.properties.rotate = '0';
+        // this._mayBienApLayers.addData(fMayBienAp);
+        // this.addOrUpdateGeoThanhCai(mayBienAp).subscribe((res) => {
+        //   fMayBienAp.properties.id = res.id;
+        // });
       } else if (e.layerType === 'duongDay') {
         const line = new L.polyline(layer._latlngs);
         let fLine = line.toGeoJSON();
@@ -342,8 +364,8 @@ export class DiagramService {
         fLine.properties.color = '#0000ff';
         fLine.properties.rotate = '0';
         this._duongDayLayers.addData(fLine);
-        console.log(fLine);
       }
+      this._drawnItems.addLayer(layer);
     });
   }
 
