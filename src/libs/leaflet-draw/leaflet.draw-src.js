@@ -1,5 +1,5 @@
 /*
- Leaflet.draw 1.0.4+55b0f2c, a plugin that adds drawing and editing tools to Leaflet powered maps.
+ Leaflet.draw 1.0.4+735fc49, a plugin that adds drawing and editing tools to Leaflet powered maps.
  (c) 2012-2017, Jacob Toye, Jon West, Smartrak, Leaflet
 
  https://github.com/Leaflet/Leaflet.draw
@@ -291,6 +291,7 @@ L.MayBienAp = L.Path.extend({
 			)
 		);
 	},
+
 	rotate: function (latlng) {
 		const map = this._map;
 		const centerPoint = this._latlng;
@@ -298,6 +299,7 @@ L.MayBienAp = L.Path.extend({
 		this.options.gocXoay = angle;
 		this.redraw();
 	},
+
 	resize: function (latlng) {
 		const map = this._map;
 		const pC = this._getLatLngC();
@@ -310,6 +312,7 @@ L.MayBienAp = L.Path.extend({
 		this.options.chieuDai = Math.abs(2 * d);
 		this.redraw();
 	},
+
 	move: function (latlng) {
 		this._latlng = latlng;
 		this.redraw();
@@ -7073,24 +7076,27 @@ L.EditToolbar.Edit = L.Handler.extend({
 	// Save the layer geometries
 	save: function () {
 		var editedLayers = new L.LayerGroup();
-		// var options;
-		const map = this._map;
 		this._featureGroup.eachLayer(function (layer) {
 			if (layer.edited) {
-				const options = layer.options;
-				map.fire(L.Draw.Event.EDITED, {
-					options: options,
-				});
-				console.log(options);
-				// options = layer.options;
-				// editedLayers.addLayer(layer);
+				var options = layer.options;
+				if (layer instanceof L.Role) {
+					options.original.chieuDai = options.chieuDai;
+					options.original.chieuRong = options.chieuRong;
+					options.original.gocXoay = options.gocXoay;
+				} else if (layer instanceof L.ThanhCai) {
+					options.original.chieuDai = options.chieuDai;
+					options.original.gocXoay = options.gocXoay;
+				} else if (layer instanceof L.MayBienAp) {
+					options.original.chieuDai = options.chieuDai;
+					options.original.gocXoay = options.gocXoay;
+				}
+				editedLayers.addLayer(layer);
 				layer.edited = false;
 			}
-		}, map);
-		// this._map.fire(L.Draw.Event.EDITED, {
-		// 	layers: editedLayers,
-		// 	options: options,
-		// });
+		});
+		this._map.fire(L.Draw.Event.EDITED, {
+			layers: editedLayers,
+		});
 	},
 
 	_backupLayer: function (layer) {
@@ -7114,8 +7120,16 @@ L.EditToolbar.Edit = L.Handler.extend({
 						gocXoay: options.gocXoay,
 					},
 				};
+			} else if (layer instanceof L.MayBienAp) {
+				const latLng = layer.getLatLng();
+				this._uneditedLayerProps[id] = {
+					latlng: L.latLng(latLng.lat, latLng.lng),
+					options: {
+						chieuDai: options.chieuDai,
+						gocXoay: options.gocXoay,
+					},
+				};
 			}
-			console.log(this._uneditedLayerProps[id]);
 		}
 	},
 
@@ -7134,9 +7148,11 @@ L.EditToolbar.Edit = L.Handler.extend({
 		const id = L.Util.stamp(layer);
 		layer.edited = false;
 		if (this._uneditedLayerProps.hasOwnProperty(id)) {
+			L.setOptions(layer, this._uneditedLayerProps[id].options);
 			if (layer instanceof L.Role || layer instanceof L.ThanhCai) {
 				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
-				L.setOptions(layer, this._uneditedLayerProps[id].options);
+			} else if (layer instanceof L.MayBienAp) {
+				layer.setLatLng(this._uneditedLayerProps[id].latlng);
 			}
 			layer.fire("revert-edited", { layer: layer });
 		}
@@ -7164,7 +7180,6 @@ L.EditToolbar.Edit = L.Handler.extend({
 				pathOptions.color = layer.options.color;
 				pathOptions.fillColor = layer.options.fillColor;
 			}
-
 			layer.options.original = L.extend({}, layer.options);
 			layer.options.editing = pathOptions;
 		}
