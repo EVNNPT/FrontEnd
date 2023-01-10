@@ -11,15 +11,8 @@ import { DiagramService } from 'src/app/core';
 import { MayBienApDetailComponent } from '../may-bien-ap-detail/may-bien-ap-detail.component';
 import { RoleDetailComponent } from '../role-detail/role-detail.component';
 import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
-//#region 'import leaflet and plugin'
-require('leaflet');
-// require('leaflet-geometryutil');
-// require('../../../../libs/leaflet/leaflet-src.js');
-require('../../../../libs/leaflet-draw/leaflet.draw-src.js');
-// require('../../../../libs/leaflet-snap/leaflet.snap.js');
-// require('proj4leaflet');
-declare let L: any;
-//#endregion
+import * as L from 'leaflet';
+import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 
 @Component({
   selector: 'app-view',
@@ -27,7 +20,6 @@ declare let L: any;
   styleUrls: ['./view.component.css'],
 })
 export class ViewComponent implements AfterViewInit {
-  // private map: any;
   private imgBackgroundMap = '/assets/images/white_bkg.png';
   private deviceTypeNames: string[] = ['role', 'thanhCai', 'mayBienAp'];
   public deviceTypeName: string = '';
@@ -52,12 +44,11 @@ export class ViewComponent implements AfterViewInit {
     });
 
     // Title
-    const tiles = L.tileLayer(this.imgBackgroundMap, {
+    L.tileLayer(this.imgBackgroundMap, {
       maxZoom: 18,
       minZoom: 3,
       // attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
-    });
-    tiles.addTo(map);
+    }).addTo(map);
 
     this._diagramService.setMap(L, map);
 

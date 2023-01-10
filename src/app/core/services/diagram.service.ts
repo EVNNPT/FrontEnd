@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Observer, Subject } from 'rxjs';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -93,11 +93,11 @@ export class DiagramService {
 
   mapAddControlAndLayers() {
     this._initDrawControl();
-    this._initMayBienApLayer();
-    this._initThanhCaiLayer();
-    this._initRoleLayer();
-    this._initDuongDayLayer();
-    this._drawEvents();
+    // this._initMayBienApLayer();
+    // this._initThanhCaiLayer();
+    // this._initRoleLayer();
+    // this._initDuongDayLayer();
+    // this._drawEvents();
   }
 
   getRoleData(id: string): Observable<any> {
@@ -161,7 +161,10 @@ export class DiagramService {
     this._drawnItems.on('click', function (e: any) {
       console.log(e);
     });
-    const drawControl = new this._L.Control.Draw({
+    this._map.on(this._L.Draw.Event.EDITED, function (e: any) {
+      console.log(e);
+    });
+    var drawControl = new this._L.Control.Draw({
       edit: {
         featureGroup: this._drawnItems,
         poly: {
@@ -181,7 +184,7 @@ export class DiagramService {
       },
       draw: {
         role: {
-          gocXoay: 0,
+          gocXoay: 90,
           chieuDai: 50,
           chieuRong: 25,
           weight: 7,
@@ -201,11 +204,10 @@ export class DiagramService {
         },
       },
     });
-    // this._snapLayers = this._L.layerGroup([]).addTo(this._map);
-    // drawControl.setDrawingOptions({
-    //   duongDay: { guideLayers: [this._snapLayers] },
-    // });
     this._map.addControl(drawControl);
+    this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
+      this._drawnItems.addLayer(event.layer);
+    });
   }
 
   private _initMayBienApLayer() {
@@ -358,7 +360,7 @@ export class DiagramService {
       } else if (e.layerType === 'duongDay') {
         const line = new L.polyline(layer._latlngs);
         let fLine = line.toGeoJSON();
-        fLine.properties.id = uuidv4();
+        // fLine.properties.id = uuidv4();
         fLine.properties.deviceTypeName = 'duongDay';
         fLine.properties.name = '';
         fLine.properties.color = '#0000ff';
