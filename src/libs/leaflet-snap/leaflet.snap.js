@@ -772,5 +772,5 @@ L.Draw.Feature.SnapMixin = {
   },
 };
 
-// L.Draw.DuongDay.include(L.Draw.Feature.SnapMixin);
-// L.Draw.DuongDay.addInitHook("_snap_initialize");
+L.Draw.DuongDay.include(L.Draw.Feature.SnapMixin);
+L.Draw.DuongDay.addInitHook("_snap_initialize");

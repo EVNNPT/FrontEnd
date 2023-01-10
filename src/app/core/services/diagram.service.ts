@@ -158,7 +158,7 @@ export class DiagramService {
 
   private _initDrawControl() {
     this._drawnItems = this._L.featureGroup().addTo(this._map);
-    var drawControl = new this._L.Control.Draw({
+    const drawControl = new this._L.Control.Draw({
       edit: {
         featureGroup: this._drawnItems,
         poly: {
@@ -198,12 +198,46 @@ export class DiagramService {
         },
       },
     });
+    this._snapLayers = this._L.layerGroup([]).addTo(this._map);
+    drawControl.setDrawingOptions({
+      duongDay: { guideLayers: [this._snapLayers] },
+    });
     this._map.addControl(drawControl);
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       this._drawnItems.addLayer(event.layer);
     });
     this._map.on(this._L.Draw.Event.EDITED, (event: any) => {
-      console.log(event);
+      event.layers.eachLayer((layer: any) => {
+        if (layer instanceof this._L.ThanhCai) {
+          const layerTmp = this._L.polyline(layer.getLatLngs(), { opacity: 0 });
+          this._addAndRemoveSnapLayer(layer, [layerTmp]);
+        }
+      });
+    });
+
+    this._drawnItems.on('layeradd', (e: any) => {
+      const layer = e.layer;
+      if (layer instanceof this._L.ThanhCai) {
+        const layerTmp = this._L.polyline(layer.getLatLngs(), { opacity: 0 });
+        this._addAndRemoveSnapLayer(layer, [layerTmp]);
+      }
+    });
+
+    // const thanhCai = this._L.thanhCai(this._L.latLng(0, 0), { gocXoay: 90 });
+    // this._drawnItems.addLayer(thanhCai);
+  }
+
+  private _addAndRemoveSnapLayer(layer: any, layerSnaps: any) {
+    // Remove
+    if (layer.layerSnapIds)
+      layer.layerSnapIds.forEach((element: any) => {
+        this._snapLayers.removeLayer(element);
+      });
+    layer.layerSnapIds = [];
+    // Add
+    layerSnaps.forEach((element: any) => {
+      this._snapLayers.addLayer(element);
+      layer.layerSnapIds.push(this._L.Util.stamp(element));
     });
   }
 
