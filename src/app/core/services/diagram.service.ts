@@ -158,13 +158,6 @@ export class DiagramService {
 
   private _initDrawControl() {
     this._drawnItems = this._L.featureGroup().addTo(this._map);
-    // this._L.control
-    //   .layers(
-    //     {},
-    //     { drawlayer: this._drawnItems },
-    //     { position: 'topleft', collapsed: false }
-    //   )
-    //   .addTo(this._map);
     var drawControl = new this._L.Control.Draw({
       edit: {
         featureGroup: this._drawnItems,
@@ -208,6 +201,9 @@ export class DiagramService {
     this._map.addControl(drawControl);
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       this._drawnItems.addLayer(event.layer);
+    });
+    this._map.on(this._L.Draw.Event.EDITED, (event: any) => {
+      console.log(event);
     });
   }
 

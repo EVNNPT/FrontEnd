@@ -13,6 +13,7 @@ import { RoleDetailComponent } from '../role-detail/role-detail.component';
 import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
 import * as L from 'leaflet';
 import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
+import '../../../../libs/leaflet-snap/leaflet.snap.js';
 
 @Component({
   selector: 'app-view',
