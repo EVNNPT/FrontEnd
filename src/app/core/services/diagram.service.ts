@@ -217,9 +217,17 @@ export class DiagramService {
 
     this._drawnItems.on('layeradd', (e: any) => {
       const layer = e.layer;
+      debugger;
       if (layer instanceof this._L.ThanhCai) {
         const layerTmp = this._L.polyline(layer.getLatLngs(), { opacity: 0 });
         this._addAndRemoveSnapLayer(layer, [layerTmp]);
+      } else if (layer instanceof this._L.Role) {
+        const ps = layer.getLatLngSnaps();
+        console.log(ps);
+        this._addAndRemoveSnapLayer(layer, [
+          this._L.circleMarker(ps[0], { radius: 1, opacity: 0 }),
+          this._L.circleMarker(ps[1], { radius: 1, opacity: 0 }),
+        ]);
       }
     });
 
