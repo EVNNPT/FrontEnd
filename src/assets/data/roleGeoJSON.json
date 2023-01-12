@@ -1,0 +1,9 @@
+{
+  "type": "Feature",
+  "properties": {
+    "id": 1,
+    "color": "#0000ff",
+    "rotate": "90",
+    "centerPoint": [0, 0]
+  }
+}

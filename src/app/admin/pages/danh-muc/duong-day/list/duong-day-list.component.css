@@ -1,0 +1,28 @@
+.container {
+  margin: 10px;
+  background-color: #f5f1f0;
+}
+
+.header {
+  background-color: #3f51b5;
+  border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+  padding: 0.75rem 1.25rem;
+  color: #fff;
+  font-size: 20px;
+}
+
+button {
+  margin: 10px;
+}
+
+#list-dd {
+  margin: 10px;
+}
+
+tr.rowDetail {
+  cursor: pointer;
+}
+
+tr.rowDetail:hover {
+  background: #e0e0e0;
+}

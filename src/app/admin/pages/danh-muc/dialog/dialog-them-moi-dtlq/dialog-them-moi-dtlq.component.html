@@ -1,0 +1,36 @@
+
+<h2 mat-dialog-title>Thêm mới đối tượng liên quan</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="dialogAddDTLQ">
+    <div style="display: flex;">
+      <div class="select-input">
+        <mat-form-field>
+          <mat-label>Loại thiết bị</mat-label>
+          <mat-select formControlName="LOAITBKHAC" [errorStateMatcher]="matcher" (selectionChange)="changeLoaiTB($event)">
+            <mat-option value="MayBienAp">Máy biến áp</mat-option>
+            <mat-option value="RoLe">Rơ le</mat-option>
+            <mat-option value="ThanhCai">Thanh cái</mat-option>
+          </mat-select>
+          <mat-error>
+            Vui lòng chọn loại thiết bị
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="select-input">
+        <mat-form-field>
+          <mat-label>Tên thiết bị</mat-label>
+          <mat-select formControlName="MATBKHAC">
+            <mat-option *ngFor="let item of dataCombo" [value]="item.MATHIETBI">{{ item.TENTHIETBI }}</mat-option>
+          </mat-select>
+          <mat-error>
+            Vui lòng chọn thiết bị
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="addClick()">Add</button>
+</mat-dialog-actions>

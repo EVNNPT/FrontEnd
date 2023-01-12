@@ -1,0 +1,66 @@
+<div class="container">
+  <div class="header"><b>Danh sách máy biến áp</b></div>
+  <div class="mainbody">
+    <button mat-raised-button (click)="onClickAdd()" color="primary"><mat-icon>add</mat-icon>Thêm mới</button>
+
+    <div id="list-mba" class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="TENCONGTY">
+          <th mat-header-cell *matHeaderCellDef>Tên công ty</th>
+          <td mat-cell *matCellDef="let element" [title]="element.TENCONGTY" (click)="onClickDetail(element)">
+            {{ element.TENCONGTY }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="TRUYENTAIDIEN">
+          <th mat-header-cell *matHeaderCellDef>Tên truyền tải điện</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [title]="element.TRUYENTAIDIEN" (click)="onClickDetail(element)"
+          >
+            {{ element.TRUYENTAIDIEN }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="TENMBA">
+          <th mat-header-cell *matHeaderCellDef>Tên máy biến áp</th>
+          <td mat-cell *matCellDef="let element" [title]="element.TENMBA" (click)="onClickDetail(element)">
+            {{ element.TENMBA }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="TENTRAM">
+          <th mat-header-cell *matHeaderCellDef>Tên trạm</th>
+          <td mat-cell *matCellDef="let element" [title]="element.TENTRAM" (click)="onClickDetail(element)">
+            {{ element.TENTRAM }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="DELETE">
+          <th mat-header-cell *matHeaderCellDef>Xóa</th>
+          <td mat-cell *matCellDef="let element" title="Xóa">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="openDialogDelete(element)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          class="rowDetail"
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+        ></tr>
+      </table>
+
+      <mat-paginator
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+        aria-label="Select page of periodic elements"
+        (page)="changePagination($event)"
+      >
+      </mat-paginator>
+    </div>
+  </div>
+</div>
