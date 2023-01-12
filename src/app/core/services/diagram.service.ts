@@ -12,562 +12,139 @@ export class DiagramService {
   private readonly roleGeoJSON: string = 'roleGeoJSON.json';
   private readonly _apiURL: string = environment.apiURL;
   private readonly _diagramCtrl: string = 'diagram';
-  private readonly _addOrRoleURL: string = 'add-or-update-role';
-  private readonly _addOrThanhCaiURL: string = 'add-or-update-thanh-cai';
-  private readonly _addOrMayBienApURL: string = 'add-or-update-may-bien-ap';
-
-  private _map: any;
-  private _L: any;
-  private _drawnItems: any;
-
-  private _duongDayLayers: any;
-  private _roleLayers: any;
-  private _thanhCaiLayers: any;
-  private _mayBienApLayers: any;
-  private _snapLayers: any;
-
-  private _opacity: number = 0;
-  private _drawExtUtil: any;
-  private _tranformDevice: any;
-  private _drawDevice: any;
-
-  //#region "Observable"
-  public layerSelect: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  //#endregion
+  private readonly _addOrUpdateFeature: string = 'add-or-update-feature';
+  private readonly _deleteFeature: string = 'delete-feature';
 
   constructor(private _http: HttpClient) {}
-
-  //#region "Get"
-  public get map() {
-    return this._map;
-  }
-
-  public get L() {
-    return this._L;
-  }
-
-  public get duongDayLayers() {
-    return this._duongDayLayers;
-  }
-
-  public get roleLayers() {
-    return this._roleLayers;
-  }
-
-  public get thanhCaiLayers() {
-    return this._thanhCaiLayers;
-  }
-
-  public get mayBienApLayers() {
-    return this._mayBienApLayers;
-  }
-
-  public get snapLayers() {
-    return this._snapLayers;
-  }
-
-  public get drawExtUtil() {
-    return this._drawExtUtil;
-  }
-
-  public get tranformDevice() {
-    return this._tranformDevice;
-  }
-
-  public get drawDevice() {
-    return this._drawDevice;
-  }
-
-  //#endregion
-
-  setMap(L: any, map: any) {
-    this._L = L;
-    this._map = map;
-    // this._drawExtUtil = new this._L.DrawExtUtil(this._map);
-    // this._drawDevice = new this._L.DrawDevice(this._map);
-    // this._tranformDevice = new this._L.TransfromDevice(
-    //   this._map,
-    //   this._drawExtUtil
-    // );
-  }
-
-  mapAddControlAndLayers() {
-    this._initDrawControl();
-    // this._initMayBienApLayer();
-    // this._initThanhCaiLayer();
-    // this._initRoleLayer();
-    // this._initDuongDayLayer();
-    // this._drawEvents();
-  }
 
   getRoleData(id: string): Observable<any> {
     return this._http.get<any>(`${this._baseURL}/${this.roleGeoJSON}`);
   }
 
-  public getDiagram(id: string): void {
+  public deleteFeature(layer: any, L: any): Observable<any> {
+    var data = {
+      id: layer.id,
+      featureType: 0,
+    };
+    if (layer instanceof L.DuongDay) {
+      data.featureType = 3;
+    } else if (layer instanceof L.Role) {
+      data.featureType = 0;
+    } else if (layer instanceof L.MayBienAp) {
+      data.featureType = 2;
+    } else {
+      data.featureType = 1;
+    }
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._deleteFeature}`;
+    return this._http.post<any>(uri, data);
+  }
+
+  public getDiagram(
+    id: string,
+    L: any,
+    drawLayer: any,
+    guideLayers: any
+  ): void {
     this._http.get<any>(`${this._apiURL}/diagram/${id}`).subscribe((ret) => {
-      const roles = ret.roles;
-      this._addDataRoles(roles);
-      const thanhCais = ret.thanhCais;
-      this._addDataThanhCais(thanhCais);
-      const mayBienAps = ret.mayBienAps;
-      this._addDataMayBienAps(mayBienAps);
-      const duongDays = ret.duongDays;
-      duongDays.forEach((element: any) => {
-        this._duongDayLayers.addData(element);
+      ret.roles.forEach((ele: any) => {
+        ele.options.guideLayers = guideLayers;
+        const layer = L.role(ele.centerPoint, ele.options);
+        drawLayer.addLayer(layer);
+        layer.id = ele.id;
+      });
+      ret.thanhCais.forEach((ele: any) => {
+        ele.options.guideLayers = guideLayers;
+        const layer = L.thanhCai(ele.centerPoint, ele.options);
+        drawLayer.addLayer(layer);
+        layer.id = ele.id;
+      });
+      ret.mayBienAps.forEach((ele: any) => {
+        ele.options.guideLayers = guideLayers;
+        const layer = L.mayBienAp(ele.centerPoint, ele.options);
+        drawLayer.addLayer(layer);
+        layer.id = ele.id;
+      });
+      ret.duongDays.forEach((ele: any) => {
+        ele.options.guideLayers = guideLayers;
+        const layer = L.duongDay(ele.latLngs, ele.options);
+        drawLayer.addLayer(layer);
+        layer.id = ele.id;
       });
     });
   }
 
-  private _addDataRoles(roles: any): void {
-    roles.forEach((role: any) => {
-      const properties = role.properties;
-      const layer = this._drawDevice.drawRole(properties.centerPoint);
-      if (properties.rotate != 0) {
-        layer.setLatLngs(
-          this._tranformDevice.rotateRole(layer, properties.rotate).getLatLngs()
-        );
-      }
-      const f = layer.toGeoJSON();
-      f.properties = properties;
-      this._roleLayers.addData(f);
-    });
-  }
-
-  private _addDataThanhCais(thanhCais: any): void {
-    thanhCais.forEach((thanhCai: any) => {
-      const properties = thanhCai.properties;
-      const f = this._drawDevice
-        .drawThanhCai(properties.centerPoint)
-        .toGeoJSON();
-      f.properties = properties;
-      this._thanhCaiLayers.addData(f);
-    });
-  }
-
-  private _addDataMayBienAps(mayBienAps: any): void {
-    mayBienAps.forEach((mayBienAp: any) => {
-      const properties = mayBienAp.properties;
-      const f = this._drawDevice
-        .drawMayBienAp(properties.centerPoint)
-        .toGeoJSON();
-      f.properties = properties;
-      this._mayBienApLayers.addData(f);
-    });
-  }
-
-  private _initDrawControl() {
-    this._drawnItems = this._L.featureGroup().addTo(this._map);
-    const drawControl = new this._L.Control.Draw({
-      edit: {
-        featureGroup: this._drawnItems,
-        poly: {
-          allowIntersection: false,
-        },
-        edit: {
-          selectedPathOptions: {
-            dashArray: '10, 10',
-            fill: false,
-            fillColor: '#fe57a1',
-            fillOpacity: 0.1,
-            // Whether to user the existing layers color
-            maintainColor: false,
-          },
-        },
-        remove: true,
+  public addOrUpdateGeoDuongDay(layer: any): Observable<any> {
+    const data = {
+      centerPoint: layer.getCenterCus(layer),
+      id: layer.id || '',
+      featureType: 3,
+      options: {
+        chieuDai: layer.options.chieuDai,
+        chieuRong: layer.options.chieuRong,
+        gocXoay: layer.options.gocXoay,
+        weight: layer.options.weight,
+        color: layer.options.color,
+        lineCap: layer.options.lineCap,
+        lineJoin: layer.options.lineJoin,
       },
-      draw: {
-        role: {
-          gocXoay: 0,
-          chieuDai: 50,
-          chieuRong: 25,
-          weight: 7,
-          lineCap: 'square',
-          lineJoin: 'square',
-        },
-        thanhCai: {
-          gocXoay: 90,
-          chieuDai: 300,
-          weight: 9,
-          lineCap: 'square',
-        },
-        mayBienAp: {
-          gocXoay: 0,
-          chieuDai: 200,
-          weight: 7,
-        },
-      },
-    });
-    this._snapLayers = this._L.layerGroup([]).addTo(this._map);
-    drawControl.setDrawingOptions({
-      duongDay: { guideLayers: [this._snapLayers] },
-    });
-    this._map.addControl(drawControl);
-    this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
-      this._drawnItems.addLayer(event.layer);
-    });
-    this._map.on(this._L.Draw.Event.EDITED, (event: any) => {
-      event.layers.eachLayer((layer: any) => {
-        if (layer instanceof this._L.ThanhCai) {
-          const layerTmp = this._L.polyline(layer.getLatLngs(), { opacity: 0 });
-          this._addAndRemoveSnapLayer(layer, [layerTmp]);
-        }
-      });
-    });
-
-    this._drawnItems.on('layeradd', (e: any) => {
-      const layer = e.layer;
-      debugger;
-      if (layer instanceof this._L.ThanhCai) {
-        const layerTmp = this._L.polyline(layer.getLatLngs(), { opacity: 0 });
-        this._addAndRemoveSnapLayer(layer, [layerTmp]);
-      } else if (layer instanceof this._L.Role) {
-        const ps = layer.getLatLngSnaps();
-        console.log(ps);
-        this._addAndRemoveSnapLayer(layer, [
-          this._L.circleMarker(ps[0], { radius: 1, opacity: 0 }),
-          this._L.circleMarker(ps[1], { radius: 1, opacity: 0 }),
-        ]);
-      }
-    });
-
-    // const thanhCai = this._L.thanhCai(this._L.latLng(0, 0), { gocXoay: 90 });
-    // this._drawnItems.addLayer(thanhCai);
-  }
-
-  private _addAndRemoveSnapLayer(layer: any, layerSnaps: any) {
-    // Remove
-    if (layer.layerSnapIds)
-      layer.layerSnapIds.forEach((element: any) => {
-        this._snapLayers.removeLayer(element);
-      });
-    layer.layerSnapIds = [];
-    // Add
-    layerSnaps.forEach((element: any) => {
-      this._snapLayers.addLayer(element);
-      layer.layerSnapIds.push(this._L.Util.stamp(element));
-    });
-  }
-
-  private _initMayBienApLayer() {
-    this._mayBienApLayers = this._L
-      .geoJSON(undefined, {
-        draggable: true,
-        onEachFeature: (feature: any, layer: any) => {
-          layer.dragging.disable();
-          this.addSnapLayer(layer);
-          layer.on('dragend', (event: any) => {
-            const layer = event.target;
-            this.addOrUpdateGeoMayBienAp(layer).subscribe();
-            this.removeSnapLayer(layer);
-            this.addSnapLayer(layer);
-          });
-        },
-        style: (feature: any) => {
-          const color = feature.properties?.color || '#0000ff';
-          return { color: color };
-        },
-        weight: 8,
-        lineCap: 'square',
-      })
-      .addTo(this._map);
-    this._mayBienApLayers.on('click', (e: any) => {
-      const layerSelectNew = e.layer;
-      this._disableDragSelectCur(layerSelectNew);
-      this.layerSelect.next({
-        layer: layerSelectNew,
-      });
-    });
-  }
-
-  private _initThanhCaiLayer() {
-    this._thanhCaiLayers = this._L
-      .geoJSON(undefined, {
-        draggable: true,
-        onEachFeature: (feature: any, layer: any) => {
-          layer.dragging.disable();
-          this.addSnapLayer(layer);
-          layer.on('dragend', (event: any) => {
-            const layer = event.target;
-            this.addOrUpdateGeoThanhCai(layer).subscribe();
-            this.removeSnapLayer(layer);
-            this.addSnapLayer(layer);
-          });
-        },
-        style: (feature: any) => {
-          const color = feature.properties?.color || '#0000ff';
-          return { color: color };
-        },
-        weight: 10,
-        lineCap: 'square',
-      })
-      .addTo(this._map);
-    this._thanhCaiLayers.on('click', (e: any) => {
-      const layerSelectNew = e.layer;
-      this._disableDragSelectCur(layerSelectNew);
-      this.layerSelect.next({
-        layer: layerSelectNew,
-      });
-    });
-  }
-
-  private _initRoleLayer() {
-    this._roleLayers = this._L
-      .geoJSON(undefined, {
-        draggable: true,
-        onEachFeature: (feature: any, layer: any) => {
-          layer.dragging.disable();
-          this.addSnapLayer(layer);
-          layer.on('dragend', (event: any) => {
-            const layer = event.target;
-            this.addOrUpdateGeoRole(layer).subscribe();
-            this.removeSnapLayer(layer);
-            this.addSnapLayer(layer);
-          });
-        },
-        style: (feature: any) => {
-          const color = feature.properties?.color || '#0000ff';
-          return { color: color };
-        },
-        lineCap: 'square',
-        weight: 8,
-      })
-      .addTo(this._map);
-    this._roleLayers.on('click', (e: any) => {
-      const layerSelectNew = e.layer;
-      this._disableDragSelectCur(layerSelectNew);
-      this.layerSelect.next({
-        layer: layerSelectNew,
-      });
-    });
-  }
-
-  private _initDuongDayLayer() {
-    this._duongDayLayers = this._L
-      .geoJSON(undefined, {
-        draggable: false,
-        onEachFeature: (feature: any, layer: any) => {},
-        style: (feature: any) => {
-          const color = feature.properties?.color || '#0000ff';
-          return { color: color };
-        },
-        lineCap: 'square',
-        weight: 6,
-      })
-      .addTo(this._map);
-  }
-
-  private _drawEvents() {
-    const L = this._L;
-    this._map.on(this._L.Draw.Event.CREATED, (e: any) => {
-      const layer = e.layer;
-      // console.log(this._drawExtUtil.getCenterPoint(layer));
-      // this._drawnItems.addLayer(layer);
-      if (e.layerType === 'role') {
-        // const role = new L.polyline(layer._latlngs);
-        // let fRole = role.toGeoJSON();
-        // fRole.properties.deviceTypeName = 'role';
-        // fRole.properties.rotate = 0;
-        // this._roleLayers.addData(fRole);
-        // this.addOrUpdateGeoRole(role).subscribe((res) => {
-        //   fRole.properties.id = res.id;
-        // });
-      } else if (e.layerType === 'thanhCai') {
-        // const thanhCai = new L.polyline(layer._latlngs);
-        // let fThanhCai = thanhCai.toGeoJSON();
-        // fThanhCai.properties.id = uuidv4();
-        // fThanhCai.properties.deviceTypeName = 'thanhCai';
-        // fThanhCai.properties.name = '';
-        // fThanhCai.properties.color = '#0000ff';
-        // fThanhCai.properties.rotate = '0';
-        // this._thanhCaiLayers.addData(fThanhCai);
-        // this.addOrUpdateGeoThanhCai(thanhCai).subscribe((res) => {
-        //   fThanhCai.properties.id = res.id;
-        // });
-      } else if (e.layerType === 'mayBienAp') {
-        // const mayBienAp = new L.polyline(layer._latlngs);
-        // let fMayBienAp = mayBienAp.toGeoJSON();
-        // fMayBienAp.properties.id = uuidv4();
-        // fMayBienAp.properties.deviceTypeName = 'mayBienAp';
-        // fMayBienAp.properties.name = '';
-        // fMayBienAp.properties.color = '#0000ff';
-        // fMayBienAp.properties.rotate = '0';
-        // this._mayBienApLayers.addData(fMayBienAp);
-        // this.addOrUpdateGeoThanhCai(mayBienAp).subscribe((res) => {
-        //   fMayBienAp.properties.id = res.id;
-        // });
-      } else if (e.layerType === 'duongDay') {
-        const line = new L.polyline(layer._latlngs);
-        let fLine = line.toGeoJSON();
-        // fLine.properties.id = uuidv4();
-        fLine.properties.deviceTypeName = 'duongDay';
-        fLine.properties.name = '';
-        fLine.properties.color = '#0000ff';
-        fLine.properties.rotate = '0';
-        this._duongDayLayers.addData(fLine);
-      }
-      this._drawnItems.addLayer(layer);
-    });
-  }
-
-  private _disableDragSelectCur(layer: any): void {
-    const layerSelectCur = this.layerSelect.getValue()?.layer;
-    if (layerSelectCur && layerSelectCur._leaflet_id !== layer._leaflet_id) {
-      layerSelectCur.dragging.disable();
-    }
-  }
-
-  public rotate(layer: any, angleA: number, angleB: number): void {
-    const properties = layer.feature.properties;
-    switch (properties.deviceTypeName) {
-      case 'role':
-        layer.setLatLngs(
-          this._tranformDevice.rotateRole(layer, angleA).getLatLngs()
-        );
-        layer.setLatLngs(
-          this._tranformDevice.rotateRole(layer, angleB).getLatLngs()
-        );
-        break;
-      case 'thanhCai':
-        layer.setLatLngs(
-          this._tranformDevice.rotateThanhCai(layer, angleA).getLatLngs()
-        );
-        layer.setLatLngs(
-          this._tranformDevice.rotateThanhCai(layer, angleB).getLatLngs()
-        );
-        break;
-      case 'mayBienAp':
-        layer.setLatLngs(
-          this._tranformDevice.rotateMayBienAp(layer, angleA).getLatLngs()
-        );
-        layer.setLatLngs(
-          this._tranformDevice.rotateMayBienAp(layer, angleB).getLatLngs()
-        );
-        break;
-    }
-  }
-
-  public removeSnapLayer(layer: any): void {
-    const properties = layer.feature.properties;
-    // Remove
-    for (var i = 0; i < properties.snapLayerIds?.length; i++) {
-      this._snapLayers.removeLayer(properties.snapLayerIds[i]);
-    }
-    properties.snapLayerIds = [];
-  }
-
-  public addSnapLayer(layer: any): void {
-    const properties = layer.feature.properties;
-    switch (properties.deviceTypeName) {
-      case 'role':
-        this._addRoleSnapLayer(layer);
-        break;
-      case 'thanhCai':
-        this._addThanhCaiSnapLayer(layer);
-        break;
-      case 'mayBienAp':
-        this._addMayBienApSnapLayer(layer);
-        break;
-    }
-  }
-
-  private _addRoleSnapLayer(layer: any): void {
-    // Add
-    const properties = layer.feature.properties;
-    const pMs = this._drawExtUtil.getSnapPoints(layer);
-    const rotate = parseInt(properties.rotate);
-
-    let markerM1 = null;
-    let markerM2 = null;
-    if (rotate === 0) {
-      markerM1 = this._L.marker(pMs[0], {
-        opacity: this._opacity,
-      });
-      markerM2 = this._L.marker(pMs[1], {
-        opacity: this._opacity,
-      });
-    } else if (rotate === 90) {
-      markerM1 = this._L.marker(pMs[2], {
-        opacity: this._opacity,
-      });
-      markerM2 = this._L.marker(pMs[3], {
-        opacity: this._opacity,
-      });
-    }
-    this._snapLayers.addLayer(markerM1);
-    this._snapLayers.addLayer(markerM2);
-    // Set Leaflet Id
-    properties.snapLayerIds = [markerM1._leaflet_id, markerM2._leaflet_id];
-  }
-
-  private _addThanhCaiSnapLayer(layer: any): void {
-    const properties = layer.feature.properties;
-    const snapLayer = this._L.polyline(layer.getLatLngs(), {
-      opacity: this._opacity,
-    });
-    this._snapLayers.addLayer(snapLayer);
-    // Set Leaflet Id
-    properties.snapLayerIds = [snapLayer._leaflet_id];
-  }
-
-  private _addMayBienApSnapLayer(layer: any): void {
-    const properties = layer.feature.properties;
-    // Tạo 2 điểm bắt snap cho Rơle
-    const pMs = this._drawExtUtil.getSnapPoints(layer);
-    const rotate = parseInt(properties.rotate);
-    let markerM1 = null;
-    let markerM2 = null;
-    if (rotate === 0 || rotate === 180) {
-      markerM1 = this._L.marker(pMs[2], {
-        opacity: this._opacity,
-      });
-      markerM2 = this._L.marker(pMs[3], {
-        opacity: this._opacity,
-      });
-    } else if (rotate === 90 || rotate === 270) {
-      markerM1 = this._L.marker(pMs[0], {
-        opacity: this._opacity,
-      });
-      markerM2 = this._L.marker(pMs[1], {
-        opacity: this._opacity,
-      });
-    }
-    this._snapLayers.addLayer(markerM1);
-    this._snapLayers.addLayer(markerM2);
-    // Set Leaflet Id
-    properties.snapLayerIds = [markerM1._leaflet_id, markerM2._leaflet_id];
+      latLngs: layer.getLatLngs(),
+    };
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
+    return this._http.post<any>(uri, data);
   }
 
   public addOrUpdateGeoRole(layer: any): Observable<any> {
     const data = {
-      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      centerPoint: layer.getCenterCus(layer),
+      id: layer.id || '',
       featureType: 0,
-      id: layer.feature?.properties?.id || '',
-      rotate: layer.feature?.properties?.rotate || 0,
+      options: {
+        chieuDai: layer.options.chieuDai,
+        chieuRong: layer.options.chieuRong,
+        gocXoay: layer.options.gocXoay,
+        weight: layer.options.weight,
+        color: layer.options.color,
+        lineCap: layer.options.lineCap,
+        lineJoin: layer.options.lineJoin,
+      },
     };
-    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrRoleURL}`;
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
     return this._http.post<any>(uri, data);
   }
 
   public addOrUpdateGeoThanhCai(layer: any): Observable<any> {
     const data = {
-      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      centerPoint: layer.getCenterCus(),
+      id: layer.id || '',
       featureType: 1,
-      id: layer.feature?.properties?.id || '',
-      rotate: layer.feature?.properties?.rotate || 0,
+      options: {
+        chieuDai: layer.options.chieuDai,
+        gocXoay: layer.options.gocXoay,
+        weight: layer.options.weight,
+        color: layer.options.color,
+        lineCap: layer.options.lineCap,
+        lineJoin: layer.options.lineJoin,
+      },
     };
-    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrThanhCaiURL}`;
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
     return this._http.post<any>(uri, data);
   }
 
   public addOrUpdateGeoMayBienAp(layer: any): Observable<any> {
     const data = {
-      centerPoint: this._drawExtUtil.getCenterPoint(layer),
+      centerPoint: layer.getLatLng(),
+      id: layer.id || '',
       featureType: 2,
-      id: layer.feature?.properties?.id || '',
-      rotate: layer.feature?.properties?.rotate || 0,
+      options: {
+        chieuDai: layer.options.chieuDai,
+        gocXoay: layer.options.gocXoay,
+        weight: layer.options.weight,
+        color: layer.options.color,
+        lineCap: layer.options.lineCap,
+        lineJoin: layer.options.lineJoin,
+      },
     };
-    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrMayBienApURL}`;
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
     return this._http.post<any>(uri, data);
   }
 }

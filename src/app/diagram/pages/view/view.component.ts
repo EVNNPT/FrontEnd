@@ -10,6 +10,7 @@ import { DiagramService } from 'src/app/core';
 import * as L from 'leaflet';
 import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 import '../../../../libs/leaflet-snap/leaflet.snap.js';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-view',
@@ -27,10 +28,24 @@ export class ViewComponent implements OnInit {
 
   ngOnInit(): void {
     this._initMap();
+    this._diagramService.getDiagram(
+      '1',
+      this._L,
+      this._drawLayer,
+      this._guideLayers
+    );
   }
 
-  onPress(): void {
-    console.log('onPress');
+  private _addOrUpdateGeo(layer: any): Observable<any> {
+    if (layer instanceof this._L.DuongDay) {
+      return this._diagramService.addOrUpdateGeoDuongDay(layer);
+    } else if (layer instanceof this._L.Role) {
+      return this._diagramService.addOrUpdateGeoRole(layer);
+    } else if (layer instanceof this._L.MayBienAp) {
+      return this._diagramService.addOrUpdateGeoMayBienAp(layer);
+    } else {
+      return this._diagramService.addOrUpdateGeoThanhCai(layer);
+    }
   }
 
   // Init map
@@ -139,6 +154,11 @@ export class ViewComponent implements OnInit {
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       this._drawLayer.addLayer(layer);
+      this._addOrUpdateGeo(layer).subscribe((res) => {
+        if (layer.id === undefined || layer.id === '') {
+          layer.id = res.id;
+        }
+      });
     });
 
     this._map.on(this._L.Draw.Event.EDITED, (e: any) => {
@@ -153,6 +173,11 @@ export class ViewComponent implements OnInit {
           deviceSnapLayer.removeLayer(layer.snapLayerId);
           layer.snapLayerId = this._L.Util.stamp(layerSnap);
         }
+        this._addOrUpdateGeo(layer).subscribe((res) => {
+          if (layer.id === undefined || layer.id === '') {
+            layer.id = res.id;
+          }
+        });
       });
     });
 
@@ -164,6 +189,7 @@ export class ViewComponent implements OnInit {
         ) {
           deviceSnapLayer.removeLayer(layer.snapLayerId);
         }
+        this._diagramService.deleteFeature(layer, this._L).subscribe(() => {});
       });
     });
 
