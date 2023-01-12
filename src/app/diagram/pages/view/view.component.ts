@@ -1,16 +1,12 @@
 import {
+  AfterContentChecked,
   AfterViewInit,
   Component,
-  ComponentFactoryResolver,
-  ComponentRef,
-  ViewChild,
-  ViewContainerRef,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
 } from '@angular/core';
-import { MatDrawer } from '@angular/material/sidenav';
 import { DiagramService } from 'src/app/core';
-import { MayBienApDetailComponent } from '../may-bien-ap-detail/may-bien-ap-detail.component';
-import { RoleDetailComponent } from '../role-detail/role-detail.component';
-import { ThanhCaiDetailComponent } from '../thanh-cai-detail/thanh-cai-detail.component';
 import * as L from 'leaflet';
 import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 import '../../../../libs/leaflet-snap/leaflet.snap.js';
@@ -20,96 +16,190 @@ import '../../../../libs/leaflet-snap/leaflet.snap.js';
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
 })
-export class ViewComponent implements AfterViewInit {
+export class ViewComponent implements OnInit {
   private imgBackgroundMap = '/assets/images/white_bkg.png';
-  private deviceTypeNames: string[] = ['role', 'thanhCai', 'mayBienAp'];
-  public deviceTypeName: string = '';
-  @ViewChild('drawer', { static: true }) private drawer!: MatDrawer;
+  private _L: any;
+  private _map: any;
+  private _drawLayer: any;
+  private _guideLayers: any;
 
-  @ViewChild('detailContainer', {
-    read: ViewContainerRef,
-  })
-  detailContainer!: ViewContainerRef;
+  constructor(private _diagramService: DiagramService) {}
 
-  componentRoleDetailRef!: ComponentRef<RoleDetailComponent>;
-  componentThanhCaiDetailRef!: ComponentRef<ThanhCaiDetailComponent>;
-  componentMayBienApDetailRef!: ComponentRef<MayBienApDetailComponent>;
+  ngOnInit(): void {
+    this._initMap();
+  }
 
+  onPress(): void {
+    console.log('onPress');
+  }
+
+  // Init map
   private _initMap(): void {
-    // Init map
-    const map = L.map('map', {
+    this._L = L as any;
+
+    this._map = this._L.map('map', {
       center: [0, 0],
-      zoom: 16,
-      maxZoom: 18,
-      minZoom: 13,
+      zoom: 18,
+      maxZoom: 20,
+      minZoom: 10,
     });
 
     // Title
-    L.tileLayer(this.imgBackgroundMap, {
-      maxZoom: 18,
-      minZoom: 3,
-      // attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
-    }).addTo(map);
+    this._L
+      .tileLayer(this.imgBackgroundMap, {
+        // attribution: '&copy; <a href="https://ftiglobal.com.vn/">FTI Global</a>',
+      })
+      .addTo(this._map);
 
-    this._diagramService.setMap(L, map);
+    this._drawLayer = this._L.featureGroup().addTo(this._map);
+    const gridLayer = this._L.featureGroup().addTo(this._map);
+    const deviceSnapLayer = this._L.featureGroup().addTo(this._map);
 
-    this._diagramService.mapAddControlAndLayers();
+    this._L.control
+      .layers(
+        {},
+        { DrawLayer: this._drawLayer },
+        { position: 'topright', collapsed: false }
+      )
+      .addTo(this._map);
+    this._L.control
+      .layers(
+        {},
+        { GridLayer: gridLayer },
+        { position: 'topright', collapsed: false }
+      )
+      .addTo(this._map);
+    this._L.control
+      .layers(
+        {},
+        { DeviceSnapLayer: deviceSnapLayer },
+        { position: 'topright', collapsed: false }
+      )
+      .addTo(this._map);
 
-    // this._diagramService.layerSelect.subscribe((res) => {
-    //   if (res === null) {
-    //     return;
-    //   }
-    //   // Hiển thị
-    //   const layer = res.layer;
-    //   const feature = layer.feature;
-    //   const deviceTypeName = feature.properties.deviceTypeName;
-    //   const found =
-    //     this.deviceTypeNames.findIndex((ele) => ele === deviceTypeName) === -1
-    //       ? false
-    //       : true;
+    let drawControl = new this._L.Control.Draw({
+      edit: {
+        featureGroup: this._drawLayer,
+        poly: {
+          allowIntersection: false,
+        },
+        edit: {
+          selectedPathOptions: {
+            dashArray: '10, 15',
+            fill: false,
+            fillColor: '#fe57a1',
+            // Whether to user the existing layers color
+            maintainColor: false,
+          },
+        },
+        remove: true,
+      },
+      draw: {
+        polyline: false,
+      },
+    });
 
-    //   this.detailContainer.clear();
-    //   this.componentRoleDetailRef?.destroy();
-    //   this.componentThanhCaiDetailRef?.destroy();
-    //   this.componentMayBienApDetailRef?.destroy();
+    this._guideLayers = [gridLayer, deviceSnapLayer];
 
-    //   if (deviceTypeName === 'role') {
-    //     const roleDetail =
-    //       this._resolver.resolveComponentFactory(RoleDetailComponent);
-    //     this.componentRoleDetailRef =
-    //       this.detailContainer.createComponent(roleDetail);
-    //   } else if (deviceTypeName === 'thanhCai') {
-    //     const thanhCaiDetail = this._resolver.resolveComponentFactory(
-    //       ThanhCaiDetailComponent
-    //     );
-    //     this.componentThanhCaiDetailRef =
-    //       this.detailContainer.createComponent(thanhCaiDetail);
-    //   } else if (deviceTypeName === 'mayBienAp') {
-    //     const mayBienApDetail = this._resolver.resolveComponentFactory(
-    //       MayBienApDetailComponent
-    //     );
-    //     this.componentMayBienApDetailRef =
-    //       this.detailContainer.createComponent(mayBienApDetail);
-    //   }
+    drawControl.setDrawingOptions({
+      duongDay: {
+        guideLayers: this._guideLayers,
+        snapDistance: 10,
+        weight: 5,
+        lineCap: 'square',
+        lineJoin: 'square',
+        color: 'red',
+      },
+      role: {
+        guideLayers: this._guideLayers,
+        snapDistance: 10,
+        gocXoay: 0,
+        weight: 8,
+        lineCap: 'square',
+        lineJoin: 'square',
+      },
+      thanhCai: {
+        guideLayers: this._guideLayers,
+        snapDistance: 10,
+        gocXoay: 90,
+        weight: 10,
+        lineCap: 'square',
+      },
+      mayBienAp: {
+        guideLayers: this._guideLayers,
+        snapDistance: 10,
+        gocXoay: 0,
+        weight: 8,
+        lineCap: 'square',
+      },
+    });
 
-    //   this.deviceTypeName = deviceTypeName;
+    this._map.addControl(drawControl);
 
-    //   if (!this.drawer.opened && found) {
-    //     this.drawer.open();
-    //   } else if (this.drawer.opened && !found) {
-    //     this.drawer.close();
-    //   }
-    // });
+    this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
+      const layer = event.layer;
+      this._drawLayer.addLayer(layer);
+    });
 
-    // this._diagramService.getDiagram('1');
-  }
+    this._map.on(this._L.Draw.Event.EDITED, (e: any) => {
+      e.layers.eachLayer((ele: any) => {
+        const layer = ele;
+        if (
+          !(layer instanceof this._L.DuongDay) &&
+          !(layer instanceof this._L.ThanhCai)
+        ) {
+          const layerSnap = layer.getLayerSnap();
+          deviceSnapLayer.addLayer(layerSnap);
+          deviceSnapLayer.removeLayer(layer.snapLayerId);
+          layer.snapLayerId = this._L.Util.stamp(layerSnap);
+        }
+      });
+    });
 
-  constructor(
-    private _diagramService: DiagramService,
-    private _resolver: ComponentFactoryResolver
-  ) {}
+    this._map.on(this._L.Draw.Event.DELETED, (e: any) => {
+      e.layers.eachLayer((layer: any) => {
+        if (
+          !(layer instanceof this._L.DuongDay) &&
+          !(layer instanceof this._L.ThanhCai)
+        ) {
+          deviceSnapLayer.removeLayer(layer.snapLayerId);
+        }
+      });
+    });
 
-  ngAfterViewInit(): void {
-    this._initMap();
+    this._drawLayer.on('layeradd', (e: any) => {
+      const layer = e.layer;
+      if (
+        !(layer instanceof this._L.DuongDay) &&
+        !(layer instanceof this._L.ThanhCai)
+      ) {
+        const layerSnap = layer.getLayerSnap();
+        deviceSnapLayer.addLayer(layerSnap);
+        layer.snapLayerId = this._L.Util.stamp(layerSnap);
+      }
+    });
+
+    this._drawLayer.on('click', (e: any) => {
+      const layer = e.layer;
+      const id = layer.id;
+      let url = '';
+      if (layer instanceof this._L.Role) {
+        url = `/admin/ro-le-detail/${id}`;
+      } else if (layer instanceof this._L.DuongDay) {
+        url = `/admin/duong-day-detail/${id}`;
+      } else if (layer instanceof this._L.ThanhCai) {
+        url = `/admin/thanh-cai-detail/${id}`;
+      } else if (layer instanceof this._L.MayBienAp) {
+        url = `/admin/may-bien-ap-detail/${id}`;
+      }
+      window.open(url);
+    });
+
+    this._L.guideLayer(this._map, {
+      height: 50,
+      width: 50,
+      layer: gridLayer,
+      zoom: 17,
+    });
   }
 }
