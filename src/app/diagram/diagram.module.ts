@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { DiagramRoutingModule } from './diagram-routing.module';
 import { DiagramComponent } from './pages/diagram.component';
 import { SharedModule } from '../shared/shared.module';
-import { ViewComponent, RoleDetailComponent } from './pages';
+import { ViewComponent } from './pages';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -13,17 +13,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { ThanhCaiDetailComponent } from './pages/thanh-cai-detail/thanh-cai-detail.component';
-import { MayBienApDetailComponent } from './pages/may-bien-ap-detail/may-bien-ap-detail.component';
 
 @NgModule({
-  declarations: [
-    DiagramComponent,
-    ViewComponent,
-    RoleDetailComponent,
-    ThanhCaiDetailComponent,
-    MayBienApDetailComponent,
-  ],
+  declarations: [DiagramComponent, ViewComponent],
   imports: [
     CommonModule,
     DiagramRoutingModule,
