@@ -25,6 +25,7 @@ import { SnackbarOkComponent } from '../../snackbar/snackbar-ok/snackbar-ok.comp
 export class DuongDayDetailComponent implements OnInit {
   duongDayDetailForm = new FormGroup({
     MAPMIS: new FormControl(''),
+    ID: new FormControl(''),
     TENDUONGDAY: new FormControl(''),
     MADVQL: new FormControl(''),
     TENCONGTY: new FormControl(''),
@@ -85,6 +86,7 @@ export class DuongDayDetailComponent implements OnInit {
           this.formType = true;
           this.duongDayDetailForm.patchValue({
             MAPMIS: client.mapmis,
+            ID: client.id,
             TENDUONGDAY: client.tenduongday,
             MADVQL: client.madvql,
             TENCONGTY: client.tencongty,
@@ -114,7 +116,7 @@ export class DuongDayDetailComponent implements OnInit {
             GHICHU: client.ghichu,
           });
           this._duongDayService
-            .getFileDinhKem('DDAY', id)
+            .getFileDinhKem('DDAY', client.id)
             .subscribe((client) => {
               if (client.length < 5) {
                 for (var i = 0; i < client.length; i++) {
@@ -140,7 +142,7 @@ export class DuongDayDetailComponent implements OnInit {
                 this.ELEMENT_DATA
               );
             });
-          this._duongDayService.getDTLienQuan(id).subscribe((client) => {
+          this._duongDayService.getDTLienQuan(client.id).subscribe((client) => {
             if (client.length < 5) {
               for (var i = 0; i < client.length; i++) {
                 var cusObj = new ThietBiLienQuan();
@@ -174,51 +176,51 @@ export class DuongDayDetailComponent implements OnInit {
 
   changePagination(event: any) {
     this.ELEMENT_DATA = [];
-    this._route.paramMap.subscribe((params) => {
-      var id = params.get('id')!;
-      this._duongDayService.getFileDinhKem('DDAY', id).subscribe((client) => {
-        var start = event.pageIndex * event.pageSize;
-        var limit = start + event.pageSize;
-        for (var i = start; i < limit; i++) {
-          if (i < client.length) {
-            var cusObj = new FileDinhKem();
-            cusObj.MADT = client[i].madt;
-            cusObj.MALOAITHIETBI = client[i].maloaithietbi;
-            cusObj.TENFILE = client[i].tenfile;
-            cusObj.DUONGDAN = client[i].duongdan;
-            this.ELEMENT_DATA.push(cusObj);
-          }
+    var id = '';
+    if (this.duongDayDetailForm.getRawValue().ID != null) {
+      id = this.duongDayDetailForm.getRawValue().ID!;
+    }
+    this._duongDayService.getFileDinhKem('DDAY', id).subscribe((client) => {
+      var start = event.pageIndex * event.pageSize;
+      var limit = start + event.pageSize;
+      for (var i = start; i < limit; i++) {
+        if (i < client.length) {
+          var cusObj = new FileDinhKem();
+          cusObj.MADT = client[i].madt;
+          cusObj.MALOAITHIETBI = client[i].maloaithietbi;
+          cusObj.TENFILE = client[i].tenfile;
+          cusObj.DUONGDAN = client[i].duongdan;
+          this.ELEMENT_DATA.push(cusObj);
         }
-        this.paginator.length = client.length;
-        this.dataSource = new MatTableDataSource<FileDinhKem>(
-          this.ELEMENT_DATA
-        );
-      });
+      }
+      this.paginator.length = client.length;
+      this.dataSource = new MatTableDataSource<FileDinhKem>(this.ELEMENT_DATA);
     });
   }
 
   changePagination_TBLQ(event: any) {
     this.ELEMENT_DATA_TBLQ = [];
-    this._route.paramMap.subscribe((params) => {
-      var id = params.get('id')!;
-      this._duongDayService.getDTLienQuan(id).subscribe((client) => {
-        var start = event.pageIndex * event.pageSize;
-        var limit = start + event.pageSize;
-        for (var i = start; i < limit; i++) {
-          if (i < client.length) {
-            var cusObj = new ThietBiLienQuan();
-            cusObj.LOAITBKHAC = client[i].loaitbkhac;
-            cusObj.MADUONGDAY = client[i].maduongday;
-            cusObj.MATBKHAC = client[i].matbkhac;
-            cusObj.TENTHIETBI = client[i].tenthietbi;
-            this.ELEMENT_DATA_TBLQ.push(cusObj);
-          }
+    var id = '';
+    if (this.duongDayDetailForm.getRawValue().ID != null) {
+      id = this.duongDayDetailForm.getRawValue().ID!;
+    }
+    this._duongDayService.getDTLienQuan(id).subscribe((client) => {
+      var start = event.pageIndex * event.pageSize;
+      var limit = start + event.pageSize;
+      for (var i = start; i < limit; i++) {
+        if (i < client.length) {
+          var cusObj = new ThietBiLienQuan();
+          cusObj.LOAITBKHAC = client[i].loaitbkhac;
+          cusObj.MADUONGDAY = client[i].maduongday;
+          cusObj.MATBKHAC = client[i].matbkhac;
+          cusObj.TENTHIETBI = client[i].tenthietbi;
+          this.ELEMENT_DATA_TBLQ.push(cusObj);
         }
-        this.paginator_TBLQ.length = client.length;
-        this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
-          this.ELEMENT_DATA_TBLQ
-        );
-      });
+      }
+      this.paginator_TBLQ.length = client.length;
+      this.dataSourceTBLQ = new MatTableDataSource<ThietBiLienQuan>(
+        this.ELEMENT_DATA_TBLQ
+      );
     });
   }
 
@@ -235,6 +237,7 @@ export class DuongDayDetailComponent implements OnInit {
       var item = this.duongDayDetailForm.getRawValue();
       var itemAdd: DuongDayDetail = new DuongDayDetail();
       itemAdd.Mapmis = item.MAPMIS;
+      itemAdd.Id = item.ID;
       itemAdd.Tenduongday = item.TENDUONGDAY;
       itemAdd.Madvql = item.MADVQL;
       itemAdd.Tencongty = item.TENCONGTY;
@@ -273,6 +276,7 @@ export class DuongDayDetailComponent implements OnInit {
             });
             this.duongDayDetailForm.patchValue({
               MAPMIS: '',
+              ID: '',
               TENDUONGDAY: '',
               MADVQL: '',
               TENCONGTY: '',
@@ -299,7 +303,7 @@ export class DuongDayDetailComponent implements OnInit {
               MAUCAT: '',
               DAUNOIDAU: '',
               DAUNOICUOI: '',
-              GHICHU: ''
+              GHICHU: '',
             });
           }
         },
@@ -313,6 +317,7 @@ export class DuongDayDetailComponent implements OnInit {
       var item = this.duongDayDetailForm.getRawValue();
       var itemAdd: DuongDayDetail = new DuongDayDetail();
       itemAdd.Mapmis = item.MAPMIS;
+      itemAdd.Id = item.ID;
       itemAdd.Tenduongday = item.TENDUONGDAY;
       itemAdd.Madvql = item.MADVQL;
       itemAdd.Tencongty = item.TENCONGTY;
@@ -365,15 +370,22 @@ export class DuongDayDetailComponent implements OnInit {
   }
 
   openDialogAdd() {
-    if(this.id == 'add'){
+    if (this.id == 'add') {
+      return;
+    }
+    var id = '';
+    if (this.duongDayDetailForm.getRawValue().ID != null) {
+      id = this.duongDayDetailForm.getRawValue().ID!;
+    }else{
+      alert('Vui lòng nhập ID!');
       return;
     }
     const dialogRef = this.dialog.open(DialogThemMoiDtlqComponent, {
-      data: { id: this.id },
+      data: { id: id },
     });
     dialogRef.afterClosed().subscribe((result) => {
       this.ELEMENT_DATA_TBLQ = [];
-      this._duongDayService.getDTLienQuan(this.id).subscribe((client) => {
+      this._duongDayService.getDTLienQuan(id).subscribe((client) => {
         if (client.length < 5) {
           for (var i = 0; i < client.length; i++) {
             var cusObj = new ThietBiLienQuan();
