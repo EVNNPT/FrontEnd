@@ -30,7 +30,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -64,7 +64,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -99,7 +99,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -118,7 +118,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -137,7 +137,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -156,7 +156,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -204,7 +204,7 @@ export class DashboardComponent {
               res[2].soluong,
               res[3].soluong,
             ],
-            label: '',
+            label: 'Số lượng',
             backgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBackgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBorderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
