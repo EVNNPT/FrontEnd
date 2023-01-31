@@ -86,7 +86,7 @@ export class DuongDayDetailComponent implements OnInit {
           this.formType = true;
           this.duongDayDetailForm.patchValue({
             MAPMIS: client.mapmis,
-            ID: client.id,
+            ID: client.idmap,
             TENDUONGDAY: client.tenduongday,
             MADVQL: client.madvql,
             TENCONGTY: client.tencongty,
@@ -116,7 +116,7 @@ export class DuongDayDetailComponent implements OnInit {
             GHICHU: client.ghichu,
           });
           this._duongDayService
-            .getFileDinhKem('DDAY', client.id)
+            .getFileDinhKem('DDAY', client.idmap)
             .subscribe((client) => {
               if (client.length < 5) {
                 for (var i = 0; i < client.length; i++) {
@@ -142,7 +142,7 @@ export class DuongDayDetailComponent implements OnInit {
                 this.ELEMENT_DATA
               );
             });
-          this._duongDayService.getDTLienQuan(client.id).subscribe((client) => {
+          this._duongDayService.getDTLienQuan(client.idmap).subscribe((client) => {
             if (client.length < 5) {
               for (var i = 0; i < client.length; i++) {
                 var cusObj = new ThietBiLienQuan();
@@ -237,7 +237,7 @@ export class DuongDayDetailComponent implements OnInit {
       var item = this.duongDayDetailForm.getRawValue();
       var itemAdd: DuongDayDetail = new DuongDayDetail();
       itemAdd.Mapmis = item.MAPMIS;
-      itemAdd.Id = item.ID;
+      itemAdd.Idmap = item.ID;
       itemAdd.Tenduongday = item.TENDUONGDAY;
       itemAdd.Madvql = item.MADVQL;
       itemAdd.Tencongty = item.TENCONGTY;
@@ -317,7 +317,7 @@ export class DuongDayDetailComponent implements OnInit {
       var item = this.duongDayDetailForm.getRawValue();
       var itemAdd: DuongDayDetail = new DuongDayDetail();
       itemAdd.Mapmis = item.MAPMIS;
-      itemAdd.Id = item.ID;
+      itemAdd.Idmap = item.ID;
       itemAdd.Tenduongday = item.TENDUONGDAY;
       itemAdd.Madvql = item.MADVQL;
       itemAdd.Tencongty = item.TENCONGTY;
