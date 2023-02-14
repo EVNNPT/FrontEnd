@@ -1,17 +1,8 @@
-<!-- <div class="map-container">
-    <div class="map-frame">
-        <div id="map"></div>
-    </div>
-</div> -->
-<!-- <div class="map-detail">
-    <app-role-detail></app-role-detail>
-</div> -->
-
 <mat-drawer-container hasBackdrop="false">
-    <mat-drawer #drawer mode="side" position="end">
-        <ng-template #detailContainer></ng-template>
-    </mat-drawer>
-    <mat-drawer-content>
-        <div id="map"></div>
-    </mat-drawer-content>
+  <mat-drawer #drawer mode="over" position="end">
+    <app-label-detail (formEvent)="formEvent($event)"></app-label-detail>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div id="map"></div>
+  </mat-drawer-content>
 </mat-drawer-container>

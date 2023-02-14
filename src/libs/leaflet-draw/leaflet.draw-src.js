@@ -1,11 +1,77 @@
 /*
- Leaflet.draw 1.0.4+5e7be29, a plugin that adds drawing and editing tools to Leaflet powered maps.
+ Leaflet.draw 1.0.4+f687375, a plugin that adds drawing and editing tools to Leaflet powered maps.
  (c) 2012-2017, Jacob Toye, Jon West, Smartrak, Leaflet
 
  https://github.com/Leaflet/Leaflet.draw
  http://leafletjs.com
  */
-(function (window, document, undefined) {L.Renderer.include({
+(function (window, document, undefined) {(function () {
+	// save these original methods before they are overwritten
+	var proto_initIcon = L.Marker.prototype._initIcon;
+	var proto_setPos = L.Marker.prototype._setPos;
+
+	var oldIE = L.DomUtil.TRANSFORM === "msTransform";
+
+	L.Marker.addInitHook(function () {
+		var iconOptions = this.options.icon && this.options.icon.options;
+		var iconAnchor = iconOptions && this.options.icon.options.iconAnchor;
+		if (iconAnchor) {
+			iconAnchor = iconAnchor[0] + "px " + iconAnchor[1] + "px";
+		}
+		this.options.rotationOrigin =
+			this.options.rotationOrigin || iconAnchor || "center bottom";
+		this.options.rotationAngle = this.options.rotationAngle || 0;
+
+		// Ensure marker keeps rotated during dragging
+		this.on("drag", function (e) {
+			e.target._applyRotation();
+		});
+	});
+
+	L.Marker.include({
+		_initIcon: function () {
+			proto_initIcon.call(this);
+		},
+
+		_setPos: function (pos) {
+			proto_setPos.call(this, pos);
+			this._applyRotation();
+		},
+
+		_applyRotation: function () {
+			if (this.options.rotationAngle) {
+				this._icon.style[L.DomUtil.TRANSFORM + "Origin"] =
+					this.options.rotationOrigin;
+
+				if (oldIE) {
+					// for IE 9, use the 2D rotation
+					this._icon.style[L.DomUtil.TRANSFORM] =
+						"rotate(" + this.options.rotationAngle + "deg)";
+				} else {
+					// for modern browsers, prefer the 3D accelerated version
+					this._icon.style[L.DomUtil.TRANSFORM] +=
+						" rotateZ(" + this.options.rotationAngle + "deg)";
+				}
+			}
+		},
+
+		setRotationAngle: function (angle) {
+			this.options.rotationAngle = angle;
+			this.update();
+			return this;
+		},
+
+		setRotationOrigin: function (origin) {
+			this.options.rotationOrigin = origin;
+			this.update();
+			return this;
+		},
+	});
+})();
+
+
+
+L.Renderer.include({
 	_updateMayBienAp: function (layer) {
 		const o1 = layer._xuLy(layer._getLatLngI1(), layer._getRadiusR1());
 		const i1 = o1[0];
@@ -67,19 +133,16 @@
 	},
 });
 
+// Thêm hàm/thuộc tính vào lớp Layer đã tồn tại.
 L.Layer.include({
-	_processAngle: function (angle) {
-		var ret = 0;
-		if (angle >= 0 && angle <= 90) {
-			ret = 0;
-		} else if (angle > 90 && angle <= 180) {
-			ret = 90;
-		} else if (angle > 180 && angle <= 270) {
-			ret = 180;
-		} else {
-			ret = 270;
-		}
-		return ret;
+	// Hàm trả về centerPoint của layer
+	getCenterCus: function () {
+		const pNE = this._map.project(this._bounds._northEast, this._map.getZoom());
+		const pSW = this._map.project(this._bounds._southWest, this._map.getZoom());
+		return this._map.unproject(
+			L.point((pNE.x + pSW.x) / 2, (pNE.y + pSW.y) / 2),
+			this._map.getZoom()
+		);
 	},
 });
 
@@ -363,19 +426,6 @@ L.mayBienAp = function (latlng, options) {
 };
 //#endregion
 
-// Thêm hàm/thuộc tính vào lớp Layer đã tồn tại.
-L.Layer.include({
-	// Hàm trả về centerPoint của layer
-	getCenterCus: function () {
-		const pNE = this._map.project(this._bounds._northEast, this._map.getZoom());
-		const pSW = this._map.project(this._bounds._southWest, this._map.getZoom());
-		return this._map.unproject(
-			L.point((pNE.x + pSW.x) / 2, (pNE.y + pSW.y) / 2),
-			this._map.getZoom()
-		);
-	},
-});
-
 //#region L.ThanhCai
 L.ThanhCai = L.Polyline.extend({
 	options: {
@@ -570,6 +620,101 @@ L.role = function (latlng, options) {
 };
 //#endregion
 
+//#region L.Label
+L.Label = L.Marker.extend({
+	options: {
+		text: "",
+		fontSize: 14,
+		fontFamily: "Times New Roman",
+		fontColor: "black",
+		isBold: false,
+		isItalic: false,
+		gocXoay: 0,
+		distanceRotateMarker: 25,
+	},
+
+	initialize: function (latlng, options) {
+		L.setOptions(this, options);
+		this._results = this._createImage();
+		const img = this._results[0];
+		const width = this._results[1];
+		const height = this._results[2];
+		const icon = L.icon({
+			iconUrl: img,
+			iconAnchor: [width / 2, height / 2],
+		});
+		L.Marker.prototype.initialize.call(this, latlng, {
+			icon: icon,
+			rotationAngle: this.options.gocXoay,
+		});
+	},
+
+	updateImage: function () {
+		this._results = this._createImage();
+		const img = this._results[0];
+		const width = this._results[1];
+		const height = this._results[2];
+
+		if (L.DomUtil.hasClass(this._icon, "leaflet-edit-marker-selected")) {
+			var icon = L.icon({
+				iconUrl: img,
+				iconAnchor: [width / 2, height / 2],
+				className: "leaflet-edit-marker-selected",
+			});
+			this.setIcon(icon);
+		} else {
+			var icon = L.icon({
+				iconUrl: img,
+				iconAnchor: [width / 2, height / 2],
+			});
+			this.setIcon(icon);
+		}
+	},
+
+	_createImage: function () {
+		var canvas = document.createElement("CANVAS");
+		var ctx = canvas.getContext("2d");
+		var font = "";
+		if (this.options.isBold) {
+			font += "bold ";
+		}
+		if (this.options.isItalic) {
+			font += "italic ";
+		}
+		font += this.options.fontSize + "px ";
+		font += this.options.fontFamily;
+		ctx.font = font;
+		canvas.width = ctx.measureText(this.options.text).width + 20;
+		canvas.height = this.options.fontSize + 20;
+		ctx.font = font;
+		ctx.fillStyle = this.options.fontColor;
+		ctx.fillText(this.options.text, 10, this.options.fontSize);
+		return [canvas.toDataURL("image/png"), canvas.width, canvas.height];
+	},
+
+	rotate: function (latlng) {
+		const map = this._map;
+		const centerPoint = this.getLatLng();
+		const angle = L.GeometryUtil.angle(map, centerPoint, latlng);
+		this.options.gocXoay = angle;
+		this.setRotationAngle(angle);
+	},
+
+	getRotateMarker: function () {
+		const centerPoint = this.getLatLng();
+		return L.GeometryUtil.destination(
+			centerPoint,
+			this.options.gocXoay,
+			this.options.distanceRotateMarker
+		);
+	},
+});
+
+L.label = function (latlng, options) {
+	return new L.Label(latlng, options);
+};
+//#endregion
+
 //#region Draw GuidLayer
 
 L.GuideLayer = L.Class.extend({
@@ -598,7 +743,7 @@ L.GuideLayer = L.Class.extend({
 	},
 	_drawGuidLayer: function () {
 		var ret = [];
-		var tpms = this._getLatLngs(
+		const latlngADs = this._getLatLngs(
 			this._getLatLngO(),
 			L.GeometryUtil.closestOnSegment(
 				this._map,
@@ -608,41 +753,42 @@ L.GuideLayer = L.Class.extend({
 			),
 			this.options.width
 		);
-		tpms = tpms.concat(
-			this._getLatLngs(
+		const latlngBCs = this._getLatLngs(
+			this._getLatLngO(),
+			L.GeometryUtil.closestOnSegment(
+				this._map,
 				this._getLatLngO(),
-				L.GeometryUtil.closestOnSegment(
-					this._map,
-					this._getLatLngO(),
-					this._getLatLngB(),
-					this._getLatLngC()
-				),
-				this.options.width
-			)
+				this._getLatLngB(),
+				this._getLatLngC()
+			),
+			this.options.width
 		);
-		tpms.push(this._getLatLngO());
-		tpms.forEach((element) => {
+		var latlngs = latlngADs.concat(latlngBCs);
+		latlngs.push(this._getLatLngO());
+
+		for (var i = 0; i < latlngs.length; i++) {
 			const dAB = L.GeometryUtil.closestOnSegment(
 				this._map,
-				element,
+				latlngs[i],
 				this._getLatLngA(),
 				this._getLatLngB()
 			);
-			ret = ret.concat(this._getLatLngs(element, dAB, this.options.height));
+			ret = ret.concat(this._getLatLngs(latlngs[i], dAB, this.options.height));
 
 			const dCD = L.GeometryUtil.closestOnSegment(
 				this._map,
-				element,
+				latlngs[i],
 				this._getLatLngC(),
 				this._getLatLngD()
 			);
-			ret = ret.concat(this._getLatLngs(element, dCD, this.options.height));
+			ret = ret.concat(this._getLatLngs(latlngs[i], dCD, this.options.height));
 
-			ret.push(element);
-		});
-		ret.forEach((e) => {
+			ret.push(latlngs[i]);
+		}
+
+		for (var i = 0; i < ret.length; i++) {
 			this.options.layer.addLayer(
-				L.circleMarker(e, {
+				L.circleMarker(ret[i], {
 					radius: 0.5,
 					color: "black",
 					fill: false,
@@ -650,7 +796,7 @@ L.GuideLayer = L.Class.extend({
 					bubblingMouseEvents: false,
 				})
 			);
-		});
+		}
 	},
 	_getLatLngs: function (latlngA, latlngB, distance) {
 		var ret = [];
@@ -688,7 +834,7 @@ L.GuideLayer = L.Class.extend({
 		}
 		return ret;
 	},
-	_getDistaceCenterToLineX() {
+	_getDistaceCenterToLineX: function () {
 		const latlngs = this._lineX.getLatLngs();
 		return L.GeometryUtil.closestOnSegment(
 			this._map,
@@ -697,7 +843,7 @@ L.GuideLayer = L.Class.extend({
 			latlngs[1]
 		).distanceTo(this._map.getCenter());
 	},
-	_getDistaceCenterToLineY() {
+	_getDistaceCenterToLineY: function () {
 		const latlngs = this._lineY.getLatLngs();
 		return L.GeometryUtil.closestOnSegment(
 			this._map,
@@ -905,6 +1051,7 @@ L.drawLocal = {
 				thanhCai: "Thanh cái",
 				mayBienAp: "Máy biến áp",
 				duongDay: "Đường dây",
+				label: "Label",
 			},
 		},
 		handlers: {
@@ -970,6 +1117,11 @@ L.drawLocal = {
 					start: "Click to start drawing line.",
 					cont: "Click to continue drawing line.",
 					end: "Click last point to finish line.",
+				},
+			},
+			label: {
+				tooltip: {
+					start: "Click để nhập label",
 				},
 			},
 		},
@@ -1211,6 +1363,17 @@ L.Draw.Event.TOOLBARCLOSED = "draw:toolbarclosed";
  */
 L.Draw.Event.MARKERCONTEXT = "draw:markercontext";
 
+L.Draw.Event.FORMLABELCONFIRM = "draw:formlabelconfirm";
+L.Draw.Event.FORMLABELCANCEL = "draw:formlabelcancel";
+
+L.Draw.Event.STARTDRAWLABEL = "draw:startdrawlabel";
+L.Draw.Event.FINISHDRAWLABEL = "draw:finishdrawlabel";
+L.Draw.Event.CANCELDRAWLABEL = "draw:canceldrawlabel";
+
+L.Draw.Event.STARTEDITLABEL = "edit:starteditlabel";
+L.Draw.Event.FINISHEDITLABEL = "edit:finisheditlabel";
+L.Draw.Event.CANCELEDITLABEL = "edit:canceleditlabel";
+
 
 
 L.Draw = L.Draw || {};
@@ -1364,7 +1527,6 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 		zIndexOffset: 2000, // This should be > than the highest z-index any map layers
 		factor: 1, // To change distance calculation
 		maxPoints: 0, // Once this number of points are placed, finish shape,
-		isEditPoly: true,
 	},
 
 	// @method initialize(): void
@@ -2141,7 +2303,7 @@ L.SimpleShape = {};
  */
 L.Draw.SimpleShape = L.Draw.Feature.extend({
 	options: {
-		repeatMode: false
+		repeatMode: false,
 	},
 
 	// @method initialize(): void
@@ -2161,17 +2323,16 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 			if (this._mapDraggable) {
 				this._map.dragging.disable();
 			}
-
 			//TODO refactor: move cursor to styles
-			this._container.style.cursor = 'crosshair';
+			this._container.style.cursor = "crosshair";
 
-			this._tooltip.updateContent({text: this._initialLabelText});
+			this._tooltip.updateContent({ text: this._initialLabelText });
 
 			this._map
-				.on('mousedown', this._onMouseDown, this)
-				.on('mousemove', this._onMouseMove, this)
-				.on('touchstart', this._onMouseDown, this)
-				.on('touchmove', this._onMouseMove, this);
+				.on("mousedown", this._onMouseDown, this)
+				.on("mousemove", this._onMouseMove, this)
+				.on("touchstart", this._onMouseDown, this)
+				.on("touchmove", this._onMouseMove, this);
 
 			// we should prevent default, otherwise default behavior (scrolling) will fire,
 			// and that will cause document.touchend to fire and will stop the drawing
@@ -2179,7 +2340,9 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 			// (update): we have to send passive now to prevent scroll, because by default it is {passive: true} now, which means,
 			// handler can't event.preventDefault
 			// check the news https://developers.google.com/web/updates/2016/06/passive-event-listeners
-			document.addEventListener('touchstart', L.DomEvent.preventDefault, {passive: false});
+			document.addEventListener("touchstart", L.DomEvent.preventDefault, {
+				passive: false,
+			});
 		}
 	},
 
@@ -2193,18 +2356,18 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 			}
 
 			//TODO refactor: move cursor to styles
-			this._container.style.cursor = '';
+			this._container.style.cursor = "";
 
 			this._map
-				.off('mousedown', this._onMouseDown, this)
-				.off('mousemove', this._onMouseMove, this)
-				.off('touchstart', this._onMouseDown, this)
-				.off('touchmove', this._onMouseMove, this);
+				.off("mousedown", this._onMouseDown, this)
+				.off("mousemove", this._onMouseMove, this)
+				.off("touchstart", this._onMouseDown, this)
+				.off("touchmove", this._onMouseMove, this);
 
-			L.DomEvent.off(document, 'mouseup', this._onMouseUp, this);
-			L.DomEvent.off(document, 'touchend', this._onMouseUp, this);
+			L.DomEvent.off(document, "mouseup", this._onMouseUp, this);
+			L.DomEvent.off(document, "touchend", this._onMouseUp, this);
 
-			document.removeEventListener('touchstart', L.DomEvent.preventDefault);
+			document.removeEventListener("touchstart", L.DomEvent.preventDefault);
 
 			// If the box element doesn't exist they must not have moved the mouse, so don't need to destroy/return
 			if (this._shape) {
@@ -2217,7 +2380,7 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 
 	_getTooltipText: function () {
 		return {
-			text: this._endLabelText
+			text: this._endLabelText,
 		};
 	},
 
@@ -2225,9 +2388,8 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
 
-		L.DomEvent
-			.on(document, 'mouseup', this._onMouseUp, this)
-			.on(document, 'touchend', this._onMouseUp, this)
+		L.DomEvent.on(document, "mouseup", this._onMouseUp, this)
+			.on(document, "touchend", this._onMouseUp, this)
 			.preventDefault(e.originalEvent);
 	},
 
@@ -2250,7 +2412,7 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		if (this.options.repeatMode) {
 			this.enable();
 		}
-	}
+	},
 });
 
 
@@ -2363,13 +2525,13 @@ function _hasAncestor(el, cls) {
  */
 L.Draw.Marker = L.Draw.Feature.extend({
 	statics: {
-		TYPE: 'marker'
+		TYPE: "marker",
 	},
 
 	options: {
 		icon: new L.Icon.Default(),
 		repeatMode: false,
-		zIndexOffset: 2000 // This should be > than the highest z-index any markers
+		zIndexOffset: 2000, // This should be > than the highest z-index any markers
 	},
 
 	// @method initialize(): void
@@ -2388,27 +2550,25 @@ L.Draw.Marker = L.Draw.Feature.extend({
 		L.Draw.Feature.prototype.addHooks.call(this);
 
 		if (this._map) {
-			this._tooltip.updateContent({text: this._initialLabelText});
+			this._tooltip.updateContent({ text: this._initialLabelText });
 
 			// Same mouseMarker as in Draw.Polyline
 			if (!this._mouseMarker) {
 				this._mouseMarker = L.marker(this._map.getCenter(), {
 					icon: L.divIcon({
-						className: 'leaflet-mouse-marker',
+						className: "leaflet-mouse-marker",
 						iconAnchor: [20, 20],
-						iconSize: [40, 40]
+						iconSize: [40, 40],
 					}),
 					opacity: 0,
-					zIndexOffset: this.options.zIndexOffset
+					zIndexOffset: this.options.zIndexOffset,
 				});
 			}
 
-			this._mouseMarker
-				.on('click', this._onClick, this)
-				.addTo(this._map);
+			this._mouseMarker.on("click", this._onClick, this).addTo(this._map);
 
-			this._map.on('mousemove', this._onMouseMove, this);
-			this._map.on('click', this._onTouch, this);
+			this._map.on("mousemove", this._onMouseMove, this);
+			this._map.on("click", this._onTouch, this);
 		}
 	},
 
@@ -2419,20 +2579,19 @@ L.Draw.Marker = L.Draw.Feature.extend({
 
 		if (this._map) {
 			this._map
-				.off('click', this._onClick, this)
-				.off('click', this._onTouch, this);
+				.off("click", this._onClick, this)
+				.off("click", this._onTouch, this);
 			if (this._marker) {
-				this._marker.off('click', this._onClick, this);
-				this._map
-					.removeLayer(this._marker);
+				this._marker.off("click", this._onClick, this);
+				this._map.removeLayer(this._marker);
 				delete this._marker;
 			}
 
-			this._mouseMarker.off('click', this._onClick, this);
+			this._mouseMarker.off("click", this._onClick, this);
 			this._map.removeLayer(this._mouseMarker);
 			delete this._mouseMarker;
 
-			this._map.off('mousemove', this._onMouseMove, this);
+			this._map.off("mousemove", this._onMouseMove, this);
 		}
 	},
 
@@ -2445,12 +2604,9 @@ L.Draw.Marker = L.Draw.Feature.extend({
 		if (!this._marker) {
 			this._marker = this._createMarker(latlng);
 			// Bind to both marker and map to make sure we get the click event.
-			this._marker.on('click', this._onClick, this);
-			this._map
-				.on('click', this._onClick, this)
-				.addLayer(this._marker);
-		}
-		else {
+			this._marker.on("click", this._onClick, this);
+			this._map.on("click", this._onClick, this).addLayer(this._marker);
+		} else {
 			latlng = this._mouseMarker.getLatLng();
 			this._marker.setLatLng(latlng);
 		}
@@ -2459,7 +2615,7 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	_createMarker: function (latlng) {
 		return new L.Marker(latlng, {
 			icon: this.options.icon,
-			zIndexOffset: this.options.zIndexOffset
+			zIndexOffset: this.options.zIndexOffset,
 		});
 	},
 
@@ -2479,9 +2635,11 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	},
 
 	_fireCreatedEvent: function () {
-		var marker = new L.Marker.Touch(this._marker.getLatLng(), {icon: this.options.icon});
+		var marker = new L.Marker.Touch(this._marker.getLatLng(), {
+			icon: this.options.icon,
+		});
 		L.Draw.Feature.prototype._fireCreatedEvent.call(this, marker);
-	}
+	},
 });
 
 
@@ -2628,7 +2786,7 @@ L.Draw.DuongDay = L.Draw.Polyline.extend({
 	},
 	initialize: function (map, options) {
 		L.Draw.Polyline.prototype.initialize.call(this, map, options);
-		this.type = L.Draw.DuongDay.TYPE;
+		// this.type = L.Draw.DuongDay.TYPE;
 	},
 	_fireCreatedEvent: function () {
 		var poly = L.duongDay(this._poly.getLatLngs(), this.options);
@@ -2659,7 +2817,6 @@ L.Draw.ThanhCai = L.Draw.Feature.extend({
 		}),
 		repeatMode: false,
 		zIndexOffset: 2000, // This should be > than the highest z-index any markers
-		isEditPoly: false,
 	},
 
 	// @method initialize(): void
@@ -2794,7 +2951,6 @@ L.Draw.Role = L.Draw.Feature.extend({
 		}),
 		repeatMode: false,
 		zIndexOffset: 2000, // This should be > than the highest z-index any markers,
-		isEditPoly: false,
 	},
 
 	// @method initialize(): void
@@ -3042,6 +3198,101 @@ L.Draw.MayBienAp = L.Draw.Feature.extend({
 
 
 
+/**
+ * @class L.Draw.Label
+ * @aka Draw.Label
+ * @inherits L.Draw.Marker
+ */
+L.Draw.Label = L.Draw.Marker.extend({
+	statics: {
+		TYPE: "lable",
+	},
+
+	options: {
+		icon: new L.Icon.Default(),
+		repeatMode: false,
+		zIndexOffset: 2000, // This should be > than the highest z-index any markers
+		forms: {
+			id: "divTop",
+			btnBold: "btnBold",
+			btnItalic: "btnItalic",
+			btnOK: "btnOK",
+			btnCancel: "btnCancel",
+			inputText: "text-val",
+			comboboxFont: "font-val",
+			inputSize: "size-val",
+			inputColor: "color-val",
+		},
+		dialogFormLabel: null,
+	},
+
+	// @method initialize(): void
+	initialize: function (map, options) {
+		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
+
+		L.Draw.Marker.prototype.initialize.call(this, map, options);
+
+		this.type = L.Draw.Label.TYPE;
+
+		this._initialLabelText = L.drawLocal.draw.handlers.label.tooltip.start;
+	},
+
+	// @method addHooks(): void
+	// Add listener hooks to this handler.
+	addHooks: function () {
+		L.Draw.Feature.prototype.addHooks.call(this);
+
+		if (this._map) {
+			this._tooltip.updateContent({ text: this._initialLabelText });
+
+			// Same mouseMarker as in Draw.Polyline
+			if (!this._mouseMarker) {
+				this._mouseMarker = L.marker(this._map.getCenter(), {
+					icon: L.divIcon({
+						className: "leaflet-mouse-label",
+					}),
+					opacity: 0,
+					zIndexOffset: this.options.zIndexOffset,
+				});
+			}
+
+			this._mouseMarker.on("click", this._onClick, this).addTo(this._map);
+
+			this._map.on("mousemove", this._onMouseMove, this);
+			this._map.on("click", this._onTouch, this);
+		}
+		this._map.on(L.Draw.Event.FINISHDRAWLABEL, this._fireCreatedEvent, this);
+	},
+
+	removeHooks: function () {
+		L.Draw.Marker.prototype.removeHooks.call(this);
+		this._map.off(L.Draw.Event.FINISHDRAWLABEL, this._fireCreatedEvent, this);
+	},
+
+	_onClick: function () {
+		this._map.fire(L.Draw.Event.STARTDRAWLABEL);
+	},
+
+	_onTouch: function (e) {
+		// called on click & tap, only really does any thing on tap
+		this._onMouseMove(e); // creates & places marker
+		this._onClick(); // permanently places marker & ends interaction
+	},
+
+	_onMouseMove: function (e) {
+		var latlng = e.latlng;
+		this._tooltip.updatePosition(latlng);
+		this._mouseMarker.setLatLng(latlng);
+	},
+
+	_fireCreatedEvent: function (options) {
+		var label = L.label(this._mouseMarker.getLatLng(), options);
+		L.Draw.Feature.prototype._fireCreatedEvent.call(this, label);
+	},
+});
+
+
+
 L.Edit = L.Edit || {};
 
 /**
@@ -3059,9 +3310,8 @@ L.Edit.Marker = L.Handler.extend({
 	// Add listener hooks to this handler
 	addHooks: function () {
 		var marker = this._marker;
-
 		marker.dragging.enable();
-		marker.on('dragend', this._onDragEnd, marker);
+		marker.on("dragend", this._onDragEnd, marker);
 		this._toggleMarkerHighlight();
 	},
 
@@ -3069,16 +3319,15 @@ L.Edit.Marker = L.Handler.extend({
 	// Remove listener hooks from this handler
 	removeHooks: function () {
 		var marker = this._marker;
-
 		marker.dragging.disable();
-		marker.off('dragend', this._onDragEnd, marker);
+		marker.off("dragend", this._onDragEnd, marker);
 		this._toggleMarkerHighlight();
 	},
 
 	_onDragEnd: function (e) {
 		var layer = e.target;
 		layer.edited = true;
-		this._map.fire(L.Draw.Event.EDITMOVE, {layer: layer});
+		this._map.fire(L.Draw.Event.EDITMOVE, { layer: layer });
 	},
 
 	_toggleMarkerHighlight: function () {
@@ -3092,39 +3341,50 @@ L.Edit.Marker = L.Handler.extend({
 		}
 
 		// This is quite naughty, but I don't see another way of doing it. (short of setting a new icon)
-		icon.style.display = 'none';
+		icon.style.display = "none";
 
-		if (L.DomUtil.hasClass(icon, 'leaflet-edit-marker-selected')) {
-			L.DomUtil.removeClass(icon, 'leaflet-edit-marker-selected');
+		if (L.DomUtil.hasClass(icon, "leaflet-edit-marker-selected")) {
+			L.DomUtil.removeClass(icon, "leaflet-edit-marker-selected");
 			// Offset as the border will make the icon move.
 			this._offsetMarker(icon, -4);
-
 		} else {
-			L.DomUtil.addClass(icon, 'leaflet-edit-marker-selected');
+			L.DomUtil.addClass(icon, "leaflet-edit-marker-selected");
 			// Offset as the border will make the icon move.
 			this._offsetMarker(icon, 4);
 		}
 
-		icon.style.display = '';
+		icon.style.display = "";
 	},
 
 	_offsetMarker: function (icon, offset) {
 		var iconMarginTop = parseInt(icon.style.marginTop, 10) - offset,
 			iconMarginLeft = parseInt(icon.style.marginLeft, 10) - offset;
 
-		icon.style.marginTop = iconMarginTop + 'px';
-		icon.style.marginLeft = iconMarginLeft + 'px';
-	}
+		icon.style.marginTop = iconMarginTop + "px";
+		icon.style.marginLeft = iconMarginLeft + "px";
+	},
 });
 
 L.Marker.addInitHook(function () {
 	if (L.Edit.Marker) {
-		this.editing = new L.Edit.Marker(this);
+		this.editing = new L.Edit.Marker(this, this.options);
 
 		if (this.options.editable) {
 			this.editing.enable();
 		}
 	}
+
+	this.on("add", function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.addHooks();
+		}
+	});
+
+	this.on("remove", function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.removeHooks();
+		}
+	});
 });
 
 
@@ -3934,9 +4194,11 @@ L.Edit.SimpleShapeSnap = L.Edit.SimpleShape.extend({
 			this._map,
 			this._moveMarker
 		);
-		this.options.guideLayers.forEach((element) => {
-			this._moveMarker.snapediting.addGuideLayer(element);
-		});
+		if (this.options.guideLayers) {
+			for (var i = 0; i < this.options.guideLayers.length; i++) {
+				this._moveMarker.snapediting.addGuideLayer(this.options.guideLayers[i]);
+			}
+		}
 		this._moveMarker.snapediting.enable();
 	},
 
@@ -4458,9 +4720,11 @@ L.Edit.DuongDay = L.Edit.Poly.extend({
 			this._poly,
 			this._poly.options
 		);
-		this.options.guideLayers.forEach((element) => {
-			this._poly.snapediting.addGuideLayer(element);
-		});
+		if (this.options.guideLayers) {
+			for (var i = 0; i < this.options.guideLayers.length; i++) {
+				this._poly.snapediting.addGuideLayer(this.options.guideLayers[i]);
+			}
+		}
 		this._poly.snapediting.enable();
 	},
 	removeHooks: function () {
@@ -4477,6 +4741,180 @@ L.DuongDay.addInitHook(function () {
 
 	if (L.Edit.DuongDay) {
 		this.editing = new L.Edit.DuongDay(this, this.options);
+
+		if (this.options.editable) {
+			this.editing.enable();
+		}
+	}
+
+	this.on("add", function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.addHooks();
+		}
+	});
+
+	this.on("remove", function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.removeHooks();
+		}
+	});
+});
+
+
+
+L.Edit = L.Edit || {};
+
+/**
+ * @class L.Edit.Label
+ * @aka Edit.Label
+ */
+L.Edit.Label = L.Edit.Marker.extend({
+	options: {
+		moveIcon: new L.DivIcon({
+			iconSize: new L.Point(20, 20),
+			className: "leaflet-div-icon leaflet-editing-icon leaflet-edit-move",
+		}),
+	},
+
+	initialize: function (marker, options) {
+		this._marker = marker;
+		L.Util.setOptions(this, options);
+		// L.Edit.Marker.prototype.initialize.call(this, marker, options);
+	},
+
+	addHooks: function () {
+		this._toggleMarkerHighlight();
+		this._createRotateMarker();
+		this._createMoveMarker();
+		this._bindMarker(this._rotateMarker);
+		this._bindMarker(this._moveMarker);
+		this._bindMarker(this._marker);
+		this._marker._map.addLayer(this._markerGroup);
+		this._marker._map.on(
+			L.Draw.Event.FINISHEDITLABEL,
+			this._finishEditLabel,
+			this
+		);
+	},
+
+	removeHooks: function () {
+		this._toggleMarkerHighlight();
+		this._unbindMarker(this._rotateMarker);
+		this._unbindMarker(this._moveMarker);
+		this._unbindMarker(this._marker);
+		this._marker._map.removeLayer(this._markerGroup);
+		this._marker._map.off(
+			L.Draw.Event.FINISHEDITLABEL,
+			this._finishEditLabel,
+			this
+		);
+		delete this._markerGroup;
+	},
+
+	_finishEditLabel: function (e) {
+		if (L.Util.stamp(e.marker) === L.Util.stamp(this._marker)) {
+			L.setOptions(e.marker, e.options);
+			e.marker.updateImage();
+		}
+	},
+
+	_createMoveMarker: function () {
+		this._moveMarker = this._createMarker(
+			this._marker.getLatLng(),
+			this.options.moveIcon
+		);
+	},
+
+	_createRotateMarker: function () {
+		this._rotateMarker = this._createMarker(
+			this._marker.getRotateMarker(),
+			this.options.moveIcon
+		);
+	},
+
+	_createMarker: function (latlng, icon) {
+		// Extending L.Marker in TouchEvents.js to include touch.
+		var marker = new L.Marker.Touch(latlng, {
+			draggable: true,
+			icon: icon,
+			zIndexOffset: 10,
+		});
+		if (!this._markerGroup) {
+			this._markerGroup = new L.LayerGroup();
+		}
+		this._markerGroup.addLayer(marker);
+		return marker;
+	},
+
+	_bindMarker: function (marker) {
+		marker
+			.on("click", this._onClick, this)
+			.on("dragstart", this._onMarkerDragStart, this)
+			.on("drag", this._onMarkerDrag, this)
+			.on("dragend", this._onMarkerDragEnd, this);
+	},
+
+	_unbindMarker: function (marker) {
+		if (marker === undefined) return;
+		marker
+			.off("click", this._onClick, this)
+			.off("dragstart", this._onMarkerDragStart, this)
+			.off("drag", this._onMarkerDrag, this)
+			.off("dragend", this._onMarkerDragEnd, this);
+	},
+
+	_onClick: function (e) {
+		var marker = e.target;
+		if (marker === this._marker) {
+			this._marker._map.fire(L.Draw.Event.STARTEDITLABEL, this._marker);
+		}
+	},
+
+	_onMarkerDragStart: function (e) {
+		var marker = e.target;
+		if (marker === this._marker) return;
+		if (marker !== this._marker) {
+			marker.setOpacity(0);
+		}
+		this._marker.fire("editstart");
+	},
+
+	_onMarkerDrag: function (e) {
+		var marker = e.target,
+			latlng = marker.getLatLng();
+		if (marker === this._marker) return;
+		if (marker === this._rotateMarker) {
+			// Rotate
+			this._rotate(latlng);
+		} else if (marker === this._moveMarker) {
+			// Move marker
+			this._marker.setLatLng(this._moveMarker.getLatLng());
+			this._rotateMarker.setLatLng(this._marker.getRotateMarker());
+		}
+		this._marker.fire("editdrag");
+	},
+
+	_onMarkerDragEnd: function (e) {
+		var marker = e.target;
+		if (marker === this._marker) return;
+		marker.setOpacity(1);
+		this._fireEdit();
+	},
+
+	_fireEdit: function () {
+		this._marker.edited = true;
+		this._marker.fire("edit");
+	},
+
+	_rotate: function (latlng) {
+		this._marker.rotate(latlng);
+		this._rotateMarker.setLatLng(this._marker.getRotateMarker());
+	},
+});
+
+L.Label.addInitHook(function () {
+	if (L.Edit.Label) {
+		this.editing = new L.Edit.Label(this, this.options);
 
 		if (this.options.editable) {
 			this.editing.enable();
@@ -6446,6 +6884,7 @@ L.DrawToolbar = L.Toolbar.extend({
 		mayBienAp: {},
 		duongDay: {},
 		polyline: {},
+		label: {},
 		// polygon: {},
 		// rectangle: {},
 		// circle: {},
@@ -6493,10 +6932,15 @@ L.DrawToolbar = L.Toolbar.extend({
 				title: L.drawLocal.draw.toolbar.buttons.duongDay,
 			},
 			{
-				enabled: this.options.polyline,
-				handler: new L.Draw.Polyline(map, this.options.polyline),
-				title: L.drawLocal.draw.toolbar.buttons.polyline,
+				enabled: this.options.label,
+				handler: new L.Draw.Label(map, this.options.label),
+				title: L.drawLocal.draw.toolbar.buttons.label,
 			},
+			// {
+			// 	enabled: this.options.polyline,
+			// 	handler: new L.Draw.Polyline(map, this.options.polyline),
+			// 	title: L.drawLocal.draw.toolbar.buttons.polyline,
+			// },
 			// {
 			// 	enabled: this.options.polygon,
 			// 	handler: new L.Draw.Polygon(map, this.options.polygon),
@@ -6599,7 +7043,7 @@ L.EditToolbar = L.Toolbar.extend({
 	},
 
 	// @method intialize(): void
-	initialize: function (options, drawItems) {
+	initialize: function (options) {
 		// Need to set this manually since null is an acceptable value here
 		if (options.edit) {
 			if (typeof options.edit.selectedPathOptions === "undefined") {
@@ -6922,6 +7366,14 @@ L.EditToolbar.Edit = L.Handler.extend({
 					options.original.chieuDai = options.chieuDai;
 					options.original.gocXoay = options.gocXoay;
 				} else if (layer instanceof L.DuongDay) {
+				} else if (layer instanceof L.Label) {
+					options.original.text = options.text;
+					options.original.fontSize = options.fontSize;
+					options.original.fontFamily = options.fontFamily;
+					options.original.fontColor = options.fontColor;
+					options.original.isBold = options.isBold;
+					options.original.isItalic = options.isItalic;
+					options.original.gocXoay = options.gocXoay;
 				}
 				editedLayers.addLayer(layer);
 				layer.edited = false;
@@ -6966,6 +7418,20 @@ L.EditToolbar.Edit = L.Handler.extend({
 				this._uneditedLayerProps[id] = {
 					latlngs: L.LatLngUtil.cloneLatLngs(layer.getLatLngs()),
 				};
+			} else if (layer instanceof L.Label) {
+				const latLng = layer.getLatLng();
+				this._uneditedLayerProps[id] = {
+					latlng: L.latLng(latLng.lat, latLng.lng),
+					options: {
+						text: options.text,
+						fontSize: options.fontSize,
+						fontFamily: options.fontFamily,
+						fontColor: options.fontColor,
+						isBold: options.isBold,
+						isItalic: options.isItalic,
+						gocXoay: options.gocXoay,
+					},
+				};
 			}
 		}
 	},
@@ -6994,6 +7460,11 @@ L.EditToolbar.Edit = L.Handler.extend({
 				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
 			} else if (layer instanceof L.MayBienAp) {
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
+			} else if (layer instanceof L.Label) {
+				L.setOptions(layer, this._uneditedLayerProps[id].options);
+				layer.setLatLng(this._uneditedLayerProps[id].latlng);
+				layer.setRotationAngle(this._uneditedLayerProps[id].options.gocXoay);
+				layer.updateImage();
 			}
 			layer.fire("revert-edited", { layer: layer });
 		}

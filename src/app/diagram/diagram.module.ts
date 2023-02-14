@@ -13,9 +13,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { LabelDetailComponent } from './pages/label-detail/label-detail.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
-  declarations: [DiagramComponent, ViewComponent],
+  declarations: [DiagramComponent, ViewComponent, LabelDetailComponent],
   imports: [
     CommonModule,
     DiagramRoutingModule,
@@ -29,6 +31,7 @@ import { MatSelectModule } from '@angular/material/select';
     MatCardModule,
     MatButtonModule,
     MatSelectModule,
+    MatCheckboxModule
   ],
 })
 export class DiagramModule {}

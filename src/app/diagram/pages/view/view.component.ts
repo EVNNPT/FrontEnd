@@ -2,15 +2,18 @@ import {
   AfterContentChecked,
   AfterViewInit,
   Component,
+  ElementRef,
   OnChanges,
   OnInit,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { DiagramService } from 'src/app/core';
 import * as L from 'leaflet';
 import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 import '../../../../libs/leaflet-snap/leaflet.snap.js';
 import { Observable } from 'rxjs';
+import { MatDrawer } from '@angular/material/sidenav/index.js';
 
 @Component({
   selector: 'app-view',
@@ -23,6 +26,8 @@ export class ViewComponent implements OnInit {
   private _map: any;
   private _drawLayer: any;
   private _guideLayers: any;
+
+  @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
 
   constructor(private _diagramService: DiagramService) {}
 
@@ -43,8 +48,10 @@ export class ViewComponent implements OnInit {
       return this._diagramService.addOrUpdateGeoRole(layer);
     } else if (layer instanceof this._L.MayBienAp) {
       return this._diagramService.addOrUpdateGeoMayBienAp(layer);
-    } else {
+    } else if (layer instanceof this._L.ThanhCai) {
       return this._diagramService.addOrUpdateGeoThanhCai(layer);
+    } else {
+      return layer;
     }
   }
 
@@ -147,6 +154,11 @@ export class ViewComponent implements OnInit {
         weight: 8,
         lineCap: 'square',
       },
+      label: {
+        guideLayers: this._guideLayers,
+        snapDistance: 10,
+        repeatMode: true,
+      },
     });
 
     this._map.addControl(drawControl);
@@ -154,11 +166,11 @@ export class ViewComponent implements OnInit {
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       this._drawLayer.addLayer(layer);
-      this._addOrUpdateGeo(layer).subscribe((res) => {
-        if (layer.id === undefined || layer.id === '') {
-          layer.id = res.id;
-        }
-      });
+      // this._addOrUpdateGeo(layer).subscribe((res) => {
+      //   if (layer.id === undefined || layer.id === '') {
+      //     layer.id = res.id;
+      //   }
+      // });
     });
 
     this._map.on(this._L.Draw.Event.EDITED, (e: any) => {
@@ -166,7 +178,8 @@ export class ViewComponent implements OnInit {
         const layer = ele;
         if (
           !(layer instanceof this._L.DuongDay) &&
-          !(layer instanceof this._L.ThanhCai)
+          !(layer instanceof this._L.ThanhCai) &&
+          !(layer instanceof this._L.Label)
         ) {
           const layerSnap = layer.getLayerSnap();
           deviceSnapLayer.addLayer(layerSnap);
@@ -185,7 +198,8 @@ export class ViewComponent implements OnInit {
       e.layers.eachLayer((layer: any) => {
         if (
           !(layer instanceof this._L.DuongDay) &&
-          !(layer instanceof this._L.ThanhCai)
+          !(layer instanceof this._L.ThanhCai) &&
+          !(layer instanceof this._L.Label)
         ) {
           deviceSnapLayer.removeLayer(layer.snapLayerId);
         }
@@ -197,7 +211,8 @@ export class ViewComponent implements OnInit {
       const layer = e.layer;
       if (
         !(layer instanceof this._L.DuongDay) &&
-        !(layer instanceof this._L.ThanhCai)
+        !(layer instanceof this._L.ThanhCai) &&
+        !(layer instanceof this._L.Label)
       ) {
         const layerSnap = layer.getLayerSnap();
         deviceSnapLayer.addLayer(layerSnap);
@@ -227,5 +242,19 @@ export class ViewComponent implements OnInit {
       layer: gridLayer,
       zoom: 17,
     });
+
+    this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
+      this.drawer.open();
+    });
+  }
+
+  formEvent(event: any): void {
+    if(event.isConfirm) {
+      // Confirm
+      this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
+    } else {
+      // Cancel
+      this.drawer.close();
+    }
   }
 }

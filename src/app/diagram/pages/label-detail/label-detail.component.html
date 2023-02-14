@@ -1,0 +1,34 @@
+<form [formGroup]="labelForm">
+  <mat-form-field appearance="fill">
+    <mat-label>Text</mat-label>
+    <input matInput formControlName="text" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Font size</mat-label>
+    <input matInput formControlName="fontSize" type="number" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Font color</mat-label>
+    <input matInput formControlName="fontColor" type="color" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Font family</mat-label>
+    <mat-select formControlName="fontFamily">
+      <mat-option *ngFor="let fontFamily of fontFamilys" [value]="fontFamily">{{
+        fontFamily
+      }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox style="font-weight: bold" formControlName="isBold"
+    >Bold</mat-checkbox
+  >
+  <mat-checkbox style="font-style: italic" formControlName="isItalic"
+    >Italic</mat-checkbox
+  >
+  <div class="example-button-row">
+    <button (click)="onConfirm()" mat-raised-button color="primary">OK</button>
+    <button (click)="onCancel()" mat-raised-button color="primary">
+      Cancel
+    </button>
+  </div>
+</form>
