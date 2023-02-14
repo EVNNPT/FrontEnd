@@ -1,6 +1,9 @@
 <mat-drawer-container hasBackdrop="false">
   <mat-drawer #drawer mode="over" position="end">
-    <app-label-detail (formEvent)="formEvent($event)"></app-label-detail>
+    <app-label-detail
+      [formData]="formData"
+      (formEvent)="formEvent($event)"
+    ></app-label-detail>
   </mat-drawer>
   <mat-drawer-content>
     <div id="map"></div>

@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { LabelDetail } from 'src/app/core/models/label-detail';
 
 @Component({
   selector: 'app-label-detail',
   templateUrl: './label-detail.component.html',
   styleUrls: ['./label-detail.component.css']
 })
-export class LabelDetailComponent {
+export class LabelDetailComponent implements OnChanges {
 
   @Output() formEvent = new EventEmitter<any>();
+  @Input() formData!: LabelDetail;
   
   public fontFamilys = ['Times New Roman', 'Georgia', 'Garamond', 'Arial', 'Verdana', 'Helvetica', 'Courier New', 'Lucida Console', 'Monaco'];
 
@@ -34,6 +36,11 @@ export class LabelDetailComponent {
       isConfirm: false,
       formData: null
     })  
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('ngOnChanges');
+    // changes.prop contains the old and the new value...
   }
 
 }

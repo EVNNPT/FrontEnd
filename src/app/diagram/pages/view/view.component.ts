@@ -1,11 +1,7 @@
 import {
-  AfterContentChecked,
-  AfterViewInit,
   Component,
-  ElementRef,
-  OnChanges,
+  Input,
   OnInit,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { DiagramService } from 'src/app/core';
@@ -14,6 +10,8 @@ import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 import '../../../../libs/leaflet-snap/leaflet.snap.js';
 import { Observable } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav/index.js';
+import { LabelDetail } from 'src/app/core/models/label-detail.js';
+// import { LabelDetail } from 'src/app/core/models/label-detail.js';
 
 @Component({
   selector: 'app-view',
@@ -28,6 +26,15 @@ export class ViewComponent implements OnInit {
   private _guideLayers: any;
 
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
+  
+  public formData: LabelDetail = {
+    text: '',
+    fontSize: 14,
+    fontFamily: '',
+    fontColor: '',
+    isBold: false,
+    isItalic: false,
+  };
 
   constructor(private _diagramService: DiagramService) {}
 
@@ -222,6 +229,9 @@ export class ViewComponent implements OnInit {
 
     this._drawLayer.on('click', (e: any) => {
       const layer = e.layer;
+      if(layer instanceof this._L.Label) {
+        return;
+      }
       const id = layer.id;
       let url = '';
       if (layer instanceof this._L.Role) {
