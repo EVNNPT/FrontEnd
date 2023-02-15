@@ -254,6 +254,7 @@ export class ViewComponent implements OnInit {
     });
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
+      this.formData.text = '';
       this.drawer.open();
     });
   }
@@ -262,9 +263,11 @@ export class ViewComponent implements OnInit {
     if(event.isConfirm) {
       // Confirm
       this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
-    } else {
-      // Cancel
-      this.drawer.close();
     }
+    // } else {
+    //   // Cancel
+    //   this.drawer.close();
+    // }
+    this.drawer.close();
   }
 }
