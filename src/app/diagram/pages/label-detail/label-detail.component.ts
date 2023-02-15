@@ -41,14 +41,14 @@ export class LabelDetailComponent implements OnInit, OnChanges {
   });
 
   ngOnInit(): void {
-    this.labelForm.patchValue({
-      text: this.formData.text,
-      fontSize: 14,
-      fontFamily: '',
-      fontColor: '#000000',
-      isBold: false,
-      isItalic: false,
-    });
+    // this.labelForm.patchValue({
+    //   text: this.formData.text,
+    //   fontSize: 14,
+    //   fontFamily: this.fontFamilys[0],
+    //   fontColor: '#000000',
+    //   isBold: false,
+    //   isItalic: false,
+    // });
   }
 
   onConfirm() {

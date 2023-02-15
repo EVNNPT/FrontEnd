@@ -32,8 +32,10 @@ export class DiagramService {
       data.featureType = 0;
     } else if (layer instanceof L.MayBienAp) {
       data.featureType = 2;
-    } else {
+    } else if (layer instanceof L.ThanhCai) {
       data.featureType = 1;
+    } else {
+      data.featureType = 4;
     }
     const uri = `${this._apiURL}/${this._diagramCtrl}/${this._deleteFeature}`;
     return this._http.post<any>(uri, data);
@@ -67,6 +69,12 @@ export class DiagramService {
       ret.duongDays.forEach((ele: any) => {
         ele.options.guideLayers = guideLayers;
         const layer = L.duongDay(ele.latLngs, ele.options);
+        drawLayer.addLayer(layer);
+        layer.id = ele.id;
+      });
+      ret.labels.forEach((ele: any) => {
+        ele.options.guideLayers = guideLayers;
+        const layer = L.label(ele.centerPoint, ele.options);
         drawLayer.addLayer(layer);
         layer.id = ele.id;
       });
@@ -142,6 +150,25 @@ export class DiagramService {
         color: layer.options.color,
         lineCap: layer.options.lineCap,
         lineJoin: layer.options.lineJoin,
+      },
+    };
+    const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
+    return this._http.post<any>(uri, data);
+  }
+
+  public addOrUpdateGeoLabel(layer: any): Observable<any> {
+    const data = {
+      centerPoint: layer.getLatLng(),
+      id: layer.id || '',
+      featureType: 4,
+      options: {
+        text: layer.options.text,
+        fontSize: layer.options.fontSize,
+        fontFamily: layer.options.fontFamily,
+        fontColor: layer.options.fontColor,
+        isBold: layer.options.isBold,
+        isItalic: layer.options.isItalic,
+        gocXoay: layer.options.gocXoay,
       },
     };
     const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
