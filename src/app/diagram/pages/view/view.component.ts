@@ -51,7 +51,7 @@ export class ViewComponent implements OnInit {
     } else if (layer instanceof this._L.ThanhCai) {
       return this._diagramService.addOrUpdateGeoThanhCai(layer);
     } else {
-      return layer;
+      return this._diagramService.addOrUpdateGeoLabel(layer);
     }
   }
 
@@ -166,11 +166,11 @@ export class ViewComponent implements OnInit {
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       this._drawLayer.addLayer(layer);
-      // this._addOrUpdateGeo(layer).subscribe((res) => {
-      //   if (layer.id === undefined || layer.id === '') {
-      //     layer.id = res.id;
-      //   }
-      // });
+      this._addOrUpdateGeo(layer).subscribe((res) => {
+        if (layer.id === undefined || layer.id === '') {
+          layer.id = res.id;
+        }
+      });
     });
 
     this._map.on(this._L.Draw.Event.EDITED, (e: any) => {
@@ -247,10 +247,14 @@ export class ViewComponent implements OnInit {
     });
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
+<<<<<<< HEAD
       if(!this.drawer.opened) {
         this.labelDetail.setFormData(null);
         this.drawer.open();
       }
+=======
+      this.drawer.open();
+>>>>>>> b0c7873b0efc79a6ee9b6d903242ad4cb8e596df
     });
   }
 
