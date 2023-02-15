@@ -247,14 +247,10 @@ export class ViewComponent implements OnInit {
     });
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
-<<<<<<< HEAD
       if(!this.drawer.opened) {
         this.labelDetail.setFormData(null);
         this.drawer.open();
       }
-=======
-      this.drawer.open();
->>>>>>> b0c7873b0efc79a6ee9b6d903242ad4cb8e596df
     });
   }
 
