@@ -17,6 +17,12 @@ export class DashboardComponent {
 
   @ViewChild(BaseChartDirective) chart_SLTB: BaseChartDirective | undefined;
   @ViewChild(BaseChartDirective) chart_SLTBDC: BaseChartDirective | undefined;
+  @ViewChild(BaseChartDirective) chart_SLTBDC_Line:
+    | BaseChartDirective
+    | undefined;
+  @ViewChild(BaseChartDirective) chart_SLTBDC_Radar:
+    | BaseChartDirective
+    | undefined;
   @ViewChild(BaseChartDirective) chart_DDDC: BaseChartDirective | undefined;
   @ViewChild(BaseChartDirective) chart_RLDC: BaseChartDirective | undefined;
   @ViewChild(BaseChartDirective) chart_MBADC: BaseChartDirective | undefined;
@@ -30,7 +36,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -64,7 +70,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -90,6 +96,74 @@ export class DashboardComponent {
   public barChartPlugins_SLTBDC = [DataLabelsPlugin];
   public barChartData_SLTBDC!: ChartData<'bar'>;
 
+  public barChartOptions_SLTBDC_Line: ChartConfiguration['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: false,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+    scales: {
+      xAxes: {
+        title: {
+          display: true,
+          align: 'center',
+          text: 'Loại thiết bị',
+        },
+      },
+      yAxes: {
+        title: {
+          display: true,
+          align: 'center',
+          text: 'Số lượng',
+        },
+      },
+    },
+  };
+  public barChartType_SLTBDC_Line: ChartType = 'line';
+  public barChartPlugins_SLTBDC_Line = [DataLabelsPlugin];
+  public barChartData_SLTBDC_Line!: ChartData<'line'>;
+
+  public barChartOptions_SLTBDC_Radar: ChartConfiguration['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'right',
+      },
+      datalabels: {
+        display: false,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+    scales: {
+      xAxes: {
+        title: {
+          display: true,
+          align: 'center',
+          text: 'Loại thiết bị',
+        },
+      },
+      yAxes: {
+        title: {
+          display: true,
+          align: 'center',
+          text: 'Số lượng',
+        },
+      },
+    },
+  };
+  public barChartType_SLTBDC_Radar: ChartType = 'radar';
+  public barChartPlugins_SLTBDC_Radar = [DataLabelsPlugin];
+  public barChartData_SLTBDC_Radar!: ChartData<'radar'>;
+
   public pieChartOptions_DDDC: ChartConfiguration['options'] = {
     responsive: false,
     maintainAspectRatio: false,
@@ -99,7 +173,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -118,7 +192,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -137,7 +211,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -156,7 +230,7 @@ export class DashboardComponent {
         position: 'right',
       },
       datalabels: {
-        display: true,
+        display: false,
         anchor: 'center',
         align: 'center',
       },
@@ -172,6 +246,8 @@ export class DashboardComponent {
     this.countItem();
     this.chartSLTB();
     this.chartSTLBDC();
+    // this.chartSTLBDC_Line();
+    // this.chartSTLBDC_Radar();
     this.pieDDDC();
     this.pieRLDC();
     this.pieMBADC();
@@ -204,7 +280,7 @@ export class DashboardComponent {
               res[2].soluong,
               res[3].soluong,
             ],
-            label: '',
+            label: 'Số lượng',
             backgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBackgroundColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
             hoverBorderColor: ['#ffff99', '#99ff99', '#ffb366', '#b3ecff'],
@@ -257,6 +333,102 @@ export class DashboardComponent {
         ],
       };
       this.chart_SLTBDC?.update();
+    });
+  }
+
+  async chartSTLBDC_Line() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.barChartData_SLTBDC_Line = {
+        labels: [
+          res[0].loaitb.toString(),
+          res[1].loaitb.toString(),
+          res[2].loaitb.toString(),
+          res[3].loaitb.toString(),
+        ],
+        datasets: [
+          {
+            data: [
+              res[0].soluongdong,
+              res[1].soluongdong,
+              res[2].soluongdong,
+              res[3].soluongdong,
+            ],
+            label: 'Đóng',
+            backgroundColor: 'rgba(148,159,177,0.2)',
+            borderColor: 'rgba(148,159,177,1)',
+            pointBackgroundColor: 'rgba(148,159,177,1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(148,159,177,0.8)',
+            fill: 'origin',
+          },
+          {
+            data: [
+              res[0].soluongcat,
+              res[1].soluongcat,
+              res[2].soluongcat,
+              res[3].soluongcat,
+            ],
+            label: 'Cắt',
+            backgroundColor: 'rgba(255,0,0,0.3)',
+            borderColor: 'red',
+            pointBackgroundColor: 'rgba(148,159,177,1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(148,159,177,0.8)',
+            fill: 'origin',
+          },
+        ],
+      };
+      this.chart_SLTBDC_Line?.update();
+    });
+  }
+
+  async chartSTLBDC_Radar() {
+    this._dashboardService.getSLTBDongCat().subscribe((res) => {
+      this.barChartData_SLTBDC_Radar = {
+        labels: [
+          res[0].loaitb.toString(),
+          res[1].loaitb.toString(),
+          res[2].loaitb.toString(),
+          res[3].loaitb.toString(),
+        ],
+        datasets: [
+          {
+            data: [
+              res[0].soluongdong,
+              res[1].soluongdong,
+              res[2].soluongdong,
+              res[3].soluongdong,
+            ],
+            label: 'Đóng',
+            backgroundColor: 'rgba(255,0,0,0.3)',
+            borderColor: 'red',
+            pointBackgroundColor: 'rgba(148,159,177,1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(148,159,177,0.8)',
+            fill: 'origin',
+          },
+          {
+            data: [
+              res[0].soluongcat,
+              res[1].soluongcat,
+              res[2].soluongcat,
+              res[3].soluongcat,
+            ],
+            label: 'Cắt',
+            backgroundColor: 'rgba(148,159,177,0.2)',
+            borderColor: 'rgba(148,159,177,1)',
+            pointBackgroundColor: 'rgba(148,159,177,1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(148,159,177,0.8)',
+            fill: 'origin',
+          },
+        ],
+      };
+      this.chart_SLTBDC_Radar?.update();
     });
   }
 

@@ -8,6 +8,7 @@ export class DuongDayList {
 
 export class DuongDayDetail {
   Mapmis: string | null | undefined;
+  Idmap: string | null | undefined;
   Tenduongday: string | null | undefined;
   Madvql: string | null | undefined;
   Tencongty: string | null | undefined;

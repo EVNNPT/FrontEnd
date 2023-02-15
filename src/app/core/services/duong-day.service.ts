@@ -21,10 +21,14 @@ export class DuongDayService {
   }
 
   getDetailDuongDay(MaPMIS: string): Observable<any> {
+    this._httpClient.get<any>(`${this.apiURL}/get-detail-dd?MaPMIS=${MaPMIS}`).subscribe((result) => {
+      console.log(result);
+    })
     return this._httpClient
       .get<any>(`${this.apiURL}/get-detail-dd?MaPMIS=${MaPMIS}`)
       .pipe(
         map((result) => {
+          // console.log(result);
           return result;
         })
       );
