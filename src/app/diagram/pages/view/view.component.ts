@@ -11,6 +11,7 @@ import '../../../../libs/leaflet-snap/leaflet.snap.js';
 import { Observable } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav/index.js';
 import { LabelDetail } from 'src/app/core/models/label-detail.js';
+import { LabelDetailComponent } from '../label-detail/label-detail.component.js';
 // import { LabelDetail } from 'src/app/core/models/label-detail.js';
 
 @Component({
@@ -26,15 +27,7 @@ export class ViewComponent implements OnInit {
   private _guideLayers: any;
 
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
-  
-  public formData: LabelDetail = {
-    text: '',
-    fontSize: 14,
-    fontFamily: '',
-    fontColor: '',
-    isBold: false,
-    isItalic: false,
-  };
+  @ViewChild('labelDetail', { static: true }) labelDetail!: LabelDetailComponent;
 
   constructor(private _diagramService: DiagramService) {}
 
@@ -254,8 +247,10 @@ export class ViewComponent implements OnInit {
     });
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
-      this.formData.text = '';
-      this.drawer.open();
+      if(!this.drawer.opened) {
+        this.labelDetail.setFormData(null);
+        this.drawer.open();
+      }
     });
   }
 
