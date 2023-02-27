@@ -10,7 +10,7 @@ import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
 import '../../../../libs/leaflet-snap/leaflet.snap.js';
 import { Observable } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav/index.js';
-import { LabelDetail } from 'src/app/core/models/label-detail.js';
+import { LabelDetail } from 'src/app/core/models/label-detail';
 import { LabelDetailComponent } from '../label-detail/label-detail.component.js';
 // import { LabelDetail } from 'src/app/core/models/label-detail.js';
 
@@ -25,6 +25,7 @@ export class ViewComponent implements OnInit {
   private _map: any;
   private _drawLayer: any;
   private _guideLayers: any;
+  private _marker: any;
 
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
   @ViewChild('labelDetail', { static: true }) labelDetail!: LabelDetailComponent;
@@ -223,6 +224,10 @@ export class ViewComponent implements OnInit {
     this._drawLayer.on('click', (e: any) => {
       const layer = e.layer;
       if(layer instanceof this._L.Label) {
+        this._marker = layer;
+        var dataLabel = new LabelDetail(layer.options.text, layer.options.fontSize, layer.options.fontFamily, layer.options.fontColor, layer.options.isBold, layer.options.isItalic);
+        this.labelDetail.setFormData(dataLabel);
+        this.drawer.open();
         return;
       }
       const id = layer.id;
@@ -247,6 +252,7 @@ export class ViewComponent implements OnInit {
     });
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
+      this._marker = null;
       if(!this.drawer.opened) {
         this.labelDetail.setFormData(null);
         this.drawer.open();
@@ -257,7 +263,14 @@ export class ViewComponent implements OnInit {
   formEvent(event: any): void {
     if(event.isConfirm) {
       // Confirm
+      if(this._marker == null){
       this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
+      }else{
+      this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
+        marker: this._marker,
+        options: event.formData,
+      });
+    }
     }
     // } else {
     //   // Cancel
