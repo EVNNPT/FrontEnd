@@ -9,6 +9,7 @@ const routes: Routes = [
     component: DiagramComponent,
     children: [
       { path: 'view', component: ViewComponent },
+      { path: 'edit', component: ViewComponent },
       {
         path: '',
         redirectTo: 'view',

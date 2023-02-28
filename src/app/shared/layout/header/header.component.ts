@@ -29,8 +29,12 @@ export class HeaderComponent {
     this._router.navigate(['/admin/thanh-cai-list']);
   }
 
-  openDiagram() {
+  openDiagramView() {
     this._router.navigate(['/diagram/view']);
+  }
+
+  openDiagramEdit() {
+    this._router.navigate(['/diagram/edit']);
   }
 
   logoutWeb() {

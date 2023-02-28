@@ -1,9 +1,4 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DiagramService } from 'src/app/core';
 import * as L from 'leaflet';
 import '../../../../libs/leaflet-draw/leaflet.draw-src.js';
@@ -12,6 +7,7 @@ import { Observable } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav/index.js';
 import { LabelDetail } from 'src/app/core/models/label-detail';
 import { LabelDetailComponent } from '../label-detail/label-detail.component.js';
+import { Router } from '@angular/router';
 // import { LabelDetail } from 'src/app/core/models/label-detail.js';
 
 @Component({
@@ -28,9 +24,13 @@ export class ViewComponent implements OnInit {
   private _marker: any;
 
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
-  @ViewChild('labelDetail', { static: true }) labelDetail!: LabelDetailComponent;
+  @ViewChild('labelDetail', { static: true })
+  labelDetail!: LabelDetailComponent;
 
-  constructor(private _diagramService: DiagramService) {}
+  constructor(
+    private _diagramService: DiagramService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this._initMap();
@@ -162,7 +162,9 @@ export class ViewComponent implements OnInit {
       },
     });
 
-    this._map.addControl(drawControl);
+    if (this.router.url.includes('edit')) {
+      this._map.addControl(drawControl);
+    }
 
     this._map.on(this._L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
@@ -223,9 +225,16 @@ export class ViewComponent implements OnInit {
 
     this._drawLayer.on('click', (e: any) => {
       const layer = e.layer;
-      if(layer instanceof this._L.Label) {
+      if (layer instanceof this._L.Label) {
         this._marker = layer;
-        var dataLabel = new LabelDetail(layer.options.text, layer.options.fontSize, layer.options.fontFamily, layer.options.fontColor, layer.options.isBold, layer.options.isItalic);
+        var dataLabel = new LabelDetail(
+          layer.options.text,
+          layer.options.fontSize,
+          layer.options.fontFamily,
+          layer.options.fontColor,
+          layer.options.isBold,
+          layer.options.isItalic
+        );
         this.labelDetail.setFormData(dataLabel);
         this.drawer.open();
         return;
@@ -253,7 +262,7 @@ export class ViewComponent implements OnInit {
 
     this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
       this._marker = null;
-      if(!this.drawer.opened) {
+      if (!this.drawer.opened) {
         this.labelDetail.setFormData(null);
         this.drawer.open();
       }
@@ -261,16 +270,16 @@ export class ViewComponent implements OnInit {
   }
 
   formEvent(event: any): void {
-    if(event.isConfirm) {
+    if (event.isConfirm) {
       // Confirm
-      if(this._marker == null){
-      this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
-      }else{
-      this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
-        marker: this._marker,
-        options: event.formData,
-      });
-    }
+      if (this._marker == null) {
+        this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
+      } else {
+        this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
+          marker: this._marker,
+          options: event.formData,
+        });
+      }
     }
     // } else {
     //   // Cancel

@@ -32,8 +32,8 @@
 
     <button mat-button [matMenuTriggerFor]="menuGiamSat" title="Giám sát">Giám sát</button>
     <mat-menu #menuGiamSat="matMenu" yPosition="below">
-        <button mat-menu-item (click)="openDiagram()" title="Xem sơ đồ">Xem sơ đồ</button>
-        <button mat-menu-item (click)="openDiagram()" title="Biên tập sơ đồ">Biên tập sơ đồ</button>
+        <button mat-menu-item (click)="openDiagramView()" title="Xem sơ đồ">Xem sơ đồ</button>
+        <button mat-menu-item (click)="openDiagramEdit()" title="Biên tập sơ đồ">Biên tập sơ đồ</button>
     </mat-menu>
 
     <button mat-button title="Cài đặt & cấu hình">Cài đặt & cấu hình</button>
