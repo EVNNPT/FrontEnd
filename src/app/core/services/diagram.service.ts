@@ -172,6 +172,7 @@ export class DiagramService {
       },
     };
     const uri = `${this._apiURL}/${this._diagramCtrl}/${this._addOrUpdateFeature}`;
+    console.log(uri)
     return this._http.post<any>(uri, data);
   }
 }

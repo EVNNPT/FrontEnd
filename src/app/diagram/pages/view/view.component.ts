@@ -225,7 +225,7 @@ export class ViewComponent implements OnInit {
 
     this._drawLayer.on('click', (e: any) => {
       const layer = e.layer;
-      if (layer instanceof this._L.Label) {
+      if (layer instanceof this._L.Label && this.router.url.includes('edit')) {
         this._marker = layer;
         var dataLabel = new LabelDetail(
           layer.options.text,
@@ -242,6 +242,8 @@ export class ViewComponent implements OnInit {
       const id = layer.id;
       let url = '';
       if (layer instanceof this._L.Role) {
+        // this._L.setOptions(layer, {color: 'red'});
+        // layer.setStyle( {color: 'red'});
         url = `/admin/ro-le-detail/${id}`;
       } else if (layer instanceof this._L.DuongDay) {
         url = `/admin/duong-day-detail/${id}`;
@@ -250,7 +252,9 @@ export class ViewComponent implements OnInit {
       } else if (layer instanceof this._L.MayBienAp) {
         url = `/admin/may-bien-ap-detail/${id}`;
       }
-      window.open(url);
+      if (url != '') {
+        window.open(url);
+      }
     });
 
     this._L.guideLayer(this._map, {
@@ -275,6 +279,13 @@ export class ViewComponent implements OnInit {
       if (this._marker == null) {
         this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
       } else {
+        // this._L.setOptions(this._marker, event.formData);
+        // this._marker.updateImage();
+        // this._addOrUpdateGeo(this._marker).subscribe((res) => {
+        //   if (this._marker.id === undefined || this._marker.id === '') {
+        //     this._marker.id = res.id;
+        //   }
+        // });
         this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
           marker: this._marker,
           options: event.formData,

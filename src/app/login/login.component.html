@@ -1,4 +1,4 @@
-<div id="brandingWrapper" class="float">
+<!-- <div id="brandingWrapper" class="float">
   <div id="branding" class="illustrationClass"></div>
 </div>
 
@@ -54,4 +54,82 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
+
+<section
+  class="vh-100"
+  style="background-image: url(../../assets/images/illustration.jpg)"
+>
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-7">
+        <div class="card" style="border-radius: 1rem">
+          <div class="row g-0">
+            <div class="col-md-6 col-lg-6 d-none d-md-block">
+              <img
+                src="../../../assets/images/login-01.png"
+                alt="login form"
+                class="img-fluid p-lg-2"
+                style="border-radius: 1rem 0 0 1rem"
+              />
+              <img
+                src="../../../assets/images/login-05.png"
+                alt="login form"
+                class="img-fluid p-lg-2"
+                style="border-radius: 1rem 0 0 1rem"
+              />
+            </div>
+            <div
+              class="col-md-6 col-lg-6 d-flex align-items-center justify-content-center"
+            >
+              <div class="card-body p-4 p-lg-3 text-black">
+                <form [formGroup]="loginForm">
+                  <div
+                    class="d-flex align-items-center mb-3 pb-1 justify-content-center"
+                  >
+                    <span class="h3 fw-bold mb-0">Hệ thống quản lý Rơ le</span>
+                  </div>
+
+                  <div class="form-outline mb-2 text-center">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Tài khoản</mat-label>
+                      <input
+                        matInput
+                        placeholder="Tài khoản"
+                        formControlName="TENTK"
+                      />
+                      <mat-icon matSuffix>account_circle</mat-icon>
+                      <mat-error> Vui lòng nhập tên tài khoản </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Mật khẩu</mat-label>
+                      <input
+                        type="password"
+                        matInput
+                        placeholder="Mật khẩu"
+                        formControlName="MATKHAU"
+                      />
+                      <mat-icon matSuffix>lock</mat-icon>
+                      <mat-error> Vui lòng nhập mật khẩu </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="pt-1 mb-1 text-center">
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      (click)="onClickLogin()"
+                    >
+                      Đăng nhập
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
