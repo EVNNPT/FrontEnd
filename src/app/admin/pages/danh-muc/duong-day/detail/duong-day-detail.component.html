@@ -1,6 +1,222 @@
 <form class="body-form" [formGroup]="duongDayDetailForm">
   <div class="header-table"><b>Thông tin</b></div>
-  <mat-grid-list cols="4" rowHeight="4:1">
+  <div class="col col-xl-12">
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Mã PMIS</mat-label>
+          <input matInput formControlName="MAPMIS" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>ID</mat-label>
+          <input matInput formControlName="ID" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Tên đường dây</mat-label>
+          <input matInput formControlName="TENDUONGDAY" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Mã đơn vị quản lý</mat-label>
+          <input matInput formControlName="MADVQL" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Tên công ty</mat-label>
+          <input matInput formControlName="TENCONGTY" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Truyền tải điện</mat-label>
+          <input matInput formControlName="TRUYENTAIDIEN" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Cấp điện áp</mat-label>
+          <input matInput formControlName="CAPDA" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Số hiệu</mat-label>
+          <input matInput formControlName="SOHIEU" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Sở hữu</mat-label>
+          <mat-select formControlName="SOHUU">
+            <mat-option value="NPT">NPT</mat-option>
+            <mat-option value="Bên ngoài">Bên ngoài</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Ngày lắp đặt</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerLD"
+            formControlName="NGAYLAPDAT"
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="pickerLD"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #pickerLD></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Ngày vận hành</mat-label>
+          <input matInput [matDatepicker]="pickerVH" formControlName="NGAYVH" />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="pickerVH"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #pickerVH></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Mã từ trạm</mat-label>
+          <input matInput formControlName="TUTRAM" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Tên từ trạm</mat-label>
+          <input matInput formControlName="TENTUTRAM" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Mã đến trạm</mat-label>
+          <input matInput formControlName="DENTRAM" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Tên đến trạm</mat-label>
+          <input matInput formControlName="TENDENTRAM" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Số hiệu bản vẽ</mat-label>
+          <input matInput formControlName="SOHIEUBANVE" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Sơ đồ đánh số</mat-label>
+          <input matInput formControlName="SODODANHSO" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Mạch</mat-label>
+          <input matInput formControlName="MACH" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Cột tên hiển thị</mat-label>
+          <input matInput formControlName="COTTENHIENTHI" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Tình trạng hiện tại</mat-label>
+          <mat-select formControlName="TTHIENTAI">
+            <mat-option value="Đóng">Đóng</mat-option>
+            <mat-option value="Cắt">Cắt</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Màu đóng</mat-label>
+          <input type="color" matInput formControlName="MAUDONG" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Màu cắt</mat-label>
+          <input type="color" matInput formControlName="MAUCAT" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Đầu nối đầu</mat-label>
+          <input matInput formControlName="DAUNOIDAU" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Đầu nối cuối</mat-label>
+          <input matInput formControlName="DAUNOICUOI" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
+          <mat-label>Ghi chú</mat-label>
+          <input matInput formControlName="GHICHU" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1"></div>
+      <div class="col-md-3 col-lg-3 p-lg-1"></div>
+      <div class="col-md-3 col-lg-3 p-lg-1"></div>
+    </div>
+    <div class="row g-0">
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-checkbox
+          class="example-margin"
+          formControlName="DAHIENTHITRENSD"
+          color="primary"
+          >Đã hiển thị trên sơ đồ</mat-checkbox
+        >
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-checkbox
+          class="example-margin"
+          formControlName="HIENTHITEN"
+          color="primary"
+          >Hiển thị tên</mat-checkbox
+        >
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-checkbox
+          class="example-margin"
+          formControlName="HOATDONG"
+          color="primary"
+          >Hoạt động</mat-checkbox
+        >
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1"></div>
+    </div>
+  </div>
+  <!-- <mat-grid-list cols="4" rowHeight="4:1">
     <mat-grid-tile>
       <mat-form-field class="custom-width">
         <mat-label>Mã PMIS</mat-label>
@@ -216,7 +432,7 @@
         >Hoạt động</mat-checkbox
       >
     </mat-grid-tile>
-  </mat-grid-list>
+  </mat-grid-list> -->
   <div class="grpbtn" *ngIf="!formType">
     <button mat-raised-button color="primary" (click)="onClickGoBack()">
       <mat-icon>arrow_back</mat-icon>Quay lại danh sách
