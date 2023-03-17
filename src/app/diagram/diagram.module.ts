@@ -15,10 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { LabelDetailComponent } from './pages/label-detail/label-detail.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { RoleDetailComponent } from './pages/role-detail/role-detail.component';
 
 @NgModule({
-  declarations: [DiagramComponent, ViewComponent, LabelDetailComponent, RoleDetailComponent],
+  declarations: [DiagramComponent, ViewComponent, LabelDetailComponent],
   imports: [
     CommonModule,
     DiagramRoutingModule,

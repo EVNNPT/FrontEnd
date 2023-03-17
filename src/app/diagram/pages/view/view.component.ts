@@ -8,6 +8,8 @@ import { MatDrawer } from '@angular/material/sidenav/index.js';
 import { LabelDetail } from 'src/app/core/models/label-detail';
 import { LabelDetailComponent } from '../label-detail/label-detail.component.js';
 import { Router } from '@angular/router';
+import { RoLeService } from 'src/app/core/services/ro-le.service';
+import { RoLeDetail } from 'src/app/core/models/ro-le';
 // import { LabelDetail } from 'src/app/core/models/label-detail.js';
 
 @Component({
@@ -21,7 +23,9 @@ export class ViewComponent implements OnInit {
   private _map: any;
   private _drawLayer: any;
   private _guideLayers: any;
-  private _marker: any;
+  private _markerLabel: any;
+  private _markerRole: any;
+  typeForm: string = 'Label';
 
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
   @ViewChild('labelDetail', { static: true })
@@ -29,7 +33,8 @@ export class ViewComponent implements OnInit {
 
   constructor(
     private _diagramService: DiagramService,
-    private router: Router
+    private router: Router,
+    private _roLeService: RoLeService
   ) {}
 
   ngOnInit(): void {
@@ -225,8 +230,11 @@ export class ViewComponent implements OnInit {
 
     this._drawLayer.on('click', (e: any) => {
       const layer = e.layer;
+      const id = layer.id;
+      let url = '';
       if (layer instanceof this._L.Label && this.router.url.includes('edit')) {
-        this._marker = layer;
+        this.drawer.close();
+        this._markerLabel = layer;
         var dataLabel = new LabelDetail(
           layer.options.text,
           layer.options.fontSize,
@@ -235,15 +243,20 @@ export class ViewComponent implements OnInit {
           layer.options.isBold,
           layer.options.isItalic
         );
-        this.labelDetail.setFormData(dataLabel);
+        this.labelDetail.setFormDataLabel(dataLabel);
+        this.typeForm = 'Label';
         this.drawer.open();
         return;
       }
-      const id = layer.id;
-      let url = '';
+      if (layer instanceof this._L.Role && this.router.url.includes('edit')) {
+        this.drawer.close();
+        this._markerRole = layer;
+        this.labelDetail.setFormDataRole(id);
+        this.typeForm = 'Role';
+        this.drawer.open();
+        return;
+      }
       if (layer instanceof this._L.Role) {
-        // this._L.setOptions(layer, {color: 'red'});
-        // layer.setStyle( {color: 'red'});
         url = `/admin/ro-le-detail/${id}`;
       } else if (layer instanceof this._L.DuongDay) {
         url = `/admin/duong-day-detail/${id}`;
@@ -263,39 +276,79 @@ export class ViewComponent implements OnInit {
       layer: gridLayer,
       zoom: 17,
     });
-
-    this._map.on(this._L.Draw.Event.STARTDRAWLABEL, () => {
-      this._marker = null;
-      if (!this.drawer.opened) {
-        this.labelDetail.setFormData(null);
-        this.drawer.open();
-      }
-    });
   }
 
   formEvent(event: any): void {
     if (event.isConfirm) {
       // Confirm
-      if (this._marker == null) {
-        this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
-      } else {
-        // this._L.setOptions(this._marker, event.formData);
-        // this._marker.updateImage();
-        // this._addOrUpdateGeo(this._marker).subscribe((res) => {
-        //   if (this._marker.id === undefined || this._marker.id === '') {
-        //     this._marker.id = res.id;
-        //   }
-        // });
-        this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
-          marker: this._marker,
-          options: event.formData,
+      if (event.typeForm == 'Label') {
+        if (this._markerLabel == null) {
+          this._map.fire(this._L.Draw.Event.FINISHDRAWLABEL, event.formData);
+        } else {
+          this._L.setOptions(this._markerLabel, event.formData);
+          this._markerLabel.updateImage();
+          this._addOrUpdateGeo(this._markerLabel).subscribe((res) => {
+            if (this._markerLabel.id === undefined || this._markerLabel.id === '') {
+              this._markerLabel.id = res.id;
+            }
+          });
+          // this._map.fire(this._L.Draw.Event.FINISHEDITLABEL, {
+          //   marker: this._markerLabel,
+          //   options: event.formData,
+          // });
+        }
+      } else if (event.typeForm == 'Role') {
+        var itemAdd: RoLeDetail = new RoLeDetail();
+        itemAdd.Mapmis = event.formData.MAPMIS;
+        itemAdd.Madvql = event.formData.MADVQL;
+        itemAdd.Tencongty = event.formData.TENCONGTY;
+        itemAdd.Truyentaidien = event.formData.TRUYENTAIDIEN;
+        itemAdd.Tenrole = event.formData.TENROLE;
+        itemAdd.Sohieu = event.formData.SOHIEU;
+        itemAdd.Sohuu = event.formData.SOHUU;
+        itemAdd.Ngaylapdat = event.formData.NGAYLAPDAT;
+        itemAdd.Ngayvh = event.formData.NGAYVH;
+        itemAdd.Thuoctram = event.formData.THUOCTRAM;
+        itemAdd.Tentram = event.formData.TENTRAM;
+        itemAdd.Hangsx = event.formData.HANGSX;
+        itemAdd.Soserial = event.formData.SOSERIAL;
+        itemAdd.Sohieubanve = event.formData.SOHIEUBANVE;
+        itemAdd.Sododanhso = event.formData.SODODANHSO;
+        itemAdd.Mach = event.formData.MACH;
+        itemAdd.Tbbaove = event.formData.TBBAOVE;
+        itemAdd.Tubv = event.formData.TUBV;
+        itemAdd.Cottenhienthi = event.formData.COTTENHIENTHI;
+        itemAdd.Dahienthitrensd =
+          event.formData.DAHIENTHITRENSD == true ? 'Y' : 'N';
+        itemAdd.Hienthiten = event.formData.HIENTHITEN == true ? 'Y' : 'N';
+        itemAdd.Hoatdong = event.formData.HOATDONG == true ? 'Y' : 'N';
+        itemAdd.Tthientai = event.formData.TTHIENTAI;
+        itemAdd.Jsongeo = event.formData.JSONGEO;
+        itemAdd.Maudong = event.formData.MAUDONG;
+        itemAdd.Maucat = event.formData.MAUCAT;
+        itemAdd.Daunoidau = event.formData.DAUNOIDAU;
+        itemAdd.Daunoicuoi = event.formData.DAUNOICUOI;
+        itemAdd.Ghichu = event.formData.GHICHU;
+        this._roLeService.updateRoLe(itemAdd).subscribe((result) => {
+          // if (!result.fail) {
+          //   var colorchange = '';
+          //   if (event.formData.TTHIENTAI == 'Đóng') {
+          //     colorchange = event.formData.MAUDONG
+          //   } else {
+          //     colorchange = event.formData.MAUCAT
+          //   }
+          //   // this._L.setOptions(this._markerRole, { color: colorchange});
+          //   this._markerRole.setStyle({ color: colorchange });
+          // }
+          this._diagramService.getDiagram(
+            '1',
+            this._L,
+            this._drawLayer,
+            this._guideLayers
+          );
         });
       }
     }
-    // } else {
-    //   // Cancel
-    //   this.drawer.close();
-    // }
     this.drawer.close();
   }
 }

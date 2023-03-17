@@ -1,4 +1,4 @@
-<form [formGroup]="labelForm">
+<form [formGroup]="labelForm" *ngIf="typeForm == 'Label'">
   <mat-form-field appearance="fill">
     <mat-label>Text</mat-label>
     <textarea matInput formControlName="text"></textarea>
@@ -26,9 +26,35 @@
     >Italic</mat-checkbox
   >
   <div class="example-button-row">
-    <button (click)="onConfirm()" mat-raised-button color="primary">OK</button>
-    <button (click)="onCancel()" mat-raised-button color="primary">
+    <button (click)="onConfirmLabel()" mat-raised-button color="primary">OK</button>
+    <button (click)="onCancelLabel()" mat-raised-button color="primary">
       Cancel
     </button>
+  </div>
+</form>
+<form [formGroup]="roLeForm" *ngIf="typeForm == 'Role'">
+  <mat-form-field appearance="fill">
+    <mat-label>Tình trạng hiện tại</mat-label>
+    <mat-select formControlName="TTHIENTAI">
+      <mat-option value="Đóng">Đóng</mat-option>
+      <mat-option value="Cắt">Cắt</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Màu đóng</mat-label>
+    <input matInput formControlName="MAUDONG" type="color" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Màu cắt</mat-label>
+    <input matInput formControlName="MAUCAT" type="color" />
+  </mat-form-field>
+  <div class="example-button-row">
+    <button (click)="onConfirmRole()" mat-raised-button color="primary">OK</button>
+    <button (click)="onCancelRole()" mat-raised-button color="primary">
+      Cancel
+    </button>
+  </div>
+  <div class="example-button-row" style="padding-top: 20px;">
+    <button (click)="onDetail()" mat-raised-button color="primary">Xem chi tiết</button>
   </div>
 </form>

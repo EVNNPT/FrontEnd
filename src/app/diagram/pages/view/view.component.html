@@ -2,6 +2,7 @@
   <mat-drawer #drawer mode="side" position="end">
     <app-label-detail
       #labelDetail
+      [typeForm]="typeForm"
       (formEvent)="formEvent($event)"
     ></app-label-detail>
   </mat-drawer>
