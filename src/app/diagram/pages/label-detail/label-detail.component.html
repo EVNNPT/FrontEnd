@@ -26,7 +26,9 @@
     >Italic</mat-checkbox
   >
   <div class="example-button-row">
-    <button (click)="onConfirmLabel()" mat-raised-button color="primary">OK</button>
+    <button (click)="onConfirmLabel()" mat-raised-button color="primary">
+      OK
+    </button>
     <button (click)="onCancelLabel()" mat-raised-button color="primary">
       Cancel
     </button>
@@ -49,12 +51,25 @@
     <input matInput formControlName="MAUCAT" type="color" />
   </mat-form-field>
   <div class="example-button-row">
-    <button (click)="onConfirmRole()" mat-raised-button color="primary">OK</button>
+    <button (click)="onConfirmRole()" mat-raised-button color="primary">
+      OK
+    </button>
     <button (click)="onCancelRole()" mat-raised-button color="primary">
       Cancel
     </button>
   </div>
-  <div class="example-button-row" style="padding-top: 20px;">
-    <button (click)="onDetail()" mat-raised-button color="primary">Xem chi tiết</button>
+  <div class="example-button-row" style="padding: 20px 0">
+    <button (click)="onDetail()" mat-raised-button color="primary">
+      Xem chi tiết
+    </button>
+  </div>
+  <div
+    class="d-none d-md-block align-items-center justify-content-center"
+    style="width: 212px; height: 212px"
+  >
+    <img
+      class="center img-fluid"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3_fKPr2ALbIKcIp53SNY9KHPH7d8ltJMRwQ&usqp=CAU"
+    />
   </div>
 </form>
