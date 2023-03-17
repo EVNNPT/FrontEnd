@@ -46,8 +46,11 @@
           <mat-select formControlName="SOHUU">
             <mat-option value="NPT">NPT</mat-option>
             <mat-option value="Bên ngoài">Bên ngoài</mat-option>
-          </mat-select> </mat-form-field
-        ><mat-form-field class="custom-width">
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-3 col-lg-3 p-lg-1">
+        <mat-form-field class="custom-width">
           <mat-label>Ngày lắp đặt</mat-label>
           <input
             matInput
@@ -61,6 +64,8 @@
           <mat-datepicker #pickerLD></mat-datepicker>
         </mat-form-field>
       </div>
+    </div>
+    <div class="row g-0">
       <div class="col-md-3 col-lg-3 p-lg-1">
         <mat-form-field class="custom-width">
           <mat-label>Ngày vận hành</mat-label>
@@ -72,8 +77,6 @@
           <mat-datepicker #pickerVH></mat-datepicker>
         </mat-form-field>
       </div>
-    </div>
-    <div class="row g-0">
       <div class="col-md-3 col-lg-3 p-lg-1">
         <mat-form-field class="custom-width">
           <mat-label>Thuộc trạm</mat-label>
@@ -90,12 +93,6 @@
         <mat-form-field class="custom-width">
           <mat-label>Hãng sản xuất</mat-label>
           <input matInput formControlName="HANGSX" />
-        </mat-form-field>
-      </div>
-      <div class="col-md-3 col-lg-3 p-lg-1">
-        <mat-form-field class="custom-width">
-          <mat-label>Số serial</mat-label>
-          <input matInput formControlName="SOSERIAL" />
         </mat-form-field>
       </div>
     </div>
